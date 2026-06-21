@@ -457,79 +457,163 @@ button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
 .edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
 
 /* ═══════════════════════════════════════
-   AD / PRESENTATION MODE
+   AD / PRESENTATION MODE  (redesigned)
 ═══════════════════════════════════════ */
 #ad-overlay {
   position:fixed; inset:0; z-index:200;
-  background:radial-gradient(ellipse at center, #1a2a1a 0%, #0a0f0a 100%);
-  display:none; flex-direction:column; align-items:center; justify-content:center;
-  overflow:hidden;
+  display:none; flex-direction:column;
+  overflow:hidden; transition:background 1s ease;
 }
-html.dark #ad-overlay { background:radial-gradient(ellipse at center, #0d1a12 0%, #050a07 100%); }
 #ad-overlay.open { display:flex; }
 
+/* Season-coloured animated gradient background */
+#ad-bg-layer {
+  position:absolute; inset:0; z-index:0;
+  transition:background 1.2s ease;
+}
+/* Decorative background cube */
 #ad-bg-cube {
-  position:absolute; inset:0;
+  position:absolute; inset:0; z-index:1;
   display:flex; align-items:center; justify-content:center;
-  perspective:1400px;
-  pointer-events:none;
+  perspective:1400px; pointer-events:none; opacity:0.12;
 }
 #ad-cube-wrap {
-  width:420px; height:420px;
+  width:520px; height:520px;
   transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
   transform:rotateX(-20deg) rotateY(30deg);
 }
 .ad-cube-face {
-  position:absolute; width:420px; height:420px;
-  display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:6px;
-  border-radius:12px; backface-visibility:hidden;
-  opacity:0.18;
+  position:absolute; width:520px; height:520px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:8px;
+  border-radius:14px; backface-visibility:hidden; -webkit-backface-visibility:hidden;
 }
-.ad-cube-face:nth-child(1) { transform:translateZ(210px); }
-.ad-cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(210px); }
-.ad-cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(210px); }
-.ad-cube-face:nth-child(4) { transform:rotateY(90deg) translateZ(210px); }
-.ad-cube-face:nth-child(5) { transform:rotateX(90deg) translateZ(210px); }
-.ad-cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(210px); }
-.ad-panel { border-radius:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); }
+.ad-cube-face:nth-child(1) { transform:translateZ(260px); }
+.ad-cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(260px); }
+.ad-cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(260px); }
+.ad-cube-face:nth-child(4) { transform:rotateY(90deg)  translateZ(260px); }
+.ad-cube-face:nth-child(5) { transform:rotateX(90deg)  translateZ(260px); }
+.ad-cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(260px); }
+.ad-panel { border-radius:8px; background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.18); }
 
-/* Ad content */
+/* ── Top bar ── */
+#ad-topbar {
+  position:relative; z-index:3;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px 0;
+  padding-top:max(14px, env(safe-area-inset-top));
+}
+#ad-face-dots { display:flex; gap:7px; }
+.ad-face-dot {
+  width:7px; height:7px; border-radius:50%;
+  background:rgba(255,255,255,0.25); cursor:pointer;
+  transition:all .3s; border:none; padding:0;
+  touch-action:manipulation;
+}
+.ad-face-dot.active { background:#fff; transform:scale(1.4); }
+#ad-exit-btn {
+  width:32px; height:32px; border-radius:50%; border:none;
+  background:rgba(255,255,255,0.12); color:rgba(255,255,255,0.8);
+  cursor:pointer; font-size:0.85rem; display:flex; align-items:center; justify-content:center;
+  transition:all .2s; touch-action:manipulation;
+}
+#ad-exit-btn:hover { background:rgba(255,255,255,0.25); color:#fff; }
+
+/* ── Main scroll content ── */
 #ad-content {
-  position:relative; z-index:2; text-align:center;
-  padding:40px 30px; max-width:640px;
-  animation:adFade .7s ease;
+  position:relative; z-index:3;
+  flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  display:flex; flex-direction:column; align-items:center;
+  padding:16px 24px 0; text-align:center;
 }
-@keyframes adFade { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
-#ad-season-icon { font-size:5rem; display:block; margin-bottom:16px; filter:drop-shadow(0 0 20px currentColor); }
+@keyframes adFade { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+.ad-slide-enter { animation:adFade .5s ease forwards; }
+
+#ad-season-icon {
+  font-size:4.5rem; display:block; margin-bottom:10px;
+  filter:drop-shadow(0 0 30px rgba(255,255,255,0.4));
+}
 #ad-season-label {
-  font-size:0.75rem; font-weight:800; letter-spacing:0.18em; text-transform:uppercase;
-  color:rgba(255,255,255,0.5); margin-bottom:8px;
+  font-size:0.7rem; font-weight:800; letter-spacing:0.2em; text-transform:uppercase;
+  color:rgba(255,255,255,0.55); margin-bottom:6px;
 }
-#ad-title { font-size:2.8rem; font-weight:900; color:#fff; margin-bottom:6px; line-height:1.1; }
-#ad-subtitle { font-size:1rem; color:rgba(255,255,255,0.6); margin-bottom:30px; }
+#ad-title { font-size:2.2rem; font-weight:900; color:#fff; margin-bottom:4px; line-height:1.1; }
+#ad-subtitle { font-size:0.9rem; color:rgba(255,255,255,0.65); margin-bottom:20px; line-height:1.5; }
+
+/* ── Plants grid — all 9 plants ── */
 #ad-plants {
-  display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:36px;
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:8px; width:100%; max-width:420px; margin-bottom:18px;
 }
-.ad-plant-chip {
-  display:flex; align-items:center; gap:6px;
-  background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.15);
-  border-radius:30px; padding:7px 14px;
-  font-size:0.82rem; color:rgba(255,255,255,0.9);
-  backdrop-filter:blur(4px);
+.ad-plant-card {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:4px; padding:10px 6px;
+  background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.18);
+  border-radius:14px; backdrop-filter:blur(6px);
+  cursor:pointer; transition:all .2s;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
 }
-.ad-plant-chip span { font-size:1.1rem; }
-#ad-school { font-size:0.75rem; color:rgba(255,255,255,0.35); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:20px; }
-#ad-bar-wrap { width:280px; height:3px; background:rgba(255,255,255,0.1); border-radius:3px; margin:0 auto 24px; overflow:hidden; }
-#ad-bar { height:100%; border-radius:3px; background:rgba(255,255,255,0.5); width:0%; transition:width linear; }
-#ad-controls { display:flex; gap:12px; justify-content:center; }
-.ad-ctrl-btn {
-  padding:9px 22px; border-radius:30px; border:1.5px solid rgba(255,255,255,0.25);
+.ad-plant-card:hover, .ad-plant-card:active { background:rgba(255,255,255,0.2); transform:scale(1.04); }
+.ad-plant-card .apc-emoji { font-size:1.6rem; line-height:1; }
+.ad-plant-card .apc-name  { font-size:0.62rem; font-weight:700; color:#fff; text-align:center; line-height:1.2; }
+.ad-plant-card .apc-dur   { font-size:0.54rem; color:rgba(255,255,255,0.5); }
+
+#ad-school {
+  font-size:0.65rem; color:rgba(255,255,255,0.3);
+  letter-spacing:0.1em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+/* ── Bottom controls ── */
+#ad-bottom {
+  position:relative; z-index:3;
+  display:flex; align-items:center; justify-content:center;
+  gap:14px; padding:12px 20px;
+  padding-bottom:max(12px, env(safe-area-inset-bottom));
+  background:linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%);
+}
+
+/* Progress ring */
+#ad-ring-wrap { position:relative; width:44px; height:44px; flex-shrink:0; }
+#ad-ring-svg  { position:absolute; inset:0; transform:rotate(-90deg); }
+#ad-ring-track { fill:none; stroke:rgba(255,255,255,0.12); stroke-width:3; }
+#ad-ring-fill  { fill:none; stroke:#fff; stroke-width:3; stroke-linecap:round; transition:stroke-dashoffset linear; }
+#ad-playpause {
+  position:absolute; inset:0; margin:auto;
+  width:28px; height:28px; border-radius:50%; border:none;
+  background:rgba(255,255,255,0.15); color:#fff;
+  font-size:0.72rem; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  touch-action:manipulation;
+}
+#ad-playpause:hover { background:rgba(255,255,255,0.28); }
+
+.ad-nav-btn {
+  width:38px; height:38px; border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.2);
   background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8);
-  cursor:pointer; font-size:0.82rem; font-weight:600;
-  transition:all .2s; backdrop-filter:blur(4px);
+  cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center;
+  transition:all .2s; touch-action:manipulation;
 }
-.ad-ctrl-btn:hover { background:rgba(255,255,255,0.18); color:#fff; }
-.ad-ctrl-btn.exit { background:rgba(255,255,255,0.15); color:#fff; }
+.ad-nav-btn:hover { background:rgba(255,255,255,0.2); color:#fff; }
+#ad-slide-counter { font-size:0.72rem; color:rgba(255,255,255,0.4); min-width:36px; text-align:center; }
+
+/* Season background presets */
+.ad-bg-autumn    { background:radial-gradient(ellipse at 30% 30%, #5a1e00 0%, #2a0d00 40%, #0d0800 100%); }
+.ad-bg-winter    { background:radial-gradient(ellipse at 30% 30%, #003459 0%, #001928 40%, #000812 100%); }
+.ad-bg-spring    { background:radial-gradient(ellipse at 30% 30%, #0a3d0a 0%, #051f05 40%, #010801 100%); }
+.ad-bg-summer    { background:radial-gradient(ellipse at 30% 30%, #4a3200 0%, #261900 40%, #0d0900 100%); }
+.ad-bg-companion { background:radial-gradient(ellipse at 30% 30%, #2d1050 0%, #160828 40%, #070310 100%); }
+.ad-bg-indigenous{ background:radial-gradient(ellipse at 30% 30%, #003d35 0%, #001f1a 40%, #000d0b 100%); }
+
+@media (max-width:700px) {
+  #ad-title  { font-size:1.7rem; }
+  #ad-season-icon { font-size:3.2rem; }
+  #ad-content { padding:12px 16px 0; }
+  #ad-plants { gap:6px; }
+  .ad-plant-card { padding:8px 4px; border-radius:10px; }
+  .ad-plant-card .apc-emoji { font-size:1.3rem; }
+  .ad-plant-card .apc-name  { font-size:0.58rem; }
+}
 
 html.dark .edit-field input,
 html.dark .edit-field textarea,
@@ -624,12 +708,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   .edit-grid { grid-template-columns:1fr; }
   .edit-field.full { grid-column:1; }
 
-  /* Ad mode */
-  #ad-title { font-size:1.8rem; }
-  #ad-season-icon { font-size:3rem; }
-  #ad-content { padding:24px 16px; }
-  #ad-plants { gap:7px; }
-  .ad-plant-chip { font-size:0.75rem; padding:5px 10px; }
+  /* Ad mode — handled by dedicated @media block in ad CSS */
 
   /* Journey overlay */
   #journey-stage-emoji { font-size:3.5rem; }
@@ -731,9 +810,16 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
 <!-- ══ AD / PRESENTATION MODE ══ -->
 <div id="ad-overlay">
-  <div id="ad-bg-cube">
-    <div id="ad-cube-wrap"></div>
+  <div id="ad-bg-layer"></div>
+  <div id="ad-bg-cube"><div id="ad-cube-wrap"></div></div>
+
+  <!-- Top bar: face dots + exit -->
+  <div id="ad-topbar">
+    <div id="ad-face-dots"></div>
+    <button id="ad-exit-btn">✕</button>
   </div>
+
+  <!-- Scrollable season content -->
   <div id="ad-content">
     <span id="ad-season-icon"></span>
     <div id="ad-season-label"></div>
@@ -741,12 +827,20 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
     <div id="ad-subtitle"></div>
     <div id="ad-plants"></div>
     <div id="ad-school">Newberry School · Western Cape · Edible Curriculum Programme</div>
-    <div id="ad-bar-wrap"><div id="ad-bar"></div></div>
-    <div id="ad-controls">
-      <button class="ad-ctrl-btn" id="ad-prev">◀ Prev</button>
-      <button class="ad-ctrl-btn" id="ad-next">Next ▶</button>
-      <button class="ad-ctrl-btn exit" id="ad-exit">✕ Exit</button>
+  </div>
+
+  <!-- Bottom: ring + prev/counter/next -->
+  <div id="ad-bottom">
+    <button class="ad-nav-btn" id="ad-prev">◀</button>
+    <div id="ad-ring-wrap">
+      <svg id="ad-ring-svg" viewBox="0 0 44 44">
+        <circle id="ad-ring-track" cx="22" cy="22" r="19"/>
+        <circle id="ad-ring-fill"  cx="22" cy="22" r="19"/>
+      </svg>
+      <button id="ad-playpause">⏸</button>
     </div>
+    <div id="ad-slide-counter"></div>
+    <button class="ad-nav-btn" id="ad-next">▶</button>
   </div>
 </div>
 
@@ -1844,99 +1938,170 @@ function spawnParticles(season) {
 }
 
 // ══════════════════════════════════════════════
-//  AD / PRESENTATION MODE
+//  AD / PRESENTATION MODE  (redesigned)
 // ══════════════════════════════════════════════
 const adOverlay  = document.getElementById('ad-overlay');
-const adIcon     = document.getElementById('ad-season-icon');
-const adLabel    = document.getElementById('ad-season-label');
-const adTitle    = document.getElementById('ad-title');
-const adSubtitle = document.getElementById('ad-subtitle');
-const adPlants   = document.getElementById('ad-plants');
-const adBar      = document.getElementById('ad-bar');
+const adBgLayer  = document.getElementById('ad-bg-layer');
 const adContent  = document.getElementById('ad-content');
 
-let adFaceIndex  = 0;
-let adTimer      = null;
-let adBarTimer   = null;
-const AD_DURATION = 6000; // ms per face
+let adFaceIndex = 0;
+let adTimer     = null;
+let adPlaying   = true;
+const AD_DURATION = 7000;
 
+const AD_BG_CLASS = {
+  autumn:'ad-bg-autumn', winter:'ad-bg-winter', spring:'ad-bg-spring',
+  summer:'ad-bg-summer', companion:'ad-bg-companion', indigenous:'ad-bg-indigenous'
+};
 const AD_SUBTITLES = [
   'Sow, grow and harvest through the cool autumn months',
   'Hardy crops that thrive in Western Cape winters',
   'Celebrate spring with vibrant warm-season plantings',
   'Summer abundance — water wisely and harvest daily',
   'Plants that help each other grow better together',
-  'Celebrating the plants of our fynbos heritage',
+  'Celebrating the fynbos heritage of the Western Cape',
 ];
 
+/* ── Progress ring ── */
+const ringFill = document.getElementById('ad-ring-fill');
+const CIRCUMFERENCE = 2 * Math.PI * 19; // r=19
+ringFill.style.strokeDasharray  = CIRCUMFERENCE;
+ringFill.style.strokeDashoffset = CIRCUMFERENCE;
+let ringRaf = null, ringStart = null;
+
+function startRing() {
+  ringFill.style.transition = 'none';
+  ringFill.style.strokeDashoffset = CIRCUMFERENCE;
+  void ringFill.offsetWidth;
+  ringStart = performance.now();
+  function tick(now) {
+    const pct = Math.min((now - ringStart) / AD_DURATION, 1);
+    ringFill.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+    if (pct < 1 && adPlaying) ringRaf = requestAnimationFrame(tick);
+  }
+  ringRaf = requestAnimationFrame(tick);
+}
+function stopRing() {
+  if (ringRaf) { cancelAnimationFrame(ringRaf); ringRaf = null; }
+}
+
+/* ── Face dots ── */
+function buildFaceDots() {
+  const wrap = document.getElementById('ad-face-dots');
+  wrap.innerHTML = '';
+  FACE_ORDER.forEach((_, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ad-face-dot' + (i === 0 ? ' active' : '');
+    btn.addEventListener('click', () => { clearTimeout(adTimer); showAdFace(i); if (adPlaying) scheduleAdNext(); });
+    wrap.appendChild(btn);
+  });
+}
+function updateFaceDots() {
+  document.querySelectorAll('.ad-face-dot').forEach((d, i) => d.classList.toggle('active', i === adFaceIndex));
+}
+
+/* ── Render a face ── */
 function showAdFace(index) {
   adFaceIndex = ((index % FACE_ORDER.length) + FACE_ORDER.length) % FACE_ORDER.length;
   const season = FACE_ORDER[adFaceIndex];
-  const s = SEASONS.find(x => x.key === season);
-  const vegs = VEGGIES.filter(v => v.season === season);
+  const s      = SEASONS.find(x => x.key === season);
+  const vegs   = VEGGIES.filter(v => v.season === season);
 
-  // refresh animation
-  adContent.style.animation = 'none';
+  // Background colour
+  Object.values(AD_BG_CLASS).forEach(c => adBgLayer.classList.remove(c));
+  adBgLayer.classList.add(AD_BG_CLASS[season]);
+  ringFill.style.stroke = s.color;
+
+  // Slide-in animation
+  adContent.classList.remove('ad-slide-enter');
   void adContent.offsetWidth;
-  adContent.style.animation = 'adFade .7s ease';
+  adContent.classList.add('ad-slide-enter');
 
-  adIcon.textContent = s.emoji;
-  adIcon.style.filter = 'drop-shadow(0 0 30px ' + s.color + ')';
-  adLabel.textContent = s.label;
-  adLabel.style.color = s.color;
-  adTitle.textContent = s.label;
-  adSubtitle.textContent = AD_SUBTITLES[adFaceIndex];
+  // Season header
+  document.getElementById('ad-season-icon').textContent  = s.emoji;
+  document.getElementById('ad-season-icon').style.filter = 'drop-shadow(0 0 24px ' + s.color + ')';
+  document.getElementById('ad-season-label').textContent = s.label;
+  document.getElementById('ad-season-label').style.color = s.color;
+  document.getElementById('ad-title').textContent    = s.label;
+  document.getElementById('ad-subtitle').textContent = AD_SUBTITLES[adFaceIndex];
 
-  adPlants.innerHTML = '';
-  vegs.slice(0, 6).forEach(v => {
-    const chip = document.createElement('div');
-    chip.className = 'ad-plant-chip';
-    chip.innerHTML = '<span>' + v.emoji + '</span>' + v.name;
-    chip.style.borderColor = s.color + '44';
-    adPlants.appendChild(chip);
+  // All 9 plant cards — tappable
+  const plantsEl = document.getElementById('ad-plants');
+  plantsEl.innerHTML = '';
+  vegs.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'ad-plant-card';
+    card.style.borderColor = s.color + '55';
+    card.innerHTML =
+      '<span class="apc-emoji">' + v.emoji + '</span>' +
+      '<span class="apc-name">'  + v.name  + '</span>' +
+      '<span class="apc-dur">'   + v.duration + '</span>';
+    card.addEventListener('click', () => {
+      closeAd();
+      openModal(v);
+    });
+    plantsEl.appendChild(card);
   });
 
-  // rotate background cube
+  // Scroll to top of content
+  adContent.scrollTop = 0;
+
+  // Counter + dots
+  document.getElementById('ad-slide-counter').textContent = (adFaceIndex + 1) + ' / ' + FACE_ORDER.length;
+  updateFaceDots();
+
+  // Rotate background cube
   const [rx, ry] = FACE_ROTATIONS[adFaceIndex];
-  adCubeEl.style.transition = 'transform 1.2s ease';
-  adCubeEl.style.transform = 'rotateX(' + (rx - 10) + 'deg) rotateY(' + ry + 'deg)';
+  adCubeEl.style.transition = 'transform 1.4s ease';
+  adCubeEl.style.transform  = 'rotateX(' + (rx - 12) + 'deg) rotateY(' + (ry + 15) + 'deg)';
 
-  // progress bar
-  adBar.style.transition = 'none';
-  adBar.style.width = '0%';
-  adBar.style.background = s.color;
-  void adBar.offsetWidth;
-  adBar.style.transition = 'width ' + (AD_DURATION / 1000) + 's linear';
-  adBar.style.width = '100%';
+  // Ring
+  if (adPlaying) { stopRing(); startRing(); }
 }
 
-function adNext() {
+function scheduleAdNext() {
   clearTimeout(adTimer);
-  showAdFace(adFaceIndex + 1);
-  adTimer = setTimeout(adNext, AD_DURATION);
+  adTimer = setTimeout(() => { showAdFace(adFaceIndex + 1); scheduleAdNext(); }, AD_DURATION);
 }
-function adPrev() {
-  clearTimeout(adTimer);
-  showAdFace(adFaceIndex - 1);
-  adTimer = setTimeout(adNext, AD_DURATION);
+
+function adNext() { clearTimeout(adTimer); showAdFace(adFaceIndex + 1); if (adPlaying) scheduleAdNext(); }
+function adPrev() { clearTimeout(adTimer); showAdFace(adFaceIndex - 1); if (adPlaying) scheduleAdNext(); }
+
+function toggleAdPlay() {
+  adPlaying = !adPlaying;
+  document.getElementById('ad-playpause').textContent = adPlaying ? '⏸' : '▶';
+  if (adPlaying) { scheduleAdNext(); startRing(); }
+  else           { clearTimeout(adTimer); stopRing(); }
 }
 
 function openAd() {
+  buildFaceDots();
   adOverlay.classList.add('open');
+  adPlaying = true;
+  document.getElementById('ad-playpause').textContent = '⏸';
   stopIdle();
-  showAdFace(0);
-  adTimer = setTimeout(adNext, AD_DURATION);
+  showAdFace(currentFaceIdx);   // start from current cube face
+  scheduleAdNext();
 }
 function closeAd() {
   adOverlay.classList.remove('open');
-  clearTimeout(adTimer);
+  clearTimeout(adTimer); stopRing();
   resetIdle();
 }
 
 document.getElementById('ad-toggle').addEventListener('click', openAd);
-document.getElementById('ad-exit').addEventListener('click', closeAd);
+document.getElementById('ad-exit-btn').addEventListener('click', closeAd);
 document.getElementById('ad-next').addEventListener('click', adNext);
 document.getElementById('ad-prev').addEventListener('click', adPrev);
+document.getElementById('ad-playpause').addEventListener('click', toggleAdPlay);
+
+/* Swipe left/right inside ad overlay */
+let adSwipeX = 0;
+adOverlay.addEventListener('touchstart', e => { adSwipeX = e.touches[0].clientX; }, { passive: true });
+adOverlay.addEventListener('touchend',   e => {
+  const dx = e.changedTouches[0].clientX - adSwipeX;
+  if (Math.abs(dx) > 55) { dx < 0 ? adNext() : adPrev(); }
+}, { passive: true });
 
 // keyboard shortcuts
 window.addEventListener('keydown', e => {
