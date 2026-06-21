@@ -1,0 +1,2279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#f7f3ed">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Garden Cube">
+<meta name="mobile-web-app-capable" content="yes">
+<title>The Seasonal Edible Curriculum Cube — Newberry School</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── THEME VARIABLES ── */
+:root {
+  --autumn: #c0622f; --winter: #4a7fa5; --spring: #6aaa5e;
+  --summer: #e8b84b; --companion: #9b6bb5; --indigenous: #5f9e8f;
+  --wood: #c8a97a; --wood-dark: #9c7a52;
+  --bg: #f7f3ed; --surface: #faf5ee; --text: #3d3326;
+  --text2: #888; --border: rgba(200,169,122,0.35);
+  --card-bg: rgba(200,169,122,0.12);
+  --header-bg: rgba(247,243,237,0.93);
+  --nav-bg: rgba(247,243,237,0.93);
+  --modal-bg: #faf5ee;
+  --shadow: rgba(0,0,0,0.18);
+  --panel-light-autumn: linear-gradient(135deg,#fff5ee,#fde8d5);
+  --panel-light-winter: linear-gradient(135deg,#eef5ff,#d5e8f5);
+  --panel-light-spring: linear-gradient(135deg,#efffee,#d5f5d8);
+  --panel-light-summer: linear-gradient(135deg,#fffbee,#fdf0c2);
+  --panel-light-companion: linear-gradient(135deg,#f8eeff,#edd5f5);
+  --panel-light-indigenous: linear-gradient(135deg,#eefaf8,#d5f0ea);
+}
+html.dark {
+  --bg: #141210; --surface: #1e1a16; --text: #ede8e0;
+  --text2: #888; --border: rgba(200,169,122,0.18);
+  --card-bg: rgba(200,169,122,0.08);
+  --header-bg: rgba(20,18,16,0.95);
+  --nav-bg: rgba(20,18,16,0.95);
+  --modal-bg: #1e1a16;
+  --panel-light-autumn: linear-gradient(135deg,#2a1a0e,#3a2010);
+  --panel-light-winter: linear-gradient(135deg,#0e1a2a,#102035);
+  --panel-light-spring: linear-gradient(135deg,#0e1f0e,#102516);
+  --panel-light-summer: linear-gradient(135deg,#211a00,#2a2200);
+  --panel-light-companion: linear-gradient(135deg,#1a0e2a,#201030);
+  --panel-light-indigenous: linear-gradient(135deg,#0e1f1d,#0e2520);
+}
+
+html, body {
+  width:100%; height:100%; overflow:hidden;
+  background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif;
+  color:var(--text); transition:background .3s,color .3s;
+  overscroll-behavior:none;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ── HEADER ── */
+#header {
+  position:fixed; top:0; left:0; right:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:8px 16px;
+  padding-top:max(8px, env(safe-area-inset-top));
+  padding-left:max(16px, env(safe-area-inset-left));
+  padding-right:max(16px, env(safe-area-inset-right));
+  background:var(--header-bg); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 12px rgba(0,0,0,0.08);
+  flex-wrap:wrap;
+}
+#header-brand h1 { font-size:1rem; font-weight:800; color:var(--wood-dark); letter-spacing:0.01em; white-space:nowrap; }
+#header-brand p  { font-size:0.68rem; color:var(--text2); }
+#header-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+/* age filter */
+#age-filter { display:flex; gap:5px; flex-wrap:wrap; }
+.age-btn {
+  padding:4px 9px; border:1.5px solid var(--wood); border-radius:20px;
+  background:transparent; cursor:pointer; font-size:0.68rem; color:var(--wood-dark);
+  transition:all .2s;
+}
+.age-btn.active, .age-btn:hover { background:var(--wood); color:#fff; }
+
+/* icon buttons */
+.icon-btn {
+  width:32px; height:32px; border-radius:50%; border:1.5px solid var(--border);
+  background:var(--card-bg); cursor:pointer; font-size:1rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s; color:var(--text);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
+.icon-btn:hover { background:var(--wood); color:#fff; border-color:var(--wood); }
+
+/* Remove tap delay on all interactive elements */
+button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
+.eco-tab, .edit-save-btn, .edit-cancel-btn, .edit-reset-btn,
+.ad-ctrl-btn, .j-nav-btn {
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* ── SCENE ── */
+#scene { position:fixed; inset:0; top:58px; }
+
+/* ── FACE NAV ── */
+#face-nav {
+  position:fixed; bottom:max(16px, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
+  display:flex; gap:7px; z-index:50;
+  background:var(--nav-bg); backdrop-filter:blur(10px);
+  padding:7px 12px; border-radius:30px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.14);
+  border:1px solid var(--border);
+}
+.face-btn {
+  width:30px; height:30px; border-radius:50%; border:2.5px solid transparent;
+  cursor:pointer; font-size:1rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:transform .2s, box-shadow .2s;
+}
+.face-btn:hover { transform:scale(1.2); box-shadow:0 3px 10px rgba(0,0,0,0.25); }
+.face-btn.active { border-color:var(--text); box-shadow:0 0 0 3px rgba(0,0,0,0.12); }
+.face-btn[data-face="0"] { background:var(--autumn); }
+.face-btn[data-face="1"] { background:var(--winter); }
+.face-btn[data-face="2"] { background:var(--spring); }
+.face-btn[data-face="3"] { background:var(--summer); }
+.face-btn[data-face="4"] { background:var(--companion); }
+.face-btn[data-face="5"] { background:var(--indigenous); }
+
+/* ── MODAL ── */
+#modal-overlay {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(10,8,5,0.6); backdrop-filter:blur(5px);
+  display:none; align-items:center; justify-content:center; padding:16px;
+}
+#modal-overlay.open { display:flex; }
+#modal {
+  background:var(--modal-bg); border-radius:20px; width:min(520px,100%);
+  max-height:88vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  box-shadow:0 24px 70px rgba(0,0,0,0.35);
+  animation:popIn .22s cubic-bezier(.34,1.56,.64,1);
+  padding:26px; position:relative;
+  border:1px solid var(--border);
+}
+@keyframes popIn { from{transform:scale(.82);opacity:0} to{transform:scale(1);opacity:1} }
+#modal-close {
+  position:absolute; top:12px; right:12px;
+  width:28px; height:28px; border-radius:50%;
+  border:none; background:rgba(128,128,128,0.15); cursor:pointer;
+  font-size:0.9rem; display:flex; align-items:center; justify-content:center;
+  color:var(--text); transition:background .2s;
+}
+#modal-close:hover { background:rgba(128,128,128,0.3); }
+.modal-season-badge {
+  display:inline-block; padding:3px 11px; border-radius:20px;
+  font-size:0.68rem; font-weight:700; color:#fff; margin-bottom:10px;
+  text-transform:uppercase; letter-spacing:0.08em;
+}
+#modal h2 { font-size:1.55rem; font-weight:800; margin-bottom:3px; color:var(--text); }
+#modal .subtitle { font-size:0.8rem; color:var(--text2); margin-bottom:14px; }
+.modal-emoji { font-size:2.8rem; margin-bottom:6px; display:block; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0; }
+.info-card { background:var(--card-bg); border-radius:10px; padding:11px; }
+.info-card .label { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text2); margin-bottom:3px; }
+.info-card .value { font-size:0.85rem; color:var(--text); line-height:1.4; }
+.info-card.full { grid-column:1/-1; }
+.section-title { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin:16px 0 7px; }
+.tip-box { background:rgba(106,170,94,0.1); border-left:3px solid var(--spring); border-radius:0 8px 8px 0; padding:10px 13px; font-size:0.83rem; line-height:1.5; color:var(--text); }
+.age-content { display:none; }
+.age-content.visible { display:block; }
+.difficulty-dots { display:flex; gap:4px; margin-top:3px; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--border); }
+.dot.filled { background:var(--spring); }
+
+/* ── PARTICLES ── */
+#particles { position:fixed; inset:0; pointer-events:none; z-index:45; overflow:hidden; top:58px; }
+.particle { position:absolute; pointer-events:none; user-select:none; animation:fall linear forwards; font-size:1.2rem; }
+@keyframes fall { 0%{transform:translateY(-40px) rotate(0deg);opacity:.9} 100%{transform:translateY(110vh) rotate(720deg);opacity:0} }
+
+/* ── 3D CUBE ── */
+#cube-stage {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  perspective:1000px; -webkit-perspective:1000px;
+  touch-action:none;
+}
+#cube-wrapper {
+  width:340px; height:340px;
+  transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
+  transform:rotateX(-25deg) rotateY(35deg);
+  cursor:grab;
+  will-change:transform;
+}
+#cube-wrapper:active { cursor:grabbing; }
+.cube-face {
+  position:absolute; width:340px; height:340px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:5px; padding:5px;
+  border-radius:10px;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+}
+.cube-face:nth-child(1) { transform:translateZ(170px); }
+.cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(170px); }
+.cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(170px); }
+.cube-face:nth-child(4) { transform:rotateY(90deg) translateZ(170px); }
+.cube-face:nth-child(5) { transform:rotateX(90deg) translateZ(170px); }
+.cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(170px); }
+.cube-face[data-season="autumn"]    { box-shadow:0 0 0 4px var(--autumn); }
+.cube-face[data-season="winter"]    { box-shadow:0 0 0 4px var(--winter); }
+.cube-face[data-season="spring"]    { box-shadow:0 0 0 4px var(--spring); }
+.cube-face[data-season="summer"]    { box-shadow:0 0 0 4px var(--summer); }
+.cube-face[data-season="companion"] { box-shadow:0 0 0 4px var(--companion); }
+.cube-face[data-season="indigenous"]{ box-shadow:0 0 0 4px var(--indigenous); }
+
+.panel {
+  border-radius:7px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; text-align:center; padding:3px 2px;
+  border:1.5px solid rgba(255,255,255,0.25);
+  box-shadow:0 2px 6px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.4);
+  user-select:none; overflow:hidden;
+}
+.panel:hover { transition:transform .12s, box-shadow .12s; transform:scale(1.07) translateZ(5px); box-shadow:0 6px 16px rgba(0,0,0,0.22); }
+.panel:active { transition:transform .08s; transform:scale(0.92); box-shadow:none; }
+
+/* ── AGE LIGHTING STATES ──
+   ALL panels stay fully clickable — dimmed = "not primary for this age", not "disabled".
+   Lit panels glow with their season colour to show best fit for selected age group. */
+.panel { transition:opacity .35s, filter .35s, transform .35s, box-shadow .35s; }
+
+.panel.p-dimmed {
+  opacity:0.42; filter:grayscale(0.55) brightness(0.95);
+  /* pointer-events:auto — panel is still clickable, just visually de-emphasised */
+}
+/* Dimmed panels can still be hovered / clicked */
+.panel.p-dimmed:hover {
+  opacity:0.75; filter:grayscale(0.2);
+  transform:scale(1.04) translateZ(3px);
+}
+
+.panel.p-lit { opacity:1; filter:none; }
+/* Season-coloured glow ring for recommended plants */
+.panel.p-lit.glow-autumn     { box-shadow:0 0 0 2.5px var(--autumn),   0 5px 18px rgba(192,98,47,0.55); }
+.panel.p-lit.glow-winter     { box-shadow:0 0 0 2.5px var(--winter),   0 5px 18px rgba(74,127,165,0.55); }
+.panel.p-lit.glow-spring     { box-shadow:0 0 0 2.5px var(--spring),   0 5px 18px rgba(106,170,94,0.55); }
+.panel.p-lit.glow-summer     { box-shadow:0 0 0 2.5px var(--summer),   0 5px 18px rgba(232,184,75,0.55); }
+.panel.p-lit.glow-companion  { box-shadow:0 0 0 2.5px var(--companion),0 5px 18px rgba(155,107,181,0.55); }
+.panel.p-lit.glow-indigenous { box-shadow:0 0 0 2.5px var(--indigenous),0 5px 18px rgba(95,158,143,0.55); }
+
+/* Small star badge on lit panels so age-fit is obvious even when rotating */
+.panel.p-lit::after {
+  content:'★';
+  position:absolute; top:2px; right:3px;
+  font-size:0.45rem; line-height:1;
+  color:rgba(255,255,255,0.85);
+  pointer-events:none;
+  text-shadow:0 0 4px rgba(0,0,0,0.4);
+}
+.panel .p-emoji { font-size:1.35rem; line-height:1; }
+.panel .p-name  { font-size:0.52rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.2; }
+.panel .p-dur   { font-size:0.46rem; color:var(--text2); }
+.panel[data-season="autumn"]    { background:var(--panel-light-autumn); }
+.panel[data-season="winter"]    { background:var(--panel-light-winter); }
+.panel[data-season="spring"]    { background:var(--panel-light-spring); }
+.panel[data-season="summer"]    { background:var(--panel-light-summer); }
+.panel[data-season="companion"] { background:var(--panel-light-companion); }
+.panel[data-season="indigenous"]{ background:var(--panel-light-indigenous); }
+
+/* ── HINT ── */
+#hint { position:fixed; bottom:78px; left:50%; transform:translateX(-50%); font-size:0.66rem; color:var(--text2); pointer-events:none; white-space:nowrap; }
+
+/* ── MODAL ACTION BUTTONS ── */
+.modal-actions { display:flex; gap:8px; flex-wrap:wrap; margin:14px 0 4px; }
+.modal-action-btn {
+  flex:1; min-width:110px; padding:9px 10px; border-radius:12px;
+  border:1.5px solid var(--border); background:var(--card-bg);
+  cursor:pointer; font-size:0.78rem; font-weight:600; color:var(--text);
+  transition:all .2s; text-align:center;
+}
+.modal-action-btn:hover { background:var(--wood); color:#fff; border-color:var(--wood); }
+
+/* ═══════════════════════════════════════
+   GARDEN JOURNEY OVERLAY
+═══════════════════════════════════════ */
+#journey-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:rgba(8,15,10,0.97); backdrop-filter:blur(8px);
+  display:none; flex-direction:column; align-items:center;
+  overflow:hidden;
+}
+#journey-overlay.open { display:flex; }
+#journey-header {
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.08);
+  flex-shrink:0;
+}
+#journey-plant-title { font-size:1.3rem; font-weight:800; color:#fff; }
+#journey-plant-sub   { font-size:0.75rem; color:rgba(255,255,255,0.45); margin-top:2px; }
+#journey-close-btn {
+  width:32px; height:32px; border-radius:50%; border:none;
+  background:rgba(255,255,255,0.1); color:#fff; cursor:pointer; font-size:1rem;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+#journey-close-btn:hover { background:rgba(255,255,255,0.22); }
+
+/* stage chips */
+#journey-stages-bar {
+  display:flex; gap:6px; padding:14px 20px; overflow-x:auto;
+  flex-shrink:0; width:100%;
+  scrollbar-width:none;
+}
+#journey-stages-bar::-webkit-scrollbar { display:none; }
+.j-chip {
+  padding:6px 14px; border-radius:20px; cursor:pointer; white-space:nowrap;
+  font-size:0.72rem; font-weight:600; border:1.5px solid rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.04);
+  transition:all .2s; flex-shrink:0;
+}
+.j-chip.active {
+  background:var(--spring); border-color:var(--spring);
+  color:#fff; box-shadow:0 0 12px rgba(106,170,94,0.5);
+}
+.j-chip:hover:not(.active) { border-color:rgba(255,255,255,0.35); color:rgba(255,255,255,0.8); }
+
+/* main journey card */
+#journey-card {
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:24px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  padding:20px; text-align:center; animation:jFade .3s ease;
+  max-width:560px; width:100%;
+}
+@keyframes jFade { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+#journey-stage-emoji { font-size:5rem; margin-bottom:12px; display:block; }
+#journey-stage-name  { font-size:0.7rem; font-weight:800; letter-spacing:0.14em; text-transform:uppercase; color:var(--spring); margin-bottom:8px; }
+#journey-stage-time  { font-size:0.75rem; color:rgba(255,255,255,0.4); margin-bottom:16px; }
+#journey-stage-desc  { font-size:0.95rem; color:rgba(255,255,255,0.82); line-height:1.65; max-width:460px; }
+#journey-stage-tip   { margin-top:14px; padding:12px 16px; background:rgba(106,170,94,0.12); border-left:3px solid var(--spring); border-radius:0 10px 10px 0; font-size:0.82rem; color:rgba(255,255,255,0.65); line-height:1.5; text-align:left; }
+
+/* progress + nav */
+#journey-footer {
+  width:100%; padding:12px 20px 18px; border-top:1px solid rgba(255,255,255,0.07);
+  display:flex; align-items:center; gap:14px; flex-shrink:0;
+}
+#journey-progress { flex:1; height:3px; background:rgba(255,255,255,0.1); border-radius:3px; overflow:hidden; }
+#journey-progress-bar { height:100%; background:var(--spring); border-radius:3px; transition:width .3s ease; }
+.j-nav-btn {
+  padding:8px 18px; border-radius:20px; border:1.5px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.8);
+  cursor:pointer; font-size:0.8rem; font-weight:600; transition:all .2s;
+}
+.j-nav-btn:hover { background:rgba(255,255,255,0.15); color:#fff; }
+.j-nav-btn:disabled { opacity:0.3; cursor:not-allowed; }
+#journey-step-counter { font-size:0.72rem; color:rgba(255,255,255,0.35); min-width:50px; text-align:center; }
+
+/* ═══════════════════════════════════════
+   ECO PEST GUIDE OVERLAY
+═══════════════════════════════════════ */
+#eco-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:var(--bg); display:none; flex-direction:column;
+}
+#eco-overlay.open { display:flex; }
+#eco-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  background:var(--header-bg); backdrop-filter:blur(8px); flex-shrink:0;
+}
+#eco-header h2 { font-size:1.1rem; font-weight:800; color:var(--text); }
+#eco-header p  { font-size:0.7rem; color:var(--text2); }
+#eco-close-btn {
+  width:32px; height:32px; border-radius:50%; border:none;
+  background:var(--card-bg); color:var(--text); cursor:pointer; font-size:1rem;
+  display:flex; align-items:center; justify-content:center;
+}
+#eco-close-btn:hover { background:var(--wood); color:#fff; }
+#eco-tabs {
+  display:flex; gap:0; border-bottom:1px solid var(--border); flex-shrink:0;
+  overflow-x:auto; background:var(--surface);
+  scrollbar-width:none;
+}
+#eco-tabs::-webkit-scrollbar { display:none; }
+.eco-tab {
+  padding:10px 18px; font-size:0.78rem; font-weight:600; cursor:pointer;
+  color:var(--text2); border-bottom:2.5px solid transparent; white-space:nowrap;
+  transition:all .2s; background:none; border-top:none; border-left:none; border-right:none;
+}
+.eco-tab.active { color:var(--spring); border-bottom-color:var(--spring); }
+.eco-tab:hover:not(.active) { color:var(--text); }
+#eco-body { flex:1; overflow-y:auto; padding:16px 20px; }
+.eco-card {
+  background:var(--card-bg); border:1px solid var(--border); border-radius:14px;
+  padding:16px; margin-bottom:12px;
+}
+.eco-card-head { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.eco-card-head .eco-emoji { font-size:1.6rem; }
+.eco-card-head h3 { font-size:0.95rem; font-weight:700; color:var(--text); }
+.eco-card-head .eco-type { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; padding:2px 8px; border-radius:10px; color:#fff; }
+.eco-type.herbicide  { background:var(--autumn); }
+.eco-type.pre-emergent { background:var(--companion); }
+.eco-type.spray     { background:var(--spring); }
+.eco-type.companion { background:var(--indigenous); }
+.eco-field { font-size:0.8rem; color:var(--text2); margin-bottom:5px; line-height:1.5; }
+.eco-field strong { color:var(--text); }
+.eco-wc { margin-top:8px; padding:8px 12px; background:rgba(95,158,143,0.12); border-left:3px solid var(--indigenous); border-radius:0 8px 8px 0; font-size:0.78rem; color:var(--text); line-height:1.5; }
+
+/* ═══════════════════════════════════════
+   EDIT OVERLAY
+═══════════════════════════════════════ */
+#edit-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:rgba(10,8,5,0.6); backdrop-filter:blur(5px);
+  display:none; align-items:center; justify-content:center; padding:16px;
+}
+#edit-overlay.open { display:flex; }
+#edit-modal {
+  background:var(--modal-bg); border-radius:20px; width:min(580px,100%);
+  max-height:90vh; overflow-y:auto; padding:24px; position:relative;
+  border:1px solid var(--border); box-shadow:0 24px 70px rgba(0,0,0,0.35);
+  animation:popIn .22s cubic-bezier(.34,1.56,.64,1);
+}
+#edit-modal h3 { font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:16px; }
+#edit-close-btn {
+  position:absolute; top:12px; right:12px;
+  width:28px; height:28px; border-radius:50%; border:none;
+  background:rgba(128,128,128,0.15); color:var(--text); cursor:pointer; font-size:0.9rem;
+  display:flex; align-items:center; justify-content:center;
+}
+#edit-close-btn:hover { background:rgba(128,128,128,0.3); }
+.edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.edit-field { display:flex; flex-direction:column; gap:4px; }
+.edit-field.full { grid-column:1/-1; }
+.edit-field label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text2); }
+.edit-field input, .edit-field textarea, .edit-field select {
+  padding:8px 10px; border-radius:8px; border:1.5px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:0.82rem; font-family:inherit;
+  transition:border-color .2s; resize:none;
+}
+.edit-field input:focus, .edit-field textarea:focus {
+  outline:none; border-color:var(--spring);
+}
+.edit-age-section { margin-top:14px; }
+.edit-age-section h4 { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin-bottom:10px; }
+.edit-actions { display:flex; gap:8px; margin-top:18px; }
+.edit-save-btn {
+  flex:1; padding:11px; border-radius:12px; border:none;
+  background:var(--spring); color:#fff; font-size:0.9rem; font-weight:700; cursor:pointer;
+  transition:background .2s;
+}
+.edit-save-btn:hover { background:#5a9a4e; }
+.edit-cancel-btn, .edit-reset-btn {
+  padding:11px 16px; border-radius:12px; border:1.5px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:0.82rem; cursor:pointer;
+  transition:all .2s;
+}
+.edit-cancel-btn:hover, .edit-reset-btn:hover { background:rgba(128,128,128,0.2); }
+.edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
+
+/* ═══════════════════════════════════════
+   AD / PRESENTATION MODE
+═══════════════════════════════════════ */
+#ad-overlay {
+  position:fixed; inset:0; z-index:200;
+  background:radial-gradient(ellipse at center, #1a2a1a 0%, #0a0f0a 100%);
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  overflow:hidden;
+}
+html.dark #ad-overlay { background:radial-gradient(ellipse at center, #0d1a12 0%, #050a07 100%); }
+#ad-overlay.open { display:flex; }
+
+#ad-bg-cube {
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  perspective:1400px;
+  pointer-events:none;
+}
+#ad-cube-wrap {
+  width:420px; height:420px;
+  transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
+  transform:rotateX(-20deg) rotateY(30deg);
+}
+.ad-cube-face {
+  position:absolute; width:420px; height:420px;
+  display:grid; grid-template-columns:repeat(3,1fr); gap:6px; padding:6px;
+  border-radius:12px; backface-visibility:hidden;
+  opacity:0.18;
+}
+.ad-cube-face:nth-child(1) { transform:translateZ(210px); }
+.ad-cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(210px); }
+.ad-cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(210px); }
+.ad-cube-face:nth-child(4) { transform:rotateY(90deg) translateZ(210px); }
+.ad-cube-face:nth-child(5) { transform:rotateX(90deg) translateZ(210px); }
+.ad-cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(210px); }
+.ad-panel { border-radius:6px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.08); }
+
+/* Ad content */
+#ad-content {
+  position:relative; z-index:2; text-align:center;
+  padding:40px 30px; max-width:640px;
+  animation:adFade .7s ease;
+}
+@keyframes adFade { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+#ad-season-icon { font-size:5rem; display:block; margin-bottom:16px; filter:drop-shadow(0 0 20px currentColor); }
+#ad-season-label {
+  font-size:0.75rem; font-weight:800; letter-spacing:0.18em; text-transform:uppercase;
+  color:rgba(255,255,255,0.5); margin-bottom:8px;
+}
+#ad-title { font-size:2.8rem; font-weight:900; color:#fff; margin-bottom:6px; line-height:1.1; }
+#ad-subtitle { font-size:1rem; color:rgba(255,255,255,0.6); margin-bottom:30px; }
+#ad-plants {
+  display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-bottom:36px;
+}
+.ad-plant-chip {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.15);
+  border-radius:30px; padding:7px 14px;
+  font-size:0.82rem; color:rgba(255,255,255,0.9);
+  backdrop-filter:blur(4px);
+}
+.ad-plant-chip span { font-size:1.1rem; }
+#ad-school { font-size:0.75rem; color:rgba(255,255,255,0.35); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:20px; }
+#ad-bar-wrap { width:280px; height:3px; background:rgba(255,255,255,0.1); border-radius:3px; margin:0 auto 24px; overflow:hidden; }
+#ad-bar { height:100%; border-radius:3px; background:rgba(255,255,255,0.5); width:0%; transition:width linear; }
+#ad-controls { display:flex; gap:12px; justify-content:center; }
+.ad-ctrl-btn {
+  padding:9px 22px; border-radius:30px; border:1.5px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.8);
+  cursor:pointer; font-size:0.82rem; font-weight:600;
+  transition:all .2s; backdrop-filter:blur(4px);
+}
+.ad-ctrl-btn:hover { background:rgba(255,255,255,0.18); color:#fff; }
+.ad-ctrl-btn.exit { background:rgba(255,255,255,0.15); color:#fff; }
+
+html.dark .edit-field input,
+html.dark .edit-field textarea,
+html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0; border-color:rgba(200,169,122,0.18); }
+
+.panel .p-name { overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; width:100%; padding:0 3px; }
+
+#toast {
+  position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px);
+  background:var(--text); color:var(--bg); padding:10px 20px; border-radius:20px;
+  font-size:0.82rem; font-weight:600; z-index:500;
+  opacity:0; transition:opacity .3s, transform .3s; pointer-events:none;
+  white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,0.25);
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+.btn-back-dark {
+  padding:6px 14px; border-radius:20px; border:none;
+  background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.75);
+  cursor:pointer; font-size:0.78rem; font-weight:600; transition:all .2s; flex-shrink:0;
+}
+.btn-back-dark:hover { background:rgba(255,255,255,0.18); color:#fff; }
+.btn-back-light {
+  padding:6px 14px; border-radius:20px;
+  border:1.5px solid var(--border); background:var(--card-bg);
+  color:var(--text); cursor:pointer; font-size:0.78rem; font-weight:600;
+  transition:all .2s; flex-shrink:0;
+}
+.btn-back-light:hover { background:var(--wood); color:#fff; border-color:var(--wood); }
+
+/* ── MOBILE AGE STRIP ── */
+#mobile-age-strip {
+  display:none;
+  position:fixed; left:0; right:0; z-index:49;
+  background:var(--header-bg); backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  overflow-x:auto; overflow-y:hidden;
+  padding:6px 12px; gap:6px;
+  scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  white-space:nowrap;
+}
+#mobile-age-strip::-webkit-scrollbar { display:none; }
+#mobile-age-strip .age-btn { display:inline-flex; flex-shrink:0; font-size:0.7rem; padding:4px 10px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width:700px) {
+  /* Single-line compact header — no wrapping */
+  #header {
+    flex-wrap:nowrap; padding:0 10px;
+    height:52px; align-items:center;
+  }
+  #header-brand { min-width:0; flex:1; overflow:hidden; }
+  #header-brand h1 { font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #header-brand p  { display:none; }
+  #header-controls { flex-shrink:0; gap:6px; }
+  #age-filter { display:none; }
+
+  /* Mobile age strip visible below header */
+  #mobile-age-strip { display:flex; top:52px; }
+
+  /* Scene top fallback — JS updateLayout() overrides with exact value */
+  #scene, #particles { top:90px; }
+
+  /* Smaller cube */
+  #cube-wrapper, .cube-face { width:270px; height:270px; }
+  .cube-face:nth-child(1) { transform:translateZ(135px); }
+  .cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(135px); }
+  .cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(135px); }
+  .cube-face:nth-child(4) { transform:rotateY(90deg)  translateZ(135px); }
+  .cube-face:nth-child(5) { transform:rotateX(90deg)  translateZ(135px); }
+  .cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(135px); }
+
+  /* Face nav closer to bottom safe area */
+  #face-nav { bottom:10px; padding:5px 10px; gap:5px; }
+  .face-btn  { width:26px; height:26px; font-size:0.9rem; }
+  #hint      { display:none; }
+
+  /* Modal full-width on mobile */
+  #modal { border-radius:16px; padding:20px 16px; }
+  .info-grid { grid-template-columns:1fr; }
+  .info-card.full { grid-column:1; }
+  .modal-actions { gap:6px; }
+  .modal-action-btn { font-size:0.72rem; padding:8px 6px; }
+
+  /* Edit modal full width */
+  #edit-modal { border-radius:16px; padding:18px 14px; }
+  .edit-grid { grid-template-columns:1fr; }
+  .edit-field.full { grid-column:1; }
+
+  /* Ad mode */
+  #ad-title { font-size:1.8rem; }
+  #ad-season-icon { font-size:3rem; }
+  #ad-content { padding:24px 16px; }
+  #ad-plants { gap:7px; }
+  .ad-plant-chip { font-size:0.75rem; padding:5px 10px; }
+
+  /* Journey overlay */
+  #journey-stage-emoji { font-size:3.5rem; }
+  #journey-stage-desc  { font-size:0.85rem; }
+
+  /* Eco overlay */
+  #eco-header h2 { font-size:0.95rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<div id="header">
+  <div id="header-brand">
+    <h1>🌱 The Seasonal Edible Curriculum Cube</h1>
+    <p>Western Cape Planting Guide · Montessori &amp; Cambridge Edition</p>
+  </div>
+  <div id="header-controls">
+    <div id="age-filter">
+      <button class="age-btn active" data-age="toddler">Toddler</button>
+      <button class="age-btn" data-age="preschool">Pre Primary</button>
+      <button class="age-btn" data-age="lower">Lower Elementary</button>
+      <button class="age-btn" data-age="upper">Upper Elementary</button>
+      <button class="age-btn" data-age="middle">Middle School</button>
+      <button class="age-btn" data-age="high">Grounds Team</button>
+    </div>
+    <button class="icon-btn" id="dark-toggle" title="Toggle dark mode">🌙</button>
+    <button class="icon-btn" id="ad-toggle" title="Presentation / Ad mode">📺</button>
+  </div>
+</div>
+
+<!-- ══ MOBILE AGE STRIP ══ -->
+<div id="mobile-age-strip">
+  <button class="age-btn active" data-age="toddler">Toddler</button>
+  <button class="age-btn" data-age="preschool">Pre Primary</button>
+  <button class="age-btn" data-age="lower">Lower Elementary</button>
+  <button class="age-btn" data-age="upper">Upper Elementary</button>
+  <button class="age-btn" data-age="middle">Middle School</button>
+  <button class="age-btn" data-age="high">Grounds Team</button>
+</div>
+
+<!-- ══ SCENE ══ -->
+<div id="scene">
+  <div id="cube-stage">
+    <div id="cube-wrapper"></div>
+  </div>
+  <div id="particles"></div>
+</div>
+
+<!-- ══ FACE NAV ══ -->
+<div id="face-nav">
+  <button class="face-btn active" data-face="0" title="Autumn Planting">🍂</button>
+  <button class="face-btn" data-face="1" title="Winter Planting">❄️</button>
+  <button class="face-btn" data-face="2" title="Spring Planting">🌸</button>
+  <button class="face-btn" data-face="3" title="Summer Planting">☀️</button>
+  <button class="face-btn" data-face="4" title="Companion Planting">🌿</button>
+  <button class="face-btn" data-face="5" title="Indigenous &amp; Pollinator">🐝</button>
+</div>
+
+<div id="hint">Drag to rotate · Click a panel to explore · Use buttons below to jump to a face</div>
+
+<!-- ══ PLANT DETAIL MODAL ══ -->
+<div id="modal-overlay">
+  <div id="modal">
+    <button id="modal-close">✕</button>
+    <span class="modal-emoji" id="m-emoji"></span>
+    <span class="modal-season-badge" id="m-badge"></span>
+    <h2 id="m-name"></h2>
+    <p class="subtitle" id="m-sub"></p>
+    <div class="modal-actions">
+      <button class="modal-action-btn" id="btn-journey">🌱 Garden Journey</button>
+      <button class="modal-action-btn" id="btn-eco">🌿 Eco Pest Guide</button>
+      <button class="modal-action-btn" id="btn-edit">✏️ Edit Plant</button>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Planting Months</div><div class="value" id="m-months"></div></div>
+      <div class="info-card"><div class="label">Duration</div><div class="value" id="m-dur"></div></div>
+      <div class="info-card"><div class="label">Difficulty</div><div class="value"><div class="difficulty-dots" id="m-dots"></div></div></div>
+      <div class="info-card"><div class="label">Water</div><div class="value" id="m-water"></div></div>
+      <div class="info-card full"><div class="label">Soil Preparation</div><div class="value" id="m-soil"></div></div>
+      <div class="info-card full"><div class="label">Companion Plants</div><div class="value" id="m-companions"></div></div>
+      <div class="info-card full"><div class="label">Organic Pest Control</div><div class="value" id="m-pest"></div></div>
+      <div class="info-card full"><div class="label">Harvest Indicator</div><div class="value" id="m-harvest"></div></div>
+    </div>
+    <div class="section-title">Age-Appropriate Activity</div>
+    <div class="tip-box">
+      <div class="age-content" data-ac="toddler"  id="ac-toddler"></div>
+      <div class="age-content" data-ac="preschool" id="ac-preschool"></div>
+      <div class="age-content" data-ac="lower"     id="ac-lower"></div>
+      <div class="age-content" data-ac="upper"     id="ac-upper"></div>
+      <div class="age-content" data-ac="middle"    id="ac-middle"></div>
+      <div class="age-content" data-ac="high"      id="ac-high"></div>
+    </div>
+    <div class="section-title">Montessori Observation Prompt</div>
+    <div class="tip-box" id="m-observation"></div>
+  </div>
+</div>
+
+<!-- ══ AD / PRESENTATION MODE ══ -->
+<div id="ad-overlay">
+  <div id="ad-bg-cube">
+    <div id="ad-cube-wrap"></div>
+  </div>
+  <div id="ad-content">
+    <span id="ad-season-icon"></span>
+    <div id="ad-season-label"></div>
+    <div id="ad-title"></div>
+    <div id="ad-subtitle"></div>
+    <div id="ad-plants"></div>
+    <div id="ad-school">Newberry School · Western Cape · Edible Curriculum Programme</div>
+    <div id="ad-bar-wrap"><div id="ad-bar"></div></div>
+    <div id="ad-controls">
+      <button class="ad-ctrl-btn" id="ad-prev">◀ Prev</button>
+      <button class="ad-ctrl-btn" id="ad-next">Next ▶</button>
+      <button class="ad-ctrl-btn exit" id="ad-exit">✕ Exit</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ GARDEN JOURNEY OVERLAY ══ -->
+<div id="journey-overlay">
+  <div id="journey-header">
+    <div>
+      <div id="journey-plant-title"></div>
+      <div id="journey-plant-sub"></div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+      <button class="btn-back-dark" id="journey-back-btn">← Plant Info</button>
+      <button id="journey-close-btn">✕</button>
+    </div>
+  </div>
+  <div id="journey-stages-bar"></div>
+  <div id="journey-card">
+    <span id="journey-stage-emoji"></span>
+    <div id="journey-stage-name"></div>
+    <div id="journey-stage-time"></div>
+    <div id="journey-stage-desc"></div>
+    <div id="journey-stage-tip"></div>
+  </div>
+  <div id="journey-footer">
+    <button class="j-nav-btn" id="j-prev">◀ Back</button>
+    <div id="journey-progress"><div id="journey-progress-bar"></div></div>
+    <div id="journey-step-counter"></div>
+    <button class="j-nav-btn" id="j-next">Next ▶</button>
+  </div>
+</div>
+
+<!-- ══ ECO PEST GUIDE OVERLAY ══ -->
+<div id="eco-overlay">
+  <div id="eco-header">
+    <div>
+      <h2>🌿 Natural Eco Guide — Western Cape</h2>
+      <p>Organic herbicides, pest sprays &amp; companion deterrents for South African gardens</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+      <button class="btn-back-light" id="eco-back-btn">← Plant Info</button>
+      <button id="eco-close-btn">✕</button>
+    </div>
+  </div>
+  <div id="eco-tabs">
+    <button class="eco-tab active" data-tab="herbicides">🍶 Herbicides</button>
+    <button class="eco-tab" data-tab="pests">🐛 Pest Sprays</button>
+    <button class="eco-tab" data-tab="companions">🌸 Companion Deterrents</button>
+  </div>
+  <div id="eco-body"></div>
+</div>
+
+<!-- ══ EDIT PLANT OVERLAY ══ -->
+<div id="edit-overlay">
+  <div id="edit-modal">
+    <button id="edit-close-btn">✕</button>
+    <h3>✏️ Edit Plant Data</h3>
+    <div class="edit-grid">
+      <div class="edit-field"><label>Emoji</label><input id="ef-emoji" maxlength="4"></div>
+      <div class="edit-field"><label>Name</label><input id="ef-name"></div>
+      <div class="edit-field"><label>Planting Months</label><input id="ef-months"></div>
+      <div class="edit-field"><label>Duration</label><input id="ef-duration"></div>
+      <div class="edit-field full"><label>Difficulty (1 Easy · 2 Medium · 3 Hard)</label>
+        <select id="ef-difficulty"><option value="1">1 — Easy</option><option value="2">2 — Medium</option><option value="3">3 — Hard</option></select>
+      </div>
+      <div class="edit-field full"><label>Soil Preparation</label><textarea id="ef-soil" rows="2"></textarea></div>
+      <div class="edit-field full"><label>Watering</label><textarea id="ef-water" rows="2"></textarea></div>
+      <div class="edit-field full"><label>Companion Plants</label><input id="ef-companions"></div>
+      <div class="edit-field full"><label>Organic Pest Control</label><textarea id="ef-pest" rows="2"></textarea></div>
+      <div class="edit-field full"><label>Harvest Indicator</label><textarea id="ef-harvest" rows="2"></textarea></div>
+      <div class="edit-field full"><label>Observation Prompt</label><textarea id="ef-observation" rows="2"></textarea></div>
+    </div>
+    <div class="edit-age-section">
+      <h4>Age-Appropriate Activities</h4>
+      <div class="edit-grid">
+        <div class="edit-field"><label>Toddler</label><textarea id="ef-toddler" rows="2"></textarea></div>
+        <div class="edit-field"><label>Pre Primary</label><textarea id="ef-preschool" rows="2"></textarea></div>
+        <div class="edit-field"><label>Lower Elementary</label><textarea id="ef-lower" rows="2"></textarea></div>
+        <div class="edit-field"><label>Upper Elementary</label><textarea id="ef-upper" rows="2"></textarea></div>
+        <div class="edit-field"><label>Middle School</label><textarea id="ef-middle" rows="2"></textarea></div>
+        <div class="edit-field"><label>Grounds Team</label><textarea id="ef-high" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="edit-actions">
+      <button class="edit-save-btn" id="edit-save-btn">💾 Save Changes</button>
+      <button class="edit-cancel-btn" id="edit-cancel-btn">Cancel</button>
+      <button class="edit-reset-btn" id="edit-reset-btn">↩ Reset Default</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const SEASONS = [
+  { key:'autumn',     label:'Autumn Planting',         emoji:'🍂', color:'#c0622f' },
+  { key:'winter',     label:'Winter Planting',          emoji:'❄️', color:'#4a7fa5' },
+  { key:'spring',     label:'Spring Planting',          emoji:'🌸', color:'#6aaa5e' },
+  { key:'summer',     label:'Summer Planting',          emoji:'☀️', color:'#e8b84b' },
+  { key:'companion',  label:'Companion Planting',       emoji:'🌿', color:'#9b6bb5' },
+  { key:'indigenous', label:'Indigenous & Pollinator',  emoji:'🐝', color:'#5f9e8f' },
+];
+
+const PARTICLES = {
+  autumn:    ['🍂','🍁','🌾'],
+  winter:    ['❄️','🌨','💧'],
+  spring:    ['🌸','🌼','🦋'],
+  summer:    ['☀️','🦋','🌻'],
+  companion: ['🌿','🌱','🐞'],
+  indigenous:['🐝','🌺','🌿'],
+};
+
+// NOTE: All apostrophes in single-quoted strings are escaped as \'
+const VEGGIES = [
+  // ── AUTUMN (9) ──
+  {
+    season:'autumn', name:'Spinach', emoji:'🥬',
+    months:'March – August', duration:'45–60 days', difficulty:1,
+    soil:'Rich compost-enriched loam, slightly alkaline.',
+    water:'Keep consistently moist — twice daily in dry spells.',
+    companions:'Onions, Peas, Lettuce',
+    pest:'Garlic spray for aphids; neem oil for caterpillars.',
+    harvest:'Pick outer leaves continuously when large enough.',
+    ages:{ toddler:'Feel the smooth, cool leaves. Say "green"!', preschool:'Count the leaves on one plant each day.', lower:'Measure your plant with a ruler every 3 days.', upper:'Graph weekly leaf growth and compare to rainfall data.', middle:'Investigate nitrogen levels in compost vs. sandy soil.', high:'Design a nitrate-absorption experiment; link to photosynthesis.' },
+    observation:'Watch how the leaves unfold from the centre. Can you see tiny new leaves hiding inside?'
+  },
+  {
+    season:'autumn', name:'Lettuce', emoji:'🥗',
+    months:'Feb – September', duration:'30–60 days', difficulty:1,
+    soil:'Loose, well-draining soil with compost.',
+    water:'Regular light watering; avoid waterlogging.',
+    companions:'Carrots, Radishes, Strawberries',
+    pest:'Slug traps using beer or copper tape around beds.',
+    harvest:'Cut outer leaves or whole head at soil level.',
+    ages:{ toddler:'Touch the crinkly leaves — are they soft or rough?', preschool:'Plant a seed and watch it sprout!', lower:'Compare growth in sun vs. shade.', upper:'Design a shading experiment to test leaf colour change.', middle:'Investigate photosynthesis rate under different light levels.', high:'Study the effect of UV on chlorophyll degradation.' },
+    observation:'Hold a leaf up to the light. Can you see the tiny veins carrying water?'
+  },
+  {
+    season:'autumn', name:'Beetroot', emoji:'🫑',
+    months:'March – October', duration:'50–70 days', difficulty:2,
+    soil:'Deep, loose, stone-free soil with compost.',
+    water:'Steady moisture; mulch to retain.',
+    companions:'Garlic, Onions, Cabbage',
+    pest:'Row covers against leaf miners; neem oil spray.',
+    harvest:'Harvest when shoulders appear above soil, roughly golf-ball size.',
+    ages:{ toddler:'Point to the red colour. Touch the round top!', preschool:'Press a cut beetroot on paper to make a print.', lower:'Observe how the red colour spreads in water.', upper:'Test pH of beetroot juice with indicators.', middle:'Investigate natural dyes — extract pigment vs temperature.', high:'Study betalain pigments and their role in plant metabolism.' },
+    observation:'Dig gently around the base. Can you feel the beetroot growing underground without pulling it out?'
+  },
+  {
+    season:'autumn', name:'Peas', emoji:'🫛',
+    months:'April – July', duration:'60–75 days', difficulty:1,
+    soil:'Well-draining, moderately fertile soil.',
+    water:'Regular watering; avoid wet roots.',
+    companions:'Carrots, Radishes, Turnips, Mint',
+    pest:'Use fine mesh nets; pick caterpillars by hand.',
+    harvest:'Pick pods when plump but before they yellow.',
+    ages:{ toddler:'Pop open a pea pod and count the peas!', preschool:'Taste a pea fresh from the pod.', lower:'Plant and record germination time vs warmth.', upper:'Explore nitrogen fixation with root nodule inspection.', middle:'Classify legumes; research symbiotic bacteria (Rhizobium).', high:'Design an experiment on nitrogen fixation rates under temperature variables.' },
+    observation:'Look at the roots carefully. Do you see tiny pink or white bumps? Those are nitrogen factories!'
+  },
+  {
+    season:'autumn', name:'Broad Beans', emoji:'🌱',
+    months:'April – June', duration:'90–120 days', difficulty:2,
+    soil:'Deep, rich, well-limed soil.',
+    water:'Regular; reduce as pods fill.',
+    companions:'Potatoes, Carrots, Kale',
+    pest:'Pinch out growing tips when black aphids appear; attract ladybirds.',
+    harvest:'Pick pods when beans are visible but before pods go tough.',
+    ages:{ toddler:'Squeeze the fluffy inside of the pod — so soft!', preschool:'Plant a bean and watch it push out of the soil.', lower:'Draw and label bean germination stages.', upper:'Dissect a bean seed and identify embryo, cotyledon, testa.', middle:'Compare monocot vs dicot germination.', high:'Investigate the effect of seed dormancy-breaking treatments.' },
+    observation:'When the seedling emerges, count how many days from planting. Does warmth or cold change this?'
+  },
+  {
+    season:'autumn', name:'Kale', emoji:'🥦',
+    months:'March – August', duration:'55–75 days', difficulty:1,
+    soil:'Rich, firm soil with compost; slightly alkaline.',
+    water:'Deep weekly watering once established.',
+    companions:'Beets, Herbs, Onions',
+    pest:'Inspect undersides for caterpillar eggs; use Bt spray organically.',
+    harvest:'Pick lower leaves; centre keeps growing all winter.',
+    ages:{ toddler:'Rub the bumpy leaf between your fingers!', preschool:'Compare kale with lettuce — same or different?', lower:'Create a Venn diagram comparing leafy vegetables.', upper:'Research vitamin K content; why do dark leaves have more nutrients?', middle:'Investigate antioxidants in kale vs. iceberg lettuce.', high:'Study phytochemicals: glucosinolates and cancer-prevention research.' },
+    observation:'Which parts of the kale plant do we eat? The leaf, stem, or both?'
+  },
+  {
+    season:'autumn', name:'Cabbage', emoji:'🥬',
+    months:'March – July', duration:'70–100 days', difficulty:2,
+    soil:'Firm, rich, slightly alkaline soil.',
+    water:'Consistent watering to prevent splitting.',
+    companions:'Onions, Dill, Sage',
+    pest:'Fine netting against cabbage moth; garlic spray.',
+    harvest:'Cut at base when head is firm and dense.',
+    ages:{ toddler:'Feel how heavy and firm the head is!', preschool:'Peel a leaf — what do you notice?', lower:'Measure head diameter weekly for the last month.', upper:'Research why cabbage leaves are waxy and what it prevents.', middle:'Explore the Brassica family and shared traits.', high:'Study glucosinolate chemistry and pest deterrence mechanisms.' },
+    observation:'Peel away one outer leaf. Can you see the layers wrapping tighter and tighter toward the centre?'
+  },
+  {
+    season:'autumn', name:'Broccoli', emoji:'🥦',
+    months:'March – June', duration:'80–100 days', difficulty:2,
+    soil:'Rich, moisture-retaining soil with compost.',
+    water:'Deep weekly watering.',
+    companions:'Onions, Celery, Dill',
+    pest:'Check daily for cabbage white butterfly eggs on leaf undersides.',
+    harvest:'Cut central head before flowers open; side shoots follow.',
+    ages:{ toddler:'Look at the tiny tree shape — what animal does it look like?', preschool:'Count the little green buds in the head.', lower:'Observe what happens if you leave the head too long.', upper:'Research why broccoli is called a "superfood".', middle:'Investigate flowering triggers: temperature, daylight length.', high:'Explore vernalisation and its role in brassica reproduction.' },
+    observation:'A broccoli head is actually hundreds of tiny flower buds. Can you count a small section?'
+  },
+  {
+    season:'autumn', name:'Onions', emoji:'🧅',
+    months:'March – June', duration:'100–150 days', difficulty:2,
+    soil:'Well-drained, fertile soil; no fresh manure.',
+    water:'Reduce as tops begin to fall.',
+    companions:'Carrots, Beetroot, Lettuce',
+    pest:'Good air circulation prevents fungal issues.',
+    harvest:'When tops fall and yellow — lift, dry in sun for 2 weeks.',
+    ages:{ toddler:'Smell the onion! Does it make your eyes water?', preschool:'Peel the paper-dry skin — crinkle, crinkle!', lower:'Grow an onion in water and observe root growth.', upper:'Research why cutting onions makes us cry (sulphur compounds).', middle:'Test onion extract as a natural indicator of pH.', high:'Investigate allicin chemistry and its antimicrobial properties.' },
+    observation:'Onions grow their layers from the inside out. Carefully peel back layers and describe what you see.'
+  },
+  // ── WINTER (9) ──
+  {
+    season:'winter', name:'Carrots', emoji:'🥕',
+    months:'April – August', duration:'70–80 days', difficulty:2,
+    soil:'Deep, loose, stone-free sandy loam.',
+    water:'Regular deep watering to encourage long roots.',
+    companions:'Onions, Leeks, Rosemary',
+    pest:'Neem oil for carrot fly; companion-plant with onions.',
+    harvest:'Harvest when shoulders are 1–2 cm across; twist and pull.',
+    ages:{ toddler:'Feel the long, pointy shape underground!', preschool:'Pull a carrot and wash it together.', lower:'Measure carrot length each fortnight.', upper:'Investigate why roots grow downward (gravitropism).', middle:'Compare tap root vs fibrous root systems.', high:'Research beta-carotene: precursor to vitamin A; analytical chemistry.' },
+    observation:'Carrots are roots that store sugar. Why might a plant store sugar underground?'
+  },
+  {
+    season:'winter', name:'Cauliflower', emoji:'🥦',
+    months:'May – July', duration:'80–100 days', difficulty:3,
+    soil:'Rich, firm, alkaline soil; heavy feeder.',
+    water:'Steady moisture; mulch well.',
+    companions:'Celery, Hyssop, Onions',
+    pest:'Netting against butterflies; hand-remove caterpillars.',
+    harvest:'Cut head when white and compact, before curds separate.',
+    ages:{ toddler:'The white part looks like clouds! Touch it gently.', preschool:'Break off a tiny piece and look closely.', lower:'Keep a daily observation journal with drawings.', upper:'Research why some growers "blanch" by tying leaves over the head.', middle:'Investigate photosynthesis reduction through blanching.', high:'Study why abnormal temperatures cause "ricing" or browning.' },
+    observation:'Tie the outer leaves loosely over the head. Check each day — how does it change?'
+  },
+  {
+    season:'winter', name:'Radishes', emoji:'🌶️',
+    months:'April – September', duration:'25–30 days', difficulty:1,
+    soil:'Loose, light soil; compost added.',
+    water:'Regular light watering.',
+    companions:'Peas, Lettuce, Cucumbers',
+    pest:'Row covers; rotate crops to prevent flea beetle.',
+    harvest:'Pull when 2–3 cm round — check by gently brushing soil aside.',
+    ages:{ toddler:'Red and round — say "radish"!', preschool:'Plant a radish and see it grow in just 3 weeks!', lower:'This is the fastest vegetable in the garden — time it!', upper:'Record and graph growth rate vs temperature.', middle:'Compare radish growth in different soil textures.', high:'Use radishes as a model organism for controlled experiments.' },
+    observation:'Radishes are the fastest crop. Check every 3 days — can you predict the exact day it is ready?'
+  },
+  {
+    season:'winter', name:'Swiss Chard', emoji:'🥬',
+    months:'May – September', duration:'50–60 days', difficulty:1,
+    soil:'Rich, moisture-retaining soil.',
+    water:'Regular; likes consistent moisture.',
+    companions:'Beans, Onions, Cabbage',
+    pest:'Neem oil for leaf miner; remove damaged leaves promptly.',
+    harvest:'Cut outer stalks at base; plant regrows for many months.',
+    ages:{ toddler:'What colours are the stalks? Red, yellow, white!', preschool:'Sort the stalks by colour.', lower:'Observe why leaves wilt in heat and revive at night.', upper:'Research how stomata open and close.', middle:'Measure transpiration using a sealed plastic bag method.', high:'Investigate osmotic pressure and water potential in plant cells.' },
+    observation:'On a hot day, the leaves droop. At night they stand up again. What is the plant doing?'
+  },
+  {
+    season:'winter', name:'Peas', emoji:'🫛',
+    months:'April – July', duration:'60–75 days', difficulty:1,
+    soil:'Well-draining, moderately fertile.',
+    water:'Regular; avoid waterlogging.',
+    companions:'Carrots, Radishes, Turnips',
+    pest:'Netting; hand-pick caterpillars.',
+    harvest:'Pick pods when plump before yellowing.',
+    ages:{ toddler:'Pop open a pod — how many peas inside?', preschool:'Taste one straight from the garden!', lower:'Count peas per pod across 10 plants and find the average.', upper:'Explore Mendel\'s genetics using pea traits.', middle:'Grow plants from saved seed vs packet seed and compare.', high:'Replicate Mendel\'s dominant/recessive pea experiments.' },
+    observation:'Each pea in a pod is a potential new plant. How is that possible from one flower?'
+  },
+  {
+    season:'winter', name:'Garlic', emoji:'🧄',
+    months:'April – June', duration:'150–180 days', difficulty:1,
+    soil:'Well-drained, rich soil.',
+    water:'Regular until bulbs swell; then reduce.',
+    companions:'Roses, Tomatoes, Carrots',
+    pest:'Natural pest repellent for most garden pests.',
+    harvest:'When lower leaves yellow and dry — lift and cure for 3 weeks.',
+    ages:{ toddler:'Smell the garlic — strong or mild?', preschool:'Count the cloves in one bulb.', lower:'Plant individual cloves point-up and observe shoots.', upper:'Research allicin and its antibacterial properties.', middle:'Test garlic spray vs aphid colonies in a controlled trial.', high:'Investigate sulphur compound chemistry and enzyme reactions.' },
+    observation:'Each clove grows into a whole new bulb. How many cloves are in one bulb? How many could grow from that?'
+  },
+  {
+    season:'winter', name:'Beetroot', emoji:'🫑',
+    months:'March – October', duration:'50–70 days', difficulty:2,
+    soil:'Deep, loose, stone-free soil.',
+    water:'Steady; mulch to retain moisture.',
+    companions:'Garlic, Onions, Cabbage',
+    pest:'Row covers for leaf miners; neem oil.',
+    harvest:'When shoulders appear above soil — golf-ball to tennis-ball size.',
+    ages:{ toddler:'Touch the smooth, round top poking out of the soil!', preschool:'Use cut beetroot to make a red paint print.', lower:'Measure width of shoulder weekly.', upper:'Extract red dye and test on different fabrics.', middle:'Investigate betalain pigments vs. anthocyanins.', high:'Chromatography experiment to separate beetroot pigments.' },
+    observation:'Why do you think beetroot stores sugar? Where does the plant get the energy to make it?'
+  },
+  {
+    season:'winter', name:'Spinach', emoji:'🥬',
+    months:'March – August', duration:'45–60 days', difficulty:1,
+    soil:'Rich compost soil; slightly alkaline.',
+    water:'Consistent moisture.',
+    companions:'Onions, Peas, Lettuce',
+    pest:'Garlic spray for aphids.',
+    harvest:'Outer leaves first; centre keeps growing.',
+    ages:{ toddler:'How many leaves can you count on your plant?', preschool:'Wash spinach in a colander — fun splashing!', lower:'Record leaf count each week in a table.', upper:'Compare iron content in spinach vs other greens.', middle:'Investigate oxalic acid in spinach and mineral absorption.', high:'Research bioavailability: why iron from spinach is less absorbable than from meat.' },
+    observation:'Count a plant\'s leaves on Monday. Count again on Friday. How many new ones appeared?'
+  },
+  {
+    season:'winter', name:'Onions', emoji:'🧅',
+    months:'March – June', duration:'100–150 days', difficulty:2,
+    soil:'Well-drained, fertile soil.',
+    water:'Reduce as tops begin to fall.',
+    companions:'Carrots, Beets, Chamomile',
+    pest:'Good air circulation; avoid overwatering.',
+    harvest:'When tops fall and yellow; cure in sun for 2 weeks.',
+    ages:{ toddler:'Peel the crinkly outside layer!', preschool:'How many rings does an onion have?', lower:'Grow onion sets vs seeds — compare.', upper:'Observe onion cells under a microscope.', middle:'Study cell wall structure using onion epidermis slides.', high:'Conduct osmosis experiments using onion cells in different salt solutions.' },
+    observation:'Cut an onion in half. Each ring is one year of growth. How old is your onion?'
+  },
+  // ── SPRING (9) ──
+  {
+    season:'spring', name:'Tomatoes', emoji:'🍅',
+    months:'September – November', duration:'70–90 days', difficulty:2,
+    soil:'Rich, well-drained soil; add compost generously.',
+    water:'Deep, regular watering; avoid wetting leaves.',
+    companions:'Basil, Parsley, Marigolds',
+    pest:'Neem oil for whitefly; hand-remove hornworms.',
+    harvest:'Pick when fully coloured and slightly soft to touch.',
+    ages:{ toddler:'Red, round and warm from the sun — taste it!', preschool:'Count seeds inside a sliced tomato.', lower:'Grow indeterminate vs determinate varieties and compare.', upper:'Investigate lycopene — colour change during ripening.', middle:'Research ethylene gas in fruit ripening.', high:'Conduct a controlled trial: does pruning increase fruit yield?' },
+    observation:'Feel the weight of a green vs. red tomato. What changed inside the fruit?'
+  },
+  {
+    season:'spring', name:'Cucumbers', emoji:'🥒',
+    months:'October – December', duration:'55–65 days', difficulty:2,
+    soil:'Rich, moisture-retaining soil with compost.',
+    water:'Heavy and consistent; wilting is stressful.',
+    companions:'Beans, Dill, Peas',
+    pest:'Neem oil for spider mites; pick beetles by hand.',
+    harvest:'Pick before seeds harden — about 15–20 cm long.',
+    ages:{ toddler:'Smooth and cool — the cucumber is long!', preschool:'Dip cucumber slices in hummus!', lower:'Measure daily growth with a ruler.', upper:'Research 96% water content — measure this by weighing before/after drying.', middle:'Investigate transpiration rates in cucurbits.', high:'Experiment: does fruit removal increase or decrease new flower production?' },
+    observation:'Cucumbers grow very fast in warm weather. How many centimetres does yours grow each day?'
+  },
+  {
+    season:'spring', name:'Sweet Corn', emoji:'🌽',
+    months:'September – November', duration:'75–90 days', difficulty:2,
+    soil:'Deep, rich, well-drained soil; heavy feeder.',
+    water:'Critical during tasselling; keep soil moist.',
+    companions:'Beans, Pumpkin (Three Sisters)',
+    pest:'Crop rotation against cutworm; hand-remove silk worms.',
+    harvest:'When silk turns brown and kernels release milky liquid on pressing.',
+    ages:{ toddler:'Touch the silky threads on top!', preschool:'Count the yellow rows of kernels.', lower:'Observe how corn is pollinated by wind, not bees.', upper:'Research the Three Sisters planting system of indigenous peoples.', middle:'Investigate wind pollination vs insect pollination strategies.', high:'Study selective breeding history of maize: teosinte to modern corn.' },
+    observation:'Each silk thread connects to one kernel. Count the threads and then count the kernels. What do you notice?'
+  },
+  {
+    season:'spring', name:'Green Beans', emoji:'🫘',
+    months:'September – November', duration:'50–65 days', difficulty:1,
+    soil:'Well-drained, moderately fertile soil.',
+    water:'Regular; avoid wetting leaves to prevent rust.',
+    companions:'Carrots, Cucumbers, Peas',
+    pest:'Neem oil for spider mites; row covers when young.',
+    harvest:'Pick pods when full but still snap cleanly — before seeds swell.',
+    ages:{ toddler:'Snap a bean in half — snap! What sound does it make?', preschool:'Pod race: who can pod their beans the fastest?', lower:'Count days from planting to first flower.', upper:'Compare bush vs. climbing beans for yield.', middle:'Research protein content in legumes vs meat alternatives.', high:'Investigate nitrogen fixation: measure root nodule abundance vs soil nitrogen.' },
+    observation:'Break a bean cleanly — it snaps because the fibres are still crisp. What happens to an overripe bean?'
+  },
+  {
+    season:'spring', name:'Pumpkin', emoji:'🎃',
+    months:'September – November', duration:'90–120 days', difficulty:2,
+    soil:'Rich, well-drained mounds with heaps of compost.',
+    water:'Deep weekly watering once established.',
+    companions:'Corn, Beans, Nasturtium',
+    pest:'Hand-pollinate if bees are scarce; neem for mildew.',
+    harvest:'When stem dries and skin resists your fingernail.',
+    ages:{ toddler:'How many seeds can we find inside the pumpkin?', preschool:'Paint the shell of a dried pumpkin.', lower:'Track vine growth daily in metres.', upper:'Research Three Sisters polyculture benefits.', middle:'Investigate monoculture vs polyculture yield and soil health.', high:'Analyse chlorophyll loss and carotenoid unmasking in ripening fruit.' },
+    observation:'Count the male flowers (no fruit behind) and female flowers (tiny fruit behind petal). Why are both needed?'
+  },
+  {
+    season:'spring', name:'Basil', emoji:'🌿',
+    months:'September – January', duration:'30 days to harvest', difficulty:1,
+    soil:'Rich, warm, well-drained soil.',
+    water:'Moderate; never let it dry out completely.',
+    companions:'Tomatoes, Peppers, Marigolds',
+    pest:'Hand-pick slugs; good airflow prevents mould.',
+    harvest:'Pinch tips above a leaf pair; this makes the plant bushy.',
+    ages:{ toddler:'Crush a leaf — smell your fingers!', preschool:'Make basil lemonade together.', lower:'Test: do plants grow taller toward light?', upper:'Investigate essential oils in herbs.', middle:'Extract and identify basil essential oil compounds.', high:'Study the biochemistry of essential oil biosynthesis (terpene pathway).' },
+    observation:'Pinch out the top bud. Now wait — what happens to the two buds below? Count them next week.'
+  },
+  {
+    season:'spring', name:'Sunflowers', emoji:'🌻',
+    months:'September – November', duration:'70–100 days', difficulty:1,
+    soil:'Any well-drained soil; add compost.',
+    water:'Deep weekly watering; drought tolerant once tall.',
+    companions:'Cucumbers, Corn, Tomatoes',
+    pest:'Wire mesh collar at base against cutworm.',
+    harvest:'Seeds ready when back of head turns yellow-brown; hang to dry.',
+    ages:{ toddler:'Look up at the BIG yellow flower!', preschool:'Count the seeds in one circle section.', lower:'Track daily height growth on a wall chart.', upper:'Research heliotropism in young sunflowers.', middle:'Investigate the Fibonacci sequence in seed head spirals.', high:'Quantify Fibonacci ratios and the golden angle in seed packing.' },
+    observation:'Watch a young sunflower over a day. Does the head move? Where does it point in the morning vs afternoon?'
+  },
+  {
+    season:'spring', name:'Peppers', emoji:'🫑',
+    months:'September – November', duration:'70–90 days', difficulty:2,
+    soil:'Rich, well-drained; mulch to keep warm.',
+    water:'Regular; mulch to retain moisture.',
+    companions:'Basil, Tomatoes, Carrots',
+    pest:'Aphid colonies on shoot tips — blast off with water spray.',
+    harvest:'Green or wait for full colour — sweeter when red/yellow.',
+    ages:{ toddler:'Look at all the colours — red, yellow, green!', preschool:'Taste: sweet pepper vs normal pepper (mild varieties).', lower:'Observe colour change from green to red over weeks.', upper:'Research capsaicin and the Scoville scale.', middle:'Extract and test capsaicin levels from different varieties.', high:'Investigate capsaicin biosynthesis and its role as a chemical defence.' },
+    observation:'A green pepper and red pepper are the same fruit at different stages. Does the taste change too?'
+  },
+  {
+    season:'spring', name:'Marrows', emoji:'🥒',
+    months:'October – December', duration:'50–70 days', difficulty:1,
+    soil:'Rich, moist, composted mounds.',
+    water:'Very regular; drought causes bitterness.',
+    companions:'Nasturtiums, Corn, Beans',
+    pest:'Hand-remove squash beetles; neem for aphids.',
+    harvest:'Pick young at 15 cm for best flavour; leave one to grow to full size.',
+    ages:{ toddler:'Pick a tiny marrow — hold it in both hands!', preschool:'Measure with hand-spans: how many hand-spans long?', lower:'Compare growth of harvested vs unharvested marrow plants.', upper:'Investigate fruit sink strength in plant resource allocation.', middle:'Research how harvesting frequently increases overall yield.', high:'Study the hormonal regulation of fruit set and abortion.' },
+    observation:'Leave one marrow unpicked. How big does it grow? Does the plant stop making new ones?'
+  },
+  // ── SUMMER (9) ──
+  {
+    season:'summer', name:'Succession Planting', emoji:'📅',
+    months:'All Summer (Nov–Feb)', duration:'Ongoing', difficulty:2,
+    soil:'Top up compost between successions.',
+    water:'Morning watering essential in heat.',
+    companions:'Rotate families each planting',
+    pest:'Keep beds clean; remove spent plants promptly.',
+    harvest:'Stagger harvests every 2–3 weeks for continuous yield.',
+    ages:{ toddler:'We never stop planting! In goes another seed!', preschool:'Plant a new seed every week for 4 weeks — which is biggest?', lower:'Create a planting calendar for a continuous harvest.', upper:'Design a family vegetable supply plan using succession charts.', middle:'Analyse crop rotation and its effect on soil pathogens.', high:'Design a year-round succession plan with nutrient cycling management.' },
+    observation:'How can a family have fresh lettuce every single week? Plan it out on paper!'
+  },
+  {
+    season:'summer', name:'Water-Wise Garden', emoji:'💧',
+    months:'November – February', duration:'Ongoing practice', difficulty:2,
+    soil:'Heavy mulch (8–10 cm) on all bare soil.',
+    water:'Deep, less frequent watering trains deep roots.',
+    companions:'Group thirsty plants together',
+    pest:'Healthy, watered plants resist pests better.',
+    harvest:'Harvest early morning to reduce plant stress.',
+    ages:{ toddler:'Help pour the watering can — pour slowly.', preschool:'Measure how much water each plant gets.', lower:'Compare wilted vs watered plant photos at intervals.', upper:'Calculate household water use and design a water-saving plan.', middle:'Research grey-water systems and their application in Cape Town.', high:'Analyse the 2018 Day Zero crisis — causes, responses, policy outcomes.' },
+    observation:'Push your finger 5 cm into the soil. Is it damp or dry? That tells you if the plant needs water.'
+  },
+  {
+    season:'summer', name:'Mulch Management', emoji:'🌾',
+    months:'October – February', duration:'Ongoing', difficulty:1,
+    soil:'Layer 8–10 cm of straw, wood chip, or dry leaves.',
+    water:'Mulch reduces watering frequency by 50%.',
+    companions:'Worms love mulch — great for soil life',
+    pest:'Some mulch deters slugs; avoid placing against stems.',
+    harvest:'Mulch breaks down and feeds the soil — scoop and plant into it.',
+    ages:{ toddler:'Look under the mulch — worms!', preschool:'Sort different mulch materials by texture.', lower:'Measure soil temperature under mulch vs bare soil.', upper:'Track moisture retention under mulch vs none over 3 days.', middle:'Research decomposition rates of different mulch materials.', high:'Analyse carbon:nitrogen ratios and decomposition chemistry.' },
+    observation:'Lift the mulch. Is the soil underneath cool and damp even on a hot day? Why?'
+  },
+  {
+    season:'summer', name:'Compost Harvest', emoji:'♻️',
+    months:'November – February', duration:'Ready in 8–12 weeks', difficulty:1,
+    soil:'Finished compost is dark, crumbly, and earthy-smelling.',
+    water:'Compost pile needs moisture — damp as a sponge.',
+    companions:'Everything goes into compost!',
+    pest:'Avoid meat and cooked food in compost bins.',
+    harvest:'Sieve finished compost; return chunks to new pile.',
+    ages:{ toddler:'Mix the compost with a stick — it looks like chocolate cake!', preschool:'Sort kitchen scraps: goes in compost? Yes or No?', lower:'Record temperature of compost pile weekly.', upper:'Investigate the role of microorganisms in decomposition.', middle:'Study aerobic vs anaerobic decomposition and methane production.', high:'Design an optimal compost recipe using C:N ratio calculations.' },
+    observation:'A hot compost pile can reach 65°C inside! Push a thermometer in — what temperature is yours?'
+  },
+  {
+    season:'summer', name:'Harvesting', emoji:'🧺',
+    months:'November – February', duration:'Peak harvest season', difficulty:1,
+    soil:'After harvest, add compost and plant next crop.',
+    water:'Keep harvested beds moist for next planting.',
+    companions:'Harvest in early morning for best freshness',
+    pest:'Remove all debris after harvest to break pest cycles.',
+    harvest:'Harvest at peak ripeness — do not wait too long!',
+    ages:{ toddler:'Help put vegetables in the basket — one by one!', preschool:'Wash and sort the harvest together.', lower:'Weigh your total harvest each week in grams.', upper:'Calculate yield per square metre and compare crops.', middle:'Research post-harvest nutrition loss over time and temperature.', high:'Design a cold-chain system to maximise nutritional value from garden to plate.' },
+    observation:'Which vegetable gets heavier quickest — lettuce or tomatoes? Why might that be?'
+  },
+  {
+    season:'summer', name:'Tomatoes', emoji:'🍅',
+    months:'Nov – Feb (main crop)', duration:'70–90 days', difficulty:2,
+    soil:'Rich, deep soil with heavy compost.',
+    water:'Deep, even watering — inconsistency causes blossom end rot.',
+    companions:'Basil, Marigolds, Parsley',
+    pest:'Neem oil for whitefly; hand-remove hornworms.',
+    harvest:'Pick when fully coloured and slightly soft.',
+    ages:{ toddler:'Red, warm and sweet — straight from the vine!', preschool:'Count how many tomatoes you pick in one day.', lower:'Record first flower to first fruit — how many days?', upper:'Compare cherry vs beefsteak yields per plant.', middle:'Investigate blossom end rot: calcium deficiency and water stress.', high:'Research lycopene bioavailability: raw vs cooked tomato.' },
+    observation:'Smell a tomato leaf. Smell the fruit. Do they smell the same? Why might they be different?'
+  },
+  {
+    season:'summer', name:'Cucumbers', emoji:'🥒',
+    months:'Oct – Jan', duration:'55–65 days', difficulty:2,
+    soil:'Rich, moisture-retaining soil.',
+    water:'Daily watering in heat.',
+    companions:'Beans, Dill, Radishes',
+    pest:'Neem oil for mites; good airflow.',
+    harvest:'Pick young — bitterness increases with age.',
+    ages:{ toddler:'Crunchy! Bite the end of a fresh cucumber.', preschool:'Float a cucumber in water — does it sink or float?', lower:'Compare growth in shade vs full sun.', upper:'Research the 96% water content of cucumbers — how to test it?', middle:'Investigate cucurbit taxonomy and shared traits.', high:'Experiment with hand-pollination and compare fruit set rates.' },
+    observation:'Check your cucumbers morning and evening. How many centimetres did they grow in 12 hours?'
+  },
+  {
+    season:'summer', name:'Beans', emoji:'🫘',
+    months:'October – December', duration:'50–65 days', difficulty:1,
+    soil:'Well-drained, moderately fertile.',
+    water:'Regular; avoid wet leaves.',
+    companions:'Corn, Pumpkin, Carrots',
+    pest:'Neem for spider mites in heat.',
+    harvest:'Pick daily for continuous production — leaving pods on stops flowering.',
+    ages:{ toddler:'Pick a bean — hold it gently!', preschool:'Pod the beans — what is inside?', lower:'Count: how many beans per plant per week?', upper:'Research daily harvesting to maximise yield.', middle:'Investigate how fruiting exhaustion is managed in commercial crops.', high:'Design a sustainable harvest schedule with yield data analysis.' },
+    observation:'Leave one plant unpicked for a week. Compare it to a plant you harvest daily. What do you notice?'
+  },
+  {
+    season:'summer', name:'Sweet Corn', emoji:'🌽',
+    months:'Oct – Jan', duration:'75–90 days', difficulty:2,
+    soil:'Deep, rich soil; heavy feeder.',
+    water:'Critical during tasselling.',
+    companions:'Beans, Pumpkins, Sunflowers',
+    pest:'Crop rotation for cutworm; row covers when young.',
+    harvest:'Press kernel — milky juice means ready; clear juice means overripe.',
+    ages:{ toddler:'Peel back the husk — what is inside?', preschool:'Count the rows of kernels around the cob.', lower:'Time from silk to harvest — how many days?', upper:'Investigate the biology of wind pollination.', middle:'Research how corn was selectively bred over 9 000 years.', high:'Study teosinte to maize transformation: artificial selection principles.' },
+    observation:'Corn is pollinated by wind. What features help pollen travel? Look at the tassels and silk.'
+  },
+  // ── COMPANION (9) ──
+  {
+    season:'companion', name:'Marigolds', emoji:'🌼',
+    months:'Year-round', duration:'45 days to flower', difficulty:1,
+    soil:'Any well-drained soil.',
+    water:'Moderate; drought-tolerant when established.',
+    companions:'Tomatoes, Peppers, Beans — almost everything!',
+    pest:'Releases thiopene that repels nematodes underground.',
+    harvest:'Deadhead to prolong flowering; harvest petals for salads.',
+    ages:{ toddler:'Bright orange! Touch the soft petals.', preschool:'Count the petals — how many on one flower?', lower:'Observe which insects visit marigolds.', upper:'Research terpene compounds and their pest-deterrent mechanisms.', middle:'Design a controlled trial: tomatoes with/without marigolds and pest counts.', high:'Study the chemistry of thiopene and nematicide action.' },
+    observation:'Watch a marigold for 5 minutes. Which insects visit it? Are any of them pest predators?'
+  },
+  {
+    season:'companion', name:'Nasturtiums', emoji:'🌺',
+    months:'Year-round', duration:'50–60 days', difficulty:1,
+    soil:'Poor soil = more flowers; rich soil = more leaves.',
+    water:'Low; drought tolerant.',
+    companions:'Cucumbers, Pumpkins, Tomatoes',
+    pest:'Aphid trap crop — lures aphids away from vegetables.',
+    harvest:'Eat flowers, leaves, and seeds — all edible and peppery.',
+    ages:{ toddler:'Taste a petal — is it spicy or sweet?', preschool:'Use petals to make a colourful salad.', lower:'Observe aphids on nasturtiums — why are they there?', upper:'Research trap cropping as a pest management strategy.', middle:'Design a pest density comparison: nasturtium trap vs untreated control.', high:'Investigate insect behaviour modification through sacrificial cropping.' },
+    observation:'Count the aphids on the nasturtium. Then check the nearby tomatoes. Is there a difference?'
+  },
+  {
+    season:'companion', name:'Basil + Tomato', emoji:'🍅',
+    months:'Sep – Feb', duration:'Plant together', difficulty:1,
+    soil:'Rich, warm soil for both.',
+    water:'Similar needs — easy to manage together.',
+    companions:'Each other! Also: parsley, marigolds',
+    pest:'Basil deters aphids and whitefly on tomatoes.',
+    harvest:'Harvest basil regularly to prevent flowering; harvest tomatoes at peak.',
+    ages:{ toddler:'Smell basil, smell tomato — which is stronger?', preschool:'Make a garden-to-table bruschetta snack.', lower:'Compare pest counts on tomatoes with vs without basil.', upper:'Research the science behind basil-tomato companion planting.', middle:'Investigate volatile compound emission and insect deterrence.', high:'Design a double-blind trial measuring whitefly infestation with/without basil companion.' },
+    observation:'Crush a basil leaf near the tomato plant. Watch — do any insects leave the tomato?'
+  },
+  {
+    season:'companion', name:'Three Sisters', emoji:'🌽',
+    months:'Sep – Jan', duration:'Plant same time', difficulty:2,
+    soil:'Rich mounds; the beans feed nitrogen to the others.',
+    water:'Pumpkin mulches the soil; less water needed.',
+    companions:'Corn + Beans + Pumpkin (traditional polyculture)',
+    pest:'Pumpkin leaves discourage weeds and some pests.',
+    harvest:'Harvest in sequence: beans first, then corn, then pumpkins.',
+    ages:{ toddler:'Three friends growing together — corn, beans, pumpkin!', preschool:'Plant all three in a circle and watch them grow.', lower:'Draw and label the Three Sisters mound diagram.', upper:'Research the Indigenous North American origins of Three Sisters.', middle:'Investigate polyculture yield vs monoculture under the same conditions.', high:'Analyse nitrogen cycling, light competition, and ground coverage efficiency.' },
+    observation:'The pumpkin covers the ground. The bean climbs the corn. What does each plant get from this friendship?'
+  },
+  {
+    season:'companion', name:'Garlic Spray', emoji:'🧄',
+    months:'Year-round', duration:'Make fresh weekly', difficulty:1,
+    soil:'Not applied to soil — foliar spray on plants.',
+    water:'Apply in early morning; avoid full sun to prevent burning.',
+    companions:'Helps protect: roses, tomatoes, brassicas',
+    pest:'Repels aphids, spider mites, and many soft-bodied insects.',
+    harvest:'Blend 6 garlic cloves + 1 L water; strain; spray leaves.',
+    ages:{ toddler:'Help blend the garlic — it smells so strong!', preschool:'Spray leaves with a mist bottle — pretend it is rain.', lower:'Test garlic spray vs water on aphid-infested plants.', upper:'Research allicin concentration and optimal dilution rates.', middle:'Conduct a controlled aphid infestation trial with garlic spray.', high:'Analyse active compounds; compare to commercial pyrethrin insecticides.' },
+    observation:'Spray one plant and leave one unsprayed. Count aphids on both after 3 days. What do you find?'
+  },
+  {
+    season:'companion', name:'Dill + Brassicas', emoji:'🌿',
+    months:'Year-round', duration:'60–90 days', difficulty:1,
+    soil:'Any well-drained soil.',
+    water:'Moderate; tolerates dry spells.',
+    companions:'Brassicas, cucumbers, onions',
+    pest:'Attracts beneficial wasps that parasitise caterpillars.',
+    harvest:'Harvest fronds young; seeds when brown.',
+    ages:{ toddler:'Smell the feathery dill — what does it remind you of?', preschool:'Press dill sprigs flat and make a nature print.', lower:'Observe which insects visit the dill flowers.', upper:'Identify beneficial insects: parasitic wasps, lacewings, hoverflies.', middle:'Design a beneficial insect survey in the school garden.', high:'Study integrated pest management (IPM): biological vs chemical control.' },
+    observation:'Sit quietly beside the dill flowers for 3 minutes. List every insect species that visits.'
+  },
+  {
+    season:'companion', name:'Rosemary + Carrots', emoji:'🥕',
+    months:'Year-round', duration:'Perennial herb', difficulty:1,
+    soil:'Poor, dry, well-drained — opposite of carrots!',
+    water:'Very low; thrives in dry conditions.',
+    companions:'Carrots, beans, brassicas',
+    pest:'Strong scent confuses carrot fly.',
+    harvest:'Harvest sprigs year-round without stripping the plant.',
+    ages:{ toddler:'Rub rosemary — close your eyes and smell!', preschool:'Does the smell stick to your fingers? For how long?', lower:'Test: do carrot seeds germinate faster near rosemary?', upper:'Research how olfactory camouflage protects against pest insects.', middle:'Map essential oil compounds using simple distillation.', high:'Study the monoterpene compounds in rosemary and their mode of action.' },
+    observation:'Can you still smell rosemary on your fingers after washing? Why might a smell last so long?'
+  },
+  {
+    season:'companion', name:'Borage', emoji:'🌸',
+    months:'Sep – Feb', duration:'60–80 days', difficulty:1,
+    soil:'Any soil; self-seeds generously.',
+    water:'Low once established.',
+    companions:'Tomatoes, strawberries, squash',
+    pest:'Deters tomato hornworm; attracts bees for pollination.',
+    harvest:'Harvest blue flowers fresh; float in drinks or freeze in ice cubes.',
+    ages:{ toddler:'Tiny blue stars — collect them in a bowl!', preschool:'Float borage flowers in water to decorate drinks.', lower:'Count bee visits to borage vs. other nearby flowers.', upper:'Research why borage attracts bees: UV patterns invisible to humans.', middle:'Investigate flower UV reflectance and pollinator vision.', high:'Study the relationship between pollinator attraction mechanisms and plant reproduction success.' },
+    observation:'Count bee visits to the borage vs. another flower nearby for 5 minutes each. Which wins?'
+  },
+  {
+    season:'companion', name:'Chives + Roses', emoji:'🌹',
+    months:'Year-round', duration:'Perennial', difficulty:1,
+    soil:'Any well-drained soil.',
+    water:'Moderate; tolerates some drought.',
+    companions:'Roses, carrots, tomatoes',
+    pest:'Reduces black spot and aphids on roses.',
+    harvest:'Snip leaves regularly; harvest flowers for salads.',
+    ages:{ toddler:'Chop chives with a small safe knife — snip snip!', preschool:'Taste a chive — mild onion flavour!', lower:'Observe pest counts on roses with/without chive companions.', upper:'Research sulphur compounds as fungal inhibitors.', middle:'Investigate antifungal properties of allium extracts.', high:'Extract and test allicin/sulphur compounds against rose black spot cultures.' },
+    observation:'Check the roses nearest to chive plants — are there fewer pests or black spots than elsewhere?'
+  },
+  // ── INDIGENOUS (9) ──
+  {
+    season:'indigenous', name:'Wild Rosemary', emoji:'🌿',
+    months:'Year-round', duration:'Perennial shrub', difficulty:1,
+    soil:'Well-drained, sandy, nutrient-poor fynbos soil.',
+    water:'Low; drought adapted.',
+    companions:'Proteas, Restios, Lavender',
+    pest:'Naturally pest-resistant; repels many insects.',
+    harvest:'Harvest small sprigs; never remove more than 10% of the plant.',
+    ages:{ toddler:'Crush a leaf — does it tickle your nose?', preschool:'Draw the tiny white flowers.', lower:'Research where Eriocephalus grows wild in the Western Cape.', upper:'Compare Eriocephalus to culinary rosemary — same family?', middle:'Investigate fynbos fire adaptations and seed germination after fire.', high:'Study buchu essential oil vs wild rosemary essential oil composition.' },
+    observation:'Wild rosemary grows in rocky, dry places. How is the root system different from a garden vegetable?'
+  },
+  {
+    season:'indigenous', name:'Pelargoniums', emoji:'🌸',
+    months:'Year-round', duration:'Perennial', difficulty:1,
+    soil:'Well-drained, sandy soil; poor fertility is fine.',
+    water:'Low; never over-water.',
+    companions:'Fynbos species, aloes, lavender',
+    pest:'Very few pests; natural resilience.',
+    harvest:'Scented leaves can be used in teas, baking, and potpourri.',
+    ages:{ toddler:'So many scents — lemon, rose, mint! Which do you like?', preschool:'Press a scented leaf and keep it in your journal.', lower:'Create a scent map of your school garden.', upper:'Research indigenous medicinal uses of Pelargonium sidoides (umckaloabo).', middle:'Investigate essential oil extraction using steam distillation.', high:'Research the global pelargonium trade and community benefits in the Cape.' },
+    observation:'Rub different pelargonium varieties — write down 3 different scent descriptions for 3 different plants.'
+  },
+  {
+    season:'indigenous', name:'Aloe Ferox', emoji:'🌵',
+    months:'Year-round', duration:'Slow-growing perennial', difficulty:1,
+    soil:'Sandy, well-drained; tolerates extreme poor soil.',
+    water:'Very low; survives drought perfectly.',
+    companions:'Fynbos, succulents, restios',
+    pest:'Virtually pest-free.',
+    harvest:'Outer leaves only; bitter sap around leaf edges — handle carefully.',
+    ages:{ toddler:'Spiky outside, slimy inside — be gentle!', preschool:'Observe the flowers — birds love them!', lower:'Research how sunbirds pollinate aloe flowers.', upper:'Investigate aloe gel composition: polysaccharides and healing properties.', middle:'Compare Aloe ferox to Aloe vera — which is indigenous to SA?', high:'Research the commercial aloe ferox export industry in the Eastern Cape.' },
+    observation:'Watch the aloe flowers. Which birds visit? What colour are the birds and flowers — is this a coincidence?'
+  },
+  {
+    season:'indigenous', name:'Buchu', emoji:'🫙',
+    months:'Year-round', duration:'Slow-growing shrub', difficulty:3,
+    soil:'Acidic, well-drained, low-nutrient fynbos soil.',
+    water:'Low; rainfall timing is critical.',
+    companions:'Restios, Proteas, Ericas',
+    pest:'Few pests; resilient species.',
+    harvest:'Small leaf harvests from older plants only; protected wild species.',
+    ages:{ toddler:'Smell this leaf — does it smell like blackcurrants?', preschool:'Look up Buchu tea — it has been used for hundreds of years.', lower:'Research the Khoisan peoples\' traditional use of Buchu.', upper:'Investigate current commercial Buchu cultivation in the Overberg.', middle:'Study the bio-prospecting debate: who owns indigenous plant knowledge?', high:'Analyse the legal frameworks for traditional knowledge protection (Nagoya Protocol).' },
+    observation:'Buchu smells like blackcurrants due to diosphenol. Research what other plants share this compound.'
+  },
+  {
+    season:'indigenous', name:'Lavender', emoji:'💜',
+    months:'Year-round', duration:'Perennial shrub', difficulty:1,
+    soil:'Alkaline, well-drained, rocky soil.',
+    water:'Low once established; hates wet roots.',
+    companions:'Rosemary, Sage, Thyme — Mediterranean herbs',
+    pest:'Natural pest repellent; bees adore it.',
+    harvest:'Cut stems just as flowers open for maximum fragrance.',
+    ages:{ toddler:'Smell the purple flowers — nice or too strong?', preschool:'Put lavender in a little cloth bag — a sleep pillow!', lower:'Research the difference between French and English lavender.', upper:'Extract lavender essential oil using a simple still.', middle:'Investigate the effect of lavender oil on bee behaviour.', high:'Study linalool and linalyl acetate: pharmacological properties and aromatherapy evidence base.' },
+    observation:'Leave a bunch of lavender on your desk. Record how many days the scent lasts before fading.'
+  },
+  {
+    season:'indigenous', name:'Protea', emoji:'🌺',
+    months:'Winter flowering', duration:'Slow-growing; 3–5 years to flower', difficulty:3,
+    soil:'Acidic, low-phosphorus fynbos soil — NO compost or fertiliser!',
+    water:'Very low; roots are extremely sensitive.',
+    companions:'Restios, Ericas, Leucadendrons',
+    pest:'Root rot if overwatered; proteoid roots.',
+    harvest:'Cut flowers once outer petals open; keep 3–4 sets of leaves on plant.',
+    ages:{ toddler:'What shape is the flower? Like a big cup!', preschool:'How many birds can you see visiting the protea?', lower:'Research why proteas need fire to release seeds.', upper:'Investigate proteoid root clusters and phosphorus scavenging.', middle:'Explore fynbos fire ecology: serotiny and obligate seeders vs resprouters.', high:'Analyse why compost or fertiliser kills proteas: phosphorus toxicity in Proteaceae.' },
+    observation:'Proteas evolved in poor soil. Add compost near one — predict what happens. Why would fertiliser harm it?'
+  },
+  {
+    season:'indigenous', name:'Sage', emoji:'🌿',
+    months:'Year-round', duration:'Perennial', difficulty:1,
+    soil:'Well-drained, alkaline to neutral.',
+    water:'Low; drought tolerant.',
+    companions:'Brassicas, Rosemary, Carrots',
+    pest:'Deters cabbage moth and carrot fly.',
+    harvest:'Harvest leaves regularly before flowering; promotes bushy growth.',
+    ages:{ toddler:'Rub the fuzzy grey leaf gently.', preschool:'Make sage-butter toast together.', lower:'Compare green sage vs purple sage — same species?', upper:'Research the antimicrobial properties of sage essential oil.', middle:'Investigate rosmarinic acid: antioxidant properties and measurement.', high:'Study sage\'s role in traditional medicine: ethnobotanical records in Southern Africa.' },
+    observation:'Sage leaves are covered in fine hairs. Why might a plant have hairy leaves? Think about heat, water, insects.'
+  },
+  {
+    season:'indigenous', name:'Restio', emoji:'🌾',
+    months:'Year-round', duration:'Slow-growing perennial', difficulty:3,
+    soil:'Sandy, acidic, nutrient-poor fynbos soil.',
+    water:'Winter rainfall adapted; no summer water.',
+    companions:'Proteas, Ericas, Buchu',
+    pest:'Virtually no pests.',
+    harvest:'Cut mature culms for thatching, basket weaving, or floral arrangements.',
+    ages:{ toddler:'Feel the reed — smooth and round!', preschool:'Watch a restio sway in the wind — like dancing!', lower:'Research how rooigrass is used in traditional Cape thatching.', upper:'Investigate photosynthesis in green stems (culms) instead of leaves.', middle:'Explore the ecological role of restios in fynbos fire recovery.', high:'Study the role of restios in the Cape Floristic Region\'s biodiversity hotspot status.' },
+    observation:'Restios have no leaves — they photosynthesise through their green stems. Where exactly do they absorb light?'
+  },
+  {
+    season:'indigenous', name:'Cape Honeybee', emoji:'🐝',
+    months:'Year-round', duration:'Perennial colony', difficulty:1,
+    soil:'Requires flowering plants within 3 km.',
+    water:'Provide a shallow dish of water with pebbles.',
+    companions:'Borage, Lavender, Aloes, Pelargoniums',
+    pest:'Varroa mite is a threat; no chemicals near hives.',
+    harvest:'Never harvest garden pollinators — only observe and support them.',
+    ages:{ toddler:'Shhh — watch the bee on the flower. It\'s working!', preschool:'Draw the path the bee takes between flowers.', lower:'Count how many flowers a bee visits in one minute.', upper:'Research how bees navigate using the sun and UV patterns.', middle:'Investigate colony collapse disorder and contributing factors.', high:'Study Cape honeybee (Apis mellifera capensis) vs. African bee behaviour differences.' },
+    observation:'Watch a bee on a flower. Does it visit the same flower type each time, or jump between species? Why might this matter?'
+  },
+];
+
+// ══════════════════════════════════════════════
+//  CUBE BUILD
+// ══════════════════════════════════════════════
+const FACE_ORDER = ['autumn','winter','spring','summer','companion','indigenous'];
+const cubeEl = document.getElementById('cube-wrapper');
+const adCubeEl = document.getElementById('ad-cube-wrap');
+
+FACE_ORDER.forEach((season) => {
+  // main cube
+  const face = document.createElement('div');
+  face.className = 'cube-face';
+  face.dataset.season = season;
+  const vegs = VEGGIES.filter(v => v.season === season);
+  vegs.forEach(v => {
+    const panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.dataset.season = season;
+    panel.innerHTML = '<span class="p-emoji">' + v.emoji + '</span><span class="p-name">' + v.name + '</span><span class="p-dur">' + v.duration + '</span>';
+    panel.dataset.veggieIdx = VEGGIES.indexOf(v);
+    panel.addEventListener('click', e => { e.stopPropagation(); openModal(v); });
+    face.appendChild(panel);
+  });
+  cubeEl.appendChild(face);
+
+  // ad background cube (decorative only)
+  const adFace = document.createElement('div');
+  adFace.className = 'ad-cube-face';
+  for (let i = 0; i < 9; i++) {
+    const ap = document.createElement('div');
+    ap.className = 'ad-panel';
+    adFace.appendChild(ap);
+  }
+  adCubeEl.appendChild(adFace);
+});
+
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
+let currentAge = 'toddler';
+let currentModalVeggie = null;
+let journeyVeggie = null;
+const overlay = document.getElementById('modal-overlay');
+const modalClose = document.getElementById('modal-close');
+
+function openModal(v) {
+  currentModalVeggie = v;
+  journeyVeggie      = v;
+  const s = SEASONS.find(s => s.key === v.season);
+  document.getElementById('m-emoji').textContent = v.emoji;
+  const badge = document.getElementById('m-badge');
+  badge.textContent = s.label;
+  badge.style.background = s.color;
+  document.getElementById('m-name').textContent = v.name;
+  document.getElementById('m-sub').textContent = s.emoji + ' ' + s.label + ' · ' + v.duration;
+  document.getElementById('m-months').textContent = v.months;
+  document.getElementById('m-dur').textContent = v.duration;
+  document.getElementById('m-water').textContent = v.water;
+  document.getElementById('m-soil').textContent = v.soil;
+  document.getElementById('m-companions').textContent = v.companions;
+  document.getElementById('m-pest').textContent = v.pest;
+  document.getElementById('m-harvest').textContent = v.harvest;
+  document.getElementById('m-observation').textContent = v.observation;
+
+  const dots = document.getElementById('m-dots');
+  dots.innerHTML = '';
+  for (let i = 1; i <= 3; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i <= v.difficulty ? ' filled' : '');
+    dots.appendChild(d);
+  }
+
+  ['toddler','preschool','lower','upper','middle','high'].forEach(age => {
+    const el = document.getElementById('ac-' + age);
+    el.textContent = v.ages[age] || '';
+    el.classList.toggle('visible', age === currentAge);
+  });
+
+  overlay.classList.add('open');
+  spawnParticles(v.season);
+  // restart pop animation each open
+  const mEl = document.getElementById('modal');
+  mEl.style.animation = 'none';
+  void mEl.offsetWidth;
+  mEl.style.animation = '';
+}
+
+modalClose.addEventListener('click', () => overlay.classList.remove('open'));
+overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+
+// ── Age group content mapping ──
+// Each tab maps directly to the matching key in ages{}
+// Original data is already ordered simplest→most complex:
+//   toddler → preschool → lower → upper → middle → high
+// No runtime swaps needed — each group shows its own correct content.
+// To reassign content, edit the source VEGGIES data directly.
+
+// ══════════════════════════════════════════════
+//  AGE LIGHTING
+// ══════════════════════════════════════════════
+// Which difficulty levels are highlighted for each age group
+// (lower ↔ high swapped to match the activity content swap above)
+// Progressive staircase — each level sees more plants than the one before.
+// How many panels (out of 9) are lit per face for each age group.
+// Sorted easiest-first so lower ages always see the most accessible plants.
+// Each group is unique; Grounds Team sees all 9.
+const AGE_MAX = {
+  toddler:   3,   // 3 / 9 panels lit
+  preschool: 4,   // 4 / 9
+  lower:     5,   // 5 / 9
+  upper:     6,   // 6 / 9
+  middle:    7,   // 7 / 9
+  high:      9,   // 9 / 9 — full access
+};
+
+function updatePanelLighting(age) {
+  const maxLit = AGE_MAX[age] ?? 9;
+
+  // Group panel elements by face/season
+  const byFace = {};
+  document.querySelectorAll('.panel').forEach(p => {
+    const v = VEGGIES[parseInt(p.dataset.veggieIdx)];
+    if (!v) return;
+    if (!byFace[v.season]) byFace[v.season] = [];
+    byFace[v.season].push({ el: p, difficulty: v.difficulty, idx: parseInt(p.dataset.veggieIdx), season: v.season });
+  });
+
+  // For each face: sort easiest → hardest, light the first maxLit, dim the rest
+  Object.values(byFace).forEach(panels => {
+    panels.sort((a, b) => a.difficulty - b.difficulty || a.idx - b.idx);
+    panels.forEach(({ el, season }, i) => {
+      el.classList.remove('p-lit', 'p-dimmed',
+        'glow-autumn','glow-winter','glow-spring',
+        'glow-summer','glow-companion','glow-indigenous');
+      if (i < maxLit) {
+        el.classList.add('p-lit', 'glow-' + season);
+      } else {
+        el.classList.add('p-dimmed');
+      }
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+//  AGE FILTER
+// ══════════════════════════════════════════════
+document.querySelectorAll('.age-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentAge = btn.dataset.age;
+    document.querySelectorAll('.age-content').forEach(el => {
+      el.classList.toggle('visible', el.dataset.ac === currentAge);
+    });
+    updatePanelLighting(currentAge);
+  });
+});
+
+// apply on load
+updatePanelLighting(currentAge);
+
+// ══════════════════════════════════════════════
+//  DARK MODE
+// ══════════════════════════════════════════════
+const darkBtn = document.getElementById('dark-toggle');
+let darkMode = false;
+darkBtn.addEventListener('click', () => {
+  darkMode = !darkMode;
+  document.documentElement.classList.toggle('dark', darkMode);
+  darkBtn.textContent = darkMode ? '☀️' : '🌙';
+});
+
+// ══════════════════════════════════════════════
+//  FACE NAV
+// ══════════════════════════════════════════════
+const FACE_ROTATIONS = [
+  [-20,   0],   // front  – autumn
+  [-20, 180],   // back   – winter
+  [-20,  90],   // right  – spring
+  [-20, -90],   // left   – summer
+  [ 70,   0],   // top    – companion
+  [-110,  0],   // bottom – indigenous
+];
+
+let baseRX = -25, baseRY = 35;
+
+function rotateToCubeFace(fi) {
+  const [rx, ry] = FACE_ROTATIONS[fi];
+  baseRX = rx;
+  baseRY = ry;
+  cubeEl.style.transition = 'transform .6s ease';
+  cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg)';
+}
+
+document.querySelectorAll('.face-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const fi = parseInt(btn.dataset.face);
+    rotateToCubeFace(fi);
+    spawnParticles(FACE_ORDER[fi]);
+  });
+});
+
+// ══════════════════════════════════════════════
+//  DRAG ROTATION  (RAF-throttled for 60 fps)
+// ══════════════════════════════════════════════
+let isDragging = false, lastX = 0, lastY = 0, rafPending = false;
+const stage = document.getElementById('cube-stage');
+
+function applyRotation() {
+  cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg)';
+  rafPending = false;
+}
+function scheduleRotation() {
+  if (!rafPending) { rafPending = true; requestAnimationFrame(applyRotation); }
+}
+
+stage.addEventListener('mousedown', e => {
+  isDragging = true; lastX = e.clientX; lastY = e.clientY;
+  cubeEl.style.transition = 'none'; resetIdle();
+});
+window.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+  baseRY += (e.clientX - lastX) * 0.4;
+  baseRX -= (e.clientY - lastY) * 0.4;
+  lastX = e.clientX; lastY = e.clientY;
+  scheduleRotation();
+});
+window.addEventListener('mouseup', () => { isDragging = false; });
+
+stage.addEventListener('touchstart', e => {
+  isDragging = true;
+  lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+  cubeEl.style.transition = 'none'; resetIdle();
+}, { passive: true });
+stage.addEventListener('touchmove', e => {
+  if (!isDragging) return;
+  baseRY += (e.touches[0].clientX - lastX) * 0.4;
+  baseRX -= (e.touches[0].clientY - lastY) * 0.4;
+  lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+  scheduleRotation();
+}, { passive: true });
+stage.addEventListener('touchend',   () => { isDragging = false; });
+stage.addEventListener('touchcancel',() => { isDragging = false; });
+
+// ══════════════════════════════════════════════
+//  IDLE AUTO-ROTATE  (RAF-based, pauses when hidden)
+// ══════════════════════════════════════════════
+let idleTimer = null;
+let idleRaf   = null;
+
+function stopIdle() {
+  if (idleRaf)   { cancelAnimationFrame(idleRaf); idleRaf = null; }
+  if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
+}
+function idleTick() {
+  if (!isDragging && !document.hidden &&
+      !overlay.classList.contains('open') &&
+      !adOverlay.classList.contains('open')) {
+    baseRY += 0.18;
+    cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg)';
+  }
+  idleRaf = requestAnimationFrame(idleTick);
+}
+function startIdle() { if (!idleRaf) idleRaf = requestAnimationFrame(idleTick); }
+function resetIdle()  { stopIdle(); idleTimer = setTimeout(startIdle, 5000); }
+
+window.addEventListener('mousemove',  resetIdle);
+window.addEventListener('touchstart', resetIdle, { passive: true });
+// Pause when app is backgrounded / screen off
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) stopIdle(); else resetIdle();
+});
+resetIdle();
+
+// ══════════════════════════════════════════════
+//  PARTICLES
+// ══════════════════════════════════════════════
+const particleContainer = document.getElementById('particles');
+const isMobile = () => window.innerWidth <= 700;
+function spawnParticles(season) {
+  if (document.hidden) return;           // don't spawn when backgrounded
+  const emojis = PARTICLES[season] || ['✨'];
+  const count  = isMobile() ? 5 : 10;   // fewer particles on mobile
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      p.style.left = (Math.random() * 100) + 'vw';
+      p.style.animationDuration = (2 + Math.random() * 3) + 's';
+      p.style.animationDelay = (Math.random() * 0.5) + 's';
+      particleContainer.appendChild(p);
+      setTimeout(() => p.remove(), 6000);
+    }, i * 80);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  AD / PRESENTATION MODE
+// ══════════════════════════════════════════════
+const adOverlay  = document.getElementById('ad-overlay');
+const adIcon     = document.getElementById('ad-season-icon');
+const adLabel    = document.getElementById('ad-season-label');
+const adTitle    = document.getElementById('ad-title');
+const adSubtitle = document.getElementById('ad-subtitle');
+const adPlants   = document.getElementById('ad-plants');
+const adBar      = document.getElementById('ad-bar');
+const adContent  = document.getElementById('ad-content');
+
+let adFaceIndex  = 0;
+let adTimer      = null;
+let adBarTimer   = null;
+const AD_DURATION = 6000; // ms per face
+
+const AD_SUBTITLES = [
+  'Sow, grow and harvest through the cool autumn months',
+  'Hardy crops that thrive in Western Cape winters',
+  'Celebrate spring with vibrant warm-season plantings',
+  'Summer abundance — water wisely and harvest daily',
+  'Plants that help each other grow better together',
+  'Celebrating the plants of our fynbos heritage',
+];
+
+function showAdFace(index) {
+  adFaceIndex = ((index % FACE_ORDER.length) + FACE_ORDER.length) % FACE_ORDER.length;
+  const season = FACE_ORDER[adFaceIndex];
+  const s = SEASONS.find(x => x.key === season);
+  const vegs = VEGGIES.filter(v => v.season === season);
+
+  // refresh animation
+  adContent.style.animation = 'none';
+  void adContent.offsetWidth;
+  adContent.style.animation = 'adFade .7s ease';
+
+  adIcon.textContent = s.emoji;
+  adIcon.style.filter = 'drop-shadow(0 0 30px ' + s.color + ')';
+  adLabel.textContent = s.label;
+  adLabel.style.color = s.color;
+  adTitle.textContent = s.label;
+  adSubtitle.textContent = AD_SUBTITLES[adFaceIndex];
+
+  adPlants.innerHTML = '';
+  vegs.slice(0, 6).forEach(v => {
+    const chip = document.createElement('div');
+    chip.className = 'ad-plant-chip';
+    chip.innerHTML = '<span>' + v.emoji + '</span>' + v.name;
+    chip.style.borderColor = s.color + '44';
+    adPlants.appendChild(chip);
+  });
+
+  // rotate background cube
+  const [rx, ry] = FACE_ROTATIONS[adFaceIndex];
+  adCubeEl.style.transition = 'transform 1.2s ease';
+  adCubeEl.style.transform = 'rotateX(' + (rx - 10) + 'deg) rotateY(' + ry + 'deg)';
+
+  // progress bar
+  adBar.style.transition = 'none';
+  adBar.style.width = '0%';
+  adBar.style.background = s.color;
+  void adBar.offsetWidth;
+  adBar.style.transition = 'width ' + (AD_DURATION / 1000) + 's linear';
+  adBar.style.width = '100%';
+}
+
+function adNext() {
+  clearTimeout(adTimer);
+  showAdFace(adFaceIndex + 1);
+  adTimer = setTimeout(adNext, AD_DURATION);
+}
+function adPrev() {
+  clearTimeout(adTimer);
+  showAdFace(adFaceIndex - 1);
+  adTimer = setTimeout(adNext, AD_DURATION);
+}
+
+function openAd() {
+  adOverlay.classList.add('open');
+  stopIdle();
+  showAdFace(0);
+  adTimer = setTimeout(adNext, AD_DURATION);
+}
+function closeAd() {
+  adOverlay.classList.remove('open');
+  clearTimeout(adTimer);
+  resetIdle();
+}
+
+document.getElementById('ad-toggle').addEventListener('click', openAd);
+document.getElementById('ad-exit').addEventListener('click', closeAd);
+document.getElementById('ad-next').addEventListener('click', adNext);
+document.getElementById('ad-prev').addEventListener('click', adPrev);
+
+// keyboard shortcuts
+window.addEventListener('keydown', e => {
+  if (document.getElementById('journey-overlay').classList.contains('open')) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); journeyStep(1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); journeyStep(-1); }
+    if (e.key === 'Escape') closeJourney();
+  } else if (adOverlay.classList.contains('open')) {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); adNext(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); adPrev(); }
+    if (e.key === 'Escape') closeAd();
+  } else if (document.getElementById('eco-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') closeEco();
+  } else if (document.getElementById('edit-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') closeEdit();
+  } else {
+    if (e.key === 'Escape') overlay.classList.remove('open');
+  }
+});
+
+// ══════════════════════════════════════════════
+//  GARDEN JOURNEY
+// ══════════════════════════════════════════════
+const JOURNEY_STAGES = [
+  { stage:'Seed',        emoji:'🌰', time:'Day 0',       tip:'Label your pot or row with the plant name and date planted — great for record keeping!' },
+  { stage:'Germination', emoji:'🌱', time:'3–14 days',   tip:'Keep the soil consistently moist but never waterlogged. A spray bottle is ideal.' },
+  { stage:'Seedling',    emoji:'🪴', time:'1–3 weeks',   tip:'Thin seedlings so they do not compete. Leave the strongest plant every 10 cm.' },
+  { stage:'Growth',      emoji:'🌿', time:'Varies',       tip:'Apply compost mulch around the base to retain moisture and suppress weeds.' },
+  { stage:'Flowering',   emoji:'🌸', time:'Mid season',   tip:'Attract pollinators by planting companion flowers like marigolds or borage nearby.' },
+  { stage:'Harvest',     emoji:'🧺', time:'Ready!',       tip:'Harvest in the early morning when sugar and moisture content is at its highest.' },
+  { stage:'Kitchen',     emoji:'🍽️', time:'Same day',    tip:'Rinse in cold water and eat as fresh as possible to preserve maximum nutrition.' },
+  { stage:'Compost',     emoji:'♻️', time:'4–8 weeks',   tip:'Chop plant material into smaller pieces to speed up decomposition in the compost pile.' },
+  { stage:'Soil',        emoji:'🌍', time:'Complete',     tip:'One full cycle feeds the next. Add finished compost before your next planting.' },
+];
+
+function getJourneyDesc(veggie, idx) {
+  const descs = [
+    'Prepare your soil: ' + veggie.soil + ' Sow ' + veggie.name + ' seeds at the correct depth and water gently.',
+    'The seed absorbs moisture and swells. The root (radicle) emerges first, then the shoot pushes toward the light. Duration: ' + veggie.duration + '.',
+    'First true leaves appear above the cotyledons. Water from below if possible and protect from strong wind and frost.',
+    veggie.water + ' Companion plants to grow alongside: ' + veggie.companions + '.',
+    'Flowers attract bees and beneficial insects. ' + veggie.pest + ' Avoid spraying during peak flowering hours.',
+    veggie.harvest + ' Pick at peak ripeness for best flavour and nutrition.',
+    veggie.name + ' is best eaten the same day it is harvested. Garden-to-table in minutes — the freshest food possible!',
+    'Add spent plants, stems, and kitchen scraps to the compost pile. Turn weekly and keep moist. An earthy smell means healthy decomposition.',
+    'Finished compost returns nutrients, beneficial microbes, and organic matter to the soil — ready to nourish the next planting. The cycle is complete.',
+  ];
+  return descs[idx] || '';
+}
+
+let journeyIndex  = 0;
+const journeyOverlay = document.getElementById('journey-overlay');
+
+function openJourney(v) {
+  journeyVeggie = v;
+  journeyIndex  = 0;
+  document.getElementById('journey-plant-title').textContent = v.emoji + '  ' + v.name;
+  document.getElementById('journey-plant-sub').textContent   = 'Garden Journey · 9 Stages · Western Cape';
+  // build chips
+  const bar = document.getElementById('journey-stages-bar');
+  bar.innerHTML = '';
+  JOURNEY_STAGES.forEach((s, i) => {
+    const chip = document.createElement('button');
+    chip.className = 'j-chip' + (i === 0 ? ' active' : '');
+    chip.textContent = s.emoji + ' ' + s.stage;
+    chip.addEventListener('click', () => { journeyIndex = i; renderJourneyStage(); });
+    bar.appendChild(chip);
+  });
+  journeyOverlay.classList.add('open');
+  renderJourneyStage();
+}
+
+function renderJourneyStage() {
+  const s = JOURNEY_STAGES[journeyIndex];
+  // animate card
+  const card = document.getElementById('journey-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'jFade .3s ease';
+
+  document.getElementById('journey-stage-emoji').textContent = s.emoji;
+  document.getElementById('journey-stage-name').textContent  = s.stage;
+  document.getElementById('journey-stage-time').textContent  = s.time;
+  document.getElementById('journey-stage-desc').textContent  = getJourneyDesc(journeyVeggie, journeyIndex);
+  document.getElementById('journey-stage-tip').textContent   = '💡 ' + s.tip;
+  document.getElementById('journey-step-counter').textContent = (journeyIndex + 1) + ' / ' + JOURNEY_STAGES.length;
+
+  const pct = ((journeyIndex + 1) / JOURNEY_STAGES.length * 100).toFixed(0);
+  document.getElementById('journey-progress-bar').style.width = pct + '%';
+
+  // disable nav at boundaries
+  document.getElementById('j-prev').disabled = (journeyIndex === 0);
+  document.getElementById('j-next').disabled = (journeyIndex === JOURNEY_STAGES.length - 1);
+  document.getElementById('j-next').textContent = journeyIndex === JOURNEY_STAGES.length - 1 ? '✓ Done' : 'Next ▶';
+
+  // update chips
+  document.querySelectorAll('.j-chip').forEach((c, i) => c.classList.toggle('active', i === journeyIndex));
+  const chips = document.querySelectorAll('.j-chip');
+  if (chips[journeyIndex]) chips[journeyIndex].scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
+}
+
+function journeyStep(dir) {
+  journeyIndex = Math.max(0, Math.min(JOURNEY_STAGES.length - 1, journeyIndex + dir));
+  renderJourneyStage();
+}
+
+function closeJourney() { journeyOverlay.classList.remove('open'); }
+
+document.getElementById('journey-close-btn').addEventListener('click', closeJourney);
+document.getElementById('j-prev').addEventListener('click', () => journeyStep(-1));
+document.getElementById('j-next').addEventListener('click', () => journeyStep(1));
+
+// ══════════════════════════════════════════════
+//  ECO PEST GUIDE DATA
+// ══════════════════════════════════════════════
+const ECO_DATA = {
+  herbicides: [
+    { name:'Acetic Acid (Vinegar)',    emoji:'🍶', type:'herbicide',    strength:'5–20%',
+      use:'Spray directly onto weed leaves on a hot, dry day. Best on young annual weeds.',
+      caution:'Does not kill roots — repeat applications needed for perennial weeds. Never spray near garden plants.',
+      wc:'Ideal for driveways and path edges in the Western Cape summer heat. Targets oxalis and soursob on hard surfaces.' },
+    { name:'Boiling Water',            emoji:'♨️', type:'herbicide',    strength:'100°C',
+      use:'Pour slowly and directly onto weeds growing in paved areas, cracks, and paths.',
+      caution:'Kills all plant material on contact — keep well away from your vegetable beds.',
+      wc:'Highly effective against Cape sorrel (Oxalis pes-caprae) and kikuyu grass in paving during winter and spring.' },
+    { name:'Citric Acid Spray',        emoji:'🍋', type:'herbicide',    strength:'10–15% solution',
+      use:'Dissolve citric acid powder in water and spray onto weed foliage. Apply on dry, sunny days.',
+      caution:'Non-selective contact herbicide — avoid all garden plants. Works best in full sun.',
+      wc:'Targets broad-leaf weeds common in Western Cape gardens, especially after winter rains.' },
+    { name:'Clove Oil (Eugenol)',       emoji:'🌿', type:'herbicide',    strength:'2–5% dilution',
+      use:'Mix clove oil with water and a drop of dish soap as emulsifier. Spray onto weed leaves.',
+      caution:'Strong essential oil — dilute well. Can irritate skin. Do not use near edible crops.',
+      wc:'Effective against kikuyu grass edges and oxalis on paths. Available from health shops in Cape Town.' },
+    { name:'Salt Solution',            emoji:'🧂', type:'herbicide',    strength:'1 cup per 2 cups water',
+      use:'Apply ONLY on paved areas, driveways, and hard surfaces. Never near soil.',
+      caution:'Permanently sterilises soil and contaminates groundwater. Use with extreme caution.',
+      wc:'Last-resort option for permanently sealed surfaces only. Western Cape\'s sandy soils make salt contamination spread rapidly.' },
+    { name:'Corn Gluten Meal',         emoji:'🌽', type:'pre-emergent', strength:'Apply at 10 kg per 100 m²',
+      use:'Apply to soil surface in early spring before weed seeds germinate. Water in lightly.',
+      caution:'Prevents ALL seeds germinating — do not use in beds you intend to plant for 6 weeks.',
+      wc:'Apply in August before the Western Cape spring weed flush. Breaks down harmlessly and adds nitrogen to soil.' },
+    { name:'Mulch Suppression',        emoji:'🌾', type:'pre-emergent', strength:'8–10 cm deep layer',
+      use:'Layer straw, wood chip, or dry fynbos material thickly over all bare soil. Top up as it breaks down.',
+      caution:'Avoid placing mulch directly against plant stems — can cause collar rot.',
+      wc:'Most effective weed strategy in the Western Cape. Also conserves critical water during summer drought months.' },
+  ],
+  pests: [
+    { name:'Garlic & Chilli Spray',   emoji:'🧄', targets:'Aphids, whitefly, spider mites, caterpillars',
+      recipe:'Blend 6 garlic cloves + 2 hot chillies + 1 L water. Steep 24 h, strain through cloth, add 1 tsp dish soap. Spray in the morning.',
+      caution:'Do not spray in direct midday sun — can burn leaves. Reapply after rain.',
+      wc:'Most needed in Western Cape spring (Sep–Oct) during the aphid surge on new growth.' },
+    { name:'Neem Oil Spray',          emoji:'🌿', targets:'Aphids, mealybug, scale, powdery mildew, fungal disease',
+      recipe:'Mix 5 ml neem oil + 2 ml pure soap + 1 L warm water. Shake well. Spray evening or early morning.',
+      caution:'Can affect beneficial insects if sprayed during the day. Evening application is safest.',
+      wc:'Available at most Western Cape nurseries and garden centres. Effective year-round in our Mediterranean climate.' },
+    { name:'Insecticidal Soap Spray', emoji:'🫧', targets:'Aphids, mites, mealybug, whitefly, soft-bodied insects',
+      recipe:'Dissolve 1 tsp pure Sunlight dish soap (not detergent) in 1 L water. Spray directly on pests.',
+      caution:'Safe once dry. Rinse off after 2 hours in Western Cape summer heat to prevent leaf scorch.',
+      wc:'Gentle and non-residual. Ideal for school garden use. Completely safe for children once dry.' },
+    { name:'Pyrethrum Spray',         emoji:'💐', targets:'Wide spectrum — flying and crawling insects',
+      recipe:'Use commercially prepared pyrethrum extract as per label. Apply at dusk when bees are inactive.',
+      caution:'Fast-acting but also kills beneficial insects. Use as last resort only.',
+      wc:'Pyrethrum chrysanthemum is grown commercially in the Overberg region of the Western Cape — a true local product!' },
+    { name:'Bacillus thuringiensis',  emoji:'🦠', targets:'Caterpillars, cabbage worm, diamondback moth larvae',
+      recipe:'Mix Bt powder or liquid as per packet. Spray onto leaf undersides at sunset. Reapply after rain.',
+      caution:'Completely safe for humans, animals, and beneficial insects. Only affects caterpillars that eat treated leaves.',
+      wc:'Essential for controlling cabbage white butterfly (Pieris brassicae) — very common on Western Cape brassicas Mar–Nov.' },
+    { name:'Diatomaceous Earth',      emoji:'🪨', targets:'Slugs, snails, ants, crawling insects',
+      recipe:'Dust lightly around plant stems and on soil. Reapply after rain or heavy dew.',
+      caution:'Use food-grade DE only. Wear a dust mask when applying — fine particles can irritate lungs.',
+      wc:'Most effective during Western Cape winter slug season (Jun–Aug). Also deters the Argentine ant, a major WC pest.' },
+    { name:'Copper Sulphate (Bordeaux)', emoji:'🟦', targets:'Downy mildew, powdery mildew, botrytis, bacterial canker',
+      recipe:'Bordeaux mix: dissolve 1 g copper sulphate + 1 g hydrated lime in 1 L water. Spray preventatively.',
+      caution:'Toxic to fish and aquatic life — never dispose near waterways. Can accumulate in soil with repeated use.',
+      wc:'Apply to tomatoes and brassicas during damp Western Cape winters (May–Aug) to prevent mildew outbreaks.' },
+    { name:'Kaolin Clay Spray',       emoji:'⬜', targets:'Thrips, leafhopper, fruit fly, codling moth',
+      recipe:'Mix 3 tablespoons kaolin clay powder in 1 L water + a few drops soap. Shake constantly while applying.',
+      caution:'Coats leaves white — wash off produce before eating. Reapply after rain.',
+      wc:'Excellent for protecting Western Cape stone fruit and grapes from fruit fly without chemical residues.' },
+  ],
+  companions: [
+    { name:'Wild Rosemary (Eriocephalus)',  emoji:'🌿', deters:'Aphids, cabbage moths, general insects',
+      method:'Plant as a dense border shrub around vegetable beds. Prune to maintain bushy shape.',
+      wc:'Indigenous to the Western Cape fynbos. Thrives in our dry summers with zero irrigation once established.' },
+    { name:'Buchu (Agathosma betulina)',    emoji:'🫙', deters:'General insects, soil pests',
+      method:'Use dried buchu leaves as a mulch around vulnerable plants. Brew as a foliar spray (steep leaves in water).',
+      wc:'Protected indigenous Western Cape species. Purchase from registered nurseries — do not harvest from the wild.' },
+    { name:'Lavender',                      emoji:'💜', deters:'Moths, aphids, fleas, mice',
+      method:'Plant in clumps at garden entrances and bed edges. Harvest flowers to place indoors as natural moth repellent.',
+      wc:'Thrives in Western Cape\'s dry, rocky, alkaline soils. Plant in full sun with no summer watering once established.' },
+    { name:'Scented Pelargoniums',          emoji:'🌸', deters:'Cabbage worms, Japanese beetles, aphids',
+      method:'Plant between brassicas and roses. Crush leaves and rub on skin as natural insect repellent.',
+      wc:'Dozens of indigenous scented varieties from the Western Cape. Use rose-scented, lemon, and peppermint types.' },
+    { name:'Rooibos Leaf Mulch',            emoji:'🌿', deters:'Soil pests, fungal disease',
+      method:'Spread dried rooibos (Aspalathus linearis) leaves as mulch around plants. 5 cm layer.',
+      wc:'Slowly acidifies soil — ideal for fynbos beds and blueberries. Available from tea suppliers in the Western Cape.' },
+    { name:'Nasturtium (Trap Crop)',        emoji:'🌺', deters:'Aphids (draws them away from vegetables)',
+      method:'Plant densely around the vegetable garden perimeter. Allow aphids to colonise — then remove and destroy infested plants.',
+      wc:'Self-seeds freely in the Western Cape. An incredibly effective and edible trap crop used in school gardens throughout the region.' },
+    { name:'Marigolds (Tagetes)',           emoji:'🌼', deters:'Nematodes, whitefly, aphids',
+      method:'Plant between tomatoes, peppers, and brassicas. The root secretions repel soil nematodes for up to 3 years.',
+      wc:'French marigolds (Tagetes patula) are best for nematode control. A must-have in all Western Cape school gardens.' },
+  ],
+};
+
+const ECO_LABELS = { herbicides:'Herbicides', pests:'Pest Sprays', companions:'Companion Deterrents' };
+let currentEcoTab = 'herbicides';
+
+function renderEcoTab(tab) {
+  currentEcoTab = tab;
+  document.querySelectorAll('.eco-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const body = document.getElementById('eco-body');
+  body.innerHTML = '';
+  ECO_DATA[tab].forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'eco-card';
+    const typeLabel = item.type || (tab === 'pests' ? 'spray' : 'companion');
+    card.innerHTML =
+      '<div class="eco-card-head">' +
+        '<span class="eco-emoji">' + item.emoji + '</span>' +
+        '<div><h3>' + item.name + '</h3>' +
+          (item.strength ? '<span style="font-size:0.7rem;color:var(--text2)">' + item.strength + '</span>' : '') +
+        '</div>' +
+        '<span class="eco-type ' + typeLabel + '">' + typeLabel + '</span>' +
+      '</div>' +
+      (item.use    ? '<p class="eco-field"><strong>How to use:</strong> ' + item.use + '</p>' : '') +
+      (item.recipe ? '<p class="eco-field"><strong>Recipe:</strong> '    + item.recipe + '</p>' : '') +
+      (item.method ? '<p class="eco-field"><strong>Method:</strong> '    + item.method + '</p>' : '') +
+      (item.targets ? '<p class="eco-field"><strong>Targets:</strong> '  + item.targets + '</p>' : '') +
+      (item.deters  ? '<p class="eco-field"><strong>Deters:</strong> '   + item.deters + '</p>' : '') +
+      (item.caution ? '<p class="eco-field"><strong>⚠️ Caution:</strong> ' + item.caution + '</p>' : '') +
+      '<div class="eco-wc">🌍 <strong>Western Cape note:</strong> ' + item.wc + '</div>';
+    body.appendChild(card);
+  });
+}
+
+function openEco()  { document.getElementById('eco-overlay').classList.add('open'); renderEcoTab(currentEcoTab); }
+function closeEco() { document.getElementById('eco-overlay').classList.remove('open'); }
+
+document.getElementById('eco-close-btn').addEventListener('click', closeEco);
+document.querySelectorAll('.eco-tab').forEach(t => t.addEventListener('click', () => renderEcoTab(t.dataset.tab)));
+
+// ══════════════════════════════════════════════
+//  EDIT PLANT
+// ══════════════════════════════════════════════
+const STORAGE_KEY = 'newberry_edits_v1';
+let editVeggieIdx = -1;
+let veggieDefaults = {}; // store originals for reset
+
+// load saved edits from localStorage on startup
+(function loadEdits() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.keys(saved).forEach(idx => {
+      const i = parseInt(idx);
+      if (VEGGIES[i]) Object.assign(VEGGIES[i], saved[i]);
+    });
+  } catch(e) {}
+})();
+
+function openEdit(v) {
+  editVeggieIdx = VEGGIES.indexOf(v);
+  // store original for reset (once per veggie)
+  if (!veggieDefaults[editVeggieIdx]) {
+    veggieDefaults[editVeggieIdx] = JSON.parse(JSON.stringify(v));
+  }
+  document.getElementById('ef-emoji').value       = v.emoji;
+  document.getElementById('ef-name').value        = v.name;
+  document.getElementById('ef-months').value      = v.months;
+  document.getElementById('ef-duration').value    = v.duration;
+  document.getElementById('ef-difficulty').value  = v.difficulty;
+  document.getElementById('ef-soil').value        = v.soil;
+  document.getElementById('ef-water').value       = v.water;
+  document.getElementById('ef-companions').value  = v.companions;
+  document.getElementById('ef-pest').value        = v.pest;
+  document.getElementById('ef-harvest').value     = v.harvest;
+  document.getElementById('ef-observation').value = v.observation;
+  ['toddler','preschool','lower','upper','middle','high'].forEach(a => {
+    document.getElementById('ef-' + a).value = v.ages[a] || '';
+  });
+  const eEl = document.getElementById('edit-modal');
+  eEl.style.animation = 'none';
+  void eEl.offsetWidth;
+  eEl.style.animation = '';
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function saveEdit() {
+  if (editVeggieIdx < 0) return;
+  const v = VEGGIES[editVeggieIdx];
+  v.emoji       = document.getElementById('ef-emoji').value.trim();
+  v.name        = document.getElementById('ef-name').value.trim();
+  v.months      = document.getElementById('ef-months').value.trim();
+  v.duration    = document.getElementById('ef-duration').value.trim();
+  v.difficulty  = parseInt(document.getElementById('ef-difficulty').value);
+  v.soil        = document.getElementById('ef-soil').value.trim();
+  v.water       = document.getElementById('ef-water').value.trim();
+  v.companions  = document.getElementById('ef-companions').value.trim();
+  v.pest        = document.getElementById('ef-pest').value.trim();
+  v.harvest     = document.getElementById('ef-harvest').value.trim();
+  v.observation = document.getElementById('ef-observation').value.trim();
+  ['toddler','preschool','lower','upper','middle','high'].forEach(a => {
+    v.ages[a] = document.getElementById('ef-' + a).value.trim();
+  });
+
+  // persist to localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    saved[editVeggieIdx] = { emoji:v.emoji, name:v.name, months:v.months, duration:v.duration,
+      difficulty:v.difficulty, soil:v.soil, water:v.water, companions:v.companions,
+      pest:v.pest, harvest:v.harvest, observation:v.observation, ages:v.ages };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  } catch(e) {}
+
+  // update the panel on the cube
+  const panels = document.querySelectorAll('.panel');
+  panels.forEach(p => {
+    if (parseInt(p.dataset.veggieIdx) === editVeggieIdx) {
+      p.querySelector('.p-emoji').textContent = v.emoji;
+      p.querySelector('.p-name').textContent  = v.name;
+      p.querySelector('.p-dur').textContent   = v.duration;
+    }
+  });
+
+  showToast('✅ Changes saved!');
+  closeEdit();
+  openModal(v);
+}
+
+function resetEdit() {
+  if (editVeggieIdx < 0 || !veggieDefaults[editVeggieIdx]) return;
+  if (!confirm('Reset "' + VEGGIES[editVeggieIdx].name + '" to its original defaults?')) return;
+  Object.assign(VEGGIES[editVeggieIdx], veggieDefaults[editVeggieIdx]);
+  // remove from localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    delete saved[editVeggieIdx];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
+  } catch(e) {}
+  openEdit(VEGGIES[editVeggieIdx]);
+}
+
+function closeEdit() { document.getElementById('edit-overlay').classList.remove('open'); }
+
+document.getElementById('edit-save-btn').addEventListener('click', saveEdit);
+document.getElementById('edit-cancel-btn').addEventListener('click', () => {
+  closeEdit();
+  if (currentModalVeggie) overlay.classList.add('open');
+});
+document.getElementById('edit-reset-btn').addEventListener('click', resetEdit);
+document.getElementById('edit-close-btn').addEventListener('click', () => {
+  closeEdit();
+  if (currentModalVeggie) overlay.classList.add('open');
+});
+
+// ── Toast notification ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── Modal action buttons — close modal, open overlay ──
+document.getElementById('btn-journey').addEventListener('click', () => {
+  if (!currentModalVeggie) return;
+  overlay.classList.remove('open');
+  openJourney(currentModalVeggie);
+});
+document.getElementById('btn-eco').addEventListener('click', () => {
+  overlay.classList.remove('open');
+  openEco();
+});
+document.getElementById('btn-edit').addEventListener('click', () => {
+  if (!currentModalVeggie) return;
+  overlay.classList.remove('open');
+  openEdit(currentModalVeggie);
+});
+
+// ── Mobile age strip — mirrors desktop age filter ──
+document.querySelectorAll('#mobile-age-strip .age-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    // sync both strips
+    document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-age="' + btn.dataset.age + '"]').forEach(b => b.classList.add('active'));
+    currentAge = btn.dataset.age;
+    document.querySelectorAll('.age-content').forEach(el => {
+      el.classList.toggle('visible', el.dataset.ac === currentAge);
+    });
+    updatePanelLighting(currentAge);
+  });
+});
+
+// keep mobile strip in sync when desktop buttons clicked
+document.querySelectorAll('#age-filter .age-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#mobile-age-strip [data-age="' + btn.dataset.age + '"]')
+      .forEach(b => { document.querySelectorAll('#mobile-age-strip .age-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); });
+  });
+});
+
+// ── Dynamic layout: measure real header height ──
+function updateLayout() {
+  const headerH = document.getElementById('header').offsetHeight;
+  const stripEl  = document.getElementById('mobile-age-strip');
+  const stripH   = stripEl.offsetHeight; // 0 on desktop (display:none)
+  const total    = headerH + stripH;
+  document.getElementById('scene').style.top     = total + 'px';
+  document.getElementById('particles').style.top = total + 'px';
+}
+window.addEventListener('resize', updateLayout);
+// run after fonts/layout settle
+requestAnimationFrame(() => requestAnimationFrame(updateLayout));
+
+// ── Journey / Eco "← Plant Info" back buttons ──
+document.getElementById('journey-back-btn').addEventListener('click', () => {
+  closeJourney();
+  if (currentModalVeggie) overlay.classList.add('open');
+});
+document.getElementById('eco-back-btn').addEventListener('click', () => {
+  closeEco();
+  if (currentModalVeggie) overlay.classList.add('open');
+});
+</script>
+</body>
+</html>
