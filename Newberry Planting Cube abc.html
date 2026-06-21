@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#f7f3ed">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Garden Cube">
 <meta name="mobile-web-app-capable" content="yes">
 <title>The Seasonal Edible Curriculum Cube — Newberry School</title>
@@ -430,8 +430,10 @@ button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
 .edit-field label { font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--text2); }
 .edit-field input, .edit-field textarea, .edit-field select {
   padding:8px 10px; border-radius:8px; border:1.5px solid var(--border);
-  background:var(--card-bg); color:var(--text); font-size:0.82rem; font-family:inherit;
-  transition:border-color .2s; resize:none;
+  background:var(--card-bg); color:var(--text); font-size:16px; /* 16px prevents iOS zoom on focus */
+  font-family:inherit; transition:border-color .2s; resize:none;
+  touch-action:auto; -webkit-user-select:text; user-select:text;
+  pointer-events:auto;
 }
 .edit-field input:focus, .edit-field textarea:focus {
   outline:none; border-color:var(--spring);
@@ -573,22 +575,27 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
 /* ── RESPONSIVE ── */
 @media (max-width:700px) {
-  /* Single-line compact header — no wrapping */
+  /* Compact single-line header that grows with iOS safe area */
   #header {
-    flex-wrap:nowrap; padding:0 10px;
-    height:52px; align-items:center;
+    flex-wrap:nowrap; align-items:center;
+    min-height:52px;
+    padding:env(safe-area-inset-top) 10px 8px;
+    padding-top:max(env(safe-area-inset-top), 10px);
   }
   #header-brand { min-width:0; flex:1; overflow:hidden; }
   #header-brand h1 { font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   #header-brand p  { display:none; }
-  #header-controls { flex-shrink:0; gap:6px; }
+  #header-controls { flex-shrink:0; gap:8px; }
+  /* Make icon buttons bigger — easier to tap */
+  .icon-btn { width:38px; height:38px; font-size:1.1rem; }
   #age-filter { display:none; }
 
-  /* Mobile age strip visible below header */
-  #mobile-age-strip { display:flex; top:52px; }
+  /* Mobile age strip — top set dynamically by JS updateLayout() */
+  #mobile-age-strip { display:flex; top:60px; }
+  #mobile-age-strip .age-btn { font-size:0.72rem; padding:6px 12px; min-height:36px; }
 
   /* Scene top fallback — JS updateLayout() overrides with exact value */
-  #scene, #particles { top:90px; }
+  #scene, #particles { top:100px; }
 
   /* Smaller cube */
   #cube-wrapper, .cube-face { width:270px; height:270px; }
@@ -1656,52 +1663,116 @@ document.querySelectorAll('.face-btn').forEach(btn => {
     document.querySelectorAll('.face-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     const fi = parseInt(btn.dataset.face);
+    currentFaceIdx = fi;          // keep swipe tracker in sync
     rotateToCubeFace(fi);
     spawnParticles(FACE_ORDER[fi]);
   });
 });
 
 // ══════════════════════════════════════════════
-//  DRAG ROTATION  (RAF-throttled for 60 fps)
+//  DRAG · PINCH · SWIPE  (RAF-throttled, 60 fps)
 // ══════════════════════════════════════════════
-let isDragging = false, lastX = 0, lastY = 0, rafPending = false;
+let isDragging    = false;
+let lastX = 0, lastY = 0;
+let rafPending    = false;
+let cubeScale     = 1;          // pinch-to-zoom scale
+let pinchDist0    = 0;          // initial pinch distance
+let pinchScale0   = 1;          // cube scale at pinch start
+let swipeStartX   = 0;
+let swipeStartY   = 0;
+let swipeStartT   = 0;
+let currentFaceIdx = 0;         // tracks active face for swipe
+const DRAG_THRESHOLD = 8;       // px before drag is recognised (allows clean taps)
+
 const stage = document.getElementById('cube-stage');
 
 function applyRotation() {
-  cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg)';
+  cubeEl.style.transform =
+    'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg) scale(' + cubeScale + ')';
   rafPending = false;
 }
 function scheduleRotation() {
   if (!rafPending) { rafPending = true; requestAnimationFrame(applyRotation); }
 }
 
+/* ── Mouse drag (desktop) ── */
 stage.addEventListener('mousedown', e => {
-  isDragging = true; lastX = e.clientX; lastY = e.clientY;
+  isDragging = false; lastX = e.clientX; lastY = e.clientY;
   cubeEl.style.transition = 'none'; resetIdle();
 });
 window.addEventListener('mousemove', e => {
-  if (!isDragging) return;
-  baseRY += (e.clientX - lastX) * 0.4;
-  baseRX -= (e.clientY - lastY) * 0.4;
+  const dx = e.clientX - lastX, dy = e.clientY - lastY;
+  if (!isDragging && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
+  isDragging = true;
+  baseRY += dx * 0.4; baseRX -= dy * 0.4;
   lastX = e.clientX; lastY = e.clientY;
   scheduleRotation();
 });
 window.addEventListener('mouseup', () => { isDragging = false; });
 
+/* ── Touch: drag / pinch / swipe ── */
 stage.addEventListener('touchstart', e => {
-  isDragging = true;
-  lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-  cubeEl.style.transition = 'none'; resetIdle();
+  resetIdle();
+  cubeEl.style.transition = 'none';
+
+  if (e.touches.length === 1) {
+    isDragging  = false;
+    lastX       = e.touches[0].clientX;
+    lastY       = e.touches[0].clientY;
+    swipeStartX = lastX;
+    swipeStartY = lastY;
+    swipeStartT = Date.now();
+  }
+  if (e.touches.length === 2) {
+    isDragging  = false;   // cancel drag when second finger lands
+    pinchDist0  = Math.hypot(
+      e.touches[1].clientX - e.touches[0].clientX,
+      e.touches[1].clientY - e.touches[0].clientY
+    );
+    pinchScale0 = cubeScale;
+  }
 }, { passive: true });
+
 stage.addEventListener('touchmove', e => {
-  if (!isDragging) return;
-  baseRY += (e.touches[0].clientX - lastX) * 0.4;
-  baseRX -= (e.touches[0].clientY - lastY) * 0.4;
-  lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
-  scheduleRotation();
+  if (e.touches.length === 2) {
+    /* ── Pinch to zoom ── */
+    const d = Math.hypot(
+      e.touches[1].clientX - e.touches[0].clientX,
+      e.touches[1].clientY - e.touches[0].clientY
+    );
+    cubeScale = Math.min(2.5, Math.max(0.4, pinchScale0 * (d / pinchDist0)));
+    scheduleRotation();
+    return;
+  }
+  if (e.touches.length === 1) {
+    /* ── Single-finger drag ── */
+    const dx = e.touches[0].clientX - lastX;
+    const dy = e.touches[0].clientY - lastY;
+    if (!isDragging && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
+    isDragging = true;
+    baseRY += dx * 0.4; baseRX -= dy * 0.4;
+    lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    scheduleRotation();
+  }
 }, { passive: true });
-stage.addEventListener('touchend',   () => { isDragging = false; });
-stage.addEventListener('touchcancel',() => { isDragging = false; });
+
+stage.addEventListener('touchend', e => {
+  /* ── Swipe to change face (quick, horizontal, no drag) ── */
+  if (!isDragging && e.changedTouches.length === 1) {
+    const dx = e.changedTouches[0].clientX - swipeStartX;
+    const dy = e.changedTouches[0].clientY - swipeStartY;
+    const dt = Date.now() - swipeStartT;
+    if (dt < 400 && Math.abs(dx) > 55 && Math.abs(dy) < 55) {
+      const dir = dx < 0 ? 1 : -1;
+      currentFaceIdx = ((currentFaceIdx + dir) + 6) % 6;
+      rotateToCubeFace(currentFaceIdx);
+      document.querySelectorAll('.face-btn').forEach((b, i) => b.classList.toggle('active', i === currentFaceIdx));
+      spawnParticles(FACE_ORDER[currentFaceIdx]);
+    }
+  }
+  isDragging = false;
+});
+stage.addEventListener('touchcancel', () => { isDragging = false; });
 
 // ══════════════════════════════════════════════
 //  IDLE AUTO-ROTATE  (RAF-based, pauses when hidden)
@@ -2252,17 +2323,27 @@ document.querySelectorAll('#age-filter .age-btn').forEach(btn => {
   });
 });
 
-// ── Dynamic layout: measure real header height ──
+// ── Dynamic layout: measure real header + strip heights ──
 function updateLayout() {
-  const headerH = document.getElementById('header').offsetHeight;
+  const headerEl = document.getElementById('header');
   const stripEl  = document.getElementById('mobile-age-strip');
-  const stripH   = stripEl.offsetHeight; // 0 on desktop (display:none)
-  const total    = headerH + stripH;
+  const headerH  = headerEl.offsetHeight;
+  // Position strip directly below header
+  if (stripEl.offsetParent !== null || getComputedStyle(stripEl).display !== 'none') {
+    stripEl.style.top = headerH + 'px';
+  }
+  const stripH = (getComputedStyle(stripEl).display !== 'none') ? stripEl.offsetHeight : 0;
+  const total  = headerH + stripH;
   document.getElementById('scene').style.top     = total + 'px';
   document.getElementById('particles').style.top = total + 'px';
+  // Keep toast above face-nav
+  const faceNav = document.getElementById('face-nav');
+  document.getElementById('toast').style.bottom =
+    (faceNav.offsetHeight + (parseInt(getComputedStyle(faceNav).bottom) || 10) + 8) + 'px';
 }
 window.addEventListener('resize', updateLayout);
-// run after fonts/layout settle
+// Run after everything (fonts, safe-area, layout) has settled
+setTimeout(updateLayout, 100);
 requestAnimationFrame(() => requestAnimationFrame(updateLayout));
 
 // ── Journey / Eco "← Plant Info" back buttons ──
