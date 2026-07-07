@@ -6,9 +6,11 @@
 <meta name="theme-color" content="#f7f3ed">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Garden Cube">
+<meta name="apple-mobile-web-app-title" content="Newberry House EC Cube">
 <meta name="mobile-web-app-capable" content="yes">
-<title>The Seasonal Edible Curriculum Cube — Newberry School</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="Logo White.png">
+<title>Newberry House EC Cube</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -69,8 +71,9 @@ html, body {
   box-shadow:0 2px 12px rgba(0,0,0,0.08);
   flex-wrap:wrap;
 }
+#header-brand { display:flex; align-items:center; gap:10px; }
+#header-brand img { height:36px; width:auto; flex-shrink:0; }
 #header-brand h1 { font-size:1rem; font-weight:800; color:var(--wood-dark); letter-spacing:0.01em; white-space:nowrap; }
-#header-brand p  { font-size:0.68rem; color:var(--text2); }
 #header-controls { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 
 /* age filter */
@@ -91,6 +94,20 @@ html, body {
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
 }
 .icon-btn:hover { background:var(--wood); color:#fff; border-color:var(--wood); }
+
+/* weather widget */
+#weather-widget {
+  display:flex; align-items:center; gap:5px;
+  padding:5px 12px; border-radius:20px;
+  border:1.5px solid var(--border); background:var(--card-bg);
+  font-size:0.72rem; font-weight:600; color:var(--text);
+  cursor:pointer; transition:all .2s; white-space:nowrap;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
+#weather-widget:hover { background:var(--wood); color:#fff; border-color:var(--wood); }
+#weather-widget .w-icon { font-size:0.95rem; }
+#weather-widget .w-loc { font-size:0.62rem; color:var(--text2); }
+#weather-widget:hover .w-loc { color:rgba(255,255,255,0.85); }
 
 /* Remove tap delay on all interactive elements */
 button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
@@ -455,6 +472,11 @@ button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
 }
 .edit-cancel-btn:hover, .edit-reset-btn:hover { background:rgba(128,128,128,0.2); }
 .edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
+.edit-backup-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  margin-top:16px; padding-top:14px; border-top:1px dashed var(--border);
+}
+.edit-backup-label { font-size:0.68rem; color:var(--text2); flex:1; min-width:180px; }
 
 /* ═══════════════════════════════════════
    AD / PRESENTATION MODE  (redesigned)
@@ -668,12 +690,14 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
     padding-top:max(env(safe-area-inset-top), 10px);
   }
   #header-brand { min-width:0; flex:1; overflow:hidden; }
+  #header-brand img { height:28px; }
   #header-brand h1 { font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  #header-brand p  { display:none; }
   #header-controls { flex-shrink:0; gap:8px; }
   /* Make icon buttons bigger — easier to tap */
   .icon-btn { width:38px; height:38px; font-size:1.1rem; }
   #age-filter { display:none; }
+  #weather-widget { padding:5px 8px; font-size:0.68rem; }
+  #weather-widget .w-loc { display:none; }
 
   /* Mobile age strip — top set dynamically by JS updateLayout() */
   #mobile-age-strip { display:flex; top:60px; }
@@ -724,8 +748,8 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 <!-- ══ HEADER ══ -->
 <div id="header">
   <div id="header-brand">
-    <h1>🌱 The Seasonal Edible Curriculum Cube</h1>
-    <p>Western Cape Planting Guide · Montessori &amp; Cambridge Edition</p>
+    <img src="Logo White.png" alt="Newberry House logo">
+    <h1>Newberry House EC Cube</h1>
   </div>
   <div id="header-controls">
     <div id="age-filter">
@@ -736,8 +760,11 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
       <button class="age-btn" data-age="middle">Middle School</button>
       <button class="age-btn" data-age="high">Grounds Team</button>
     </div>
-    <button class="icon-btn" id="dark-toggle" title="Toggle dark mode">🌙</button>
-    <button class="icon-btn" id="ad-toggle" title="Presentation / Ad mode">📺</button>
+    <button id="weather-widget" title="Somerset West weather — tap to refresh" aria-label="Somerset West weather, tap to refresh">
+      <span class="w-icon" id="weather-icon">⏳</span><span id="weather-temp">--°</span><span class="w-loc">Somerset West</span>
+    </button>
+    <button class="icon-btn" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+    <button class="icon-btn" id="ad-toggle" title="Presentation / Ad mode" aria-label="Presentation or ad mode">📺</button>
   </div>
 </div>
 
@@ -761,12 +788,12 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
 <!-- ══ FACE NAV ══ -->
 <div id="face-nav">
-  <button class="face-btn active" data-face="0" title="Autumn Planting">🍂</button>
-  <button class="face-btn" data-face="1" title="Winter Planting">❄️</button>
-  <button class="face-btn" data-face="2" title="Spring Planting">🌸</button>
-  <button class="face-btn" data-face="3" title="Summer Planting">☀️</button>
-  <button class="face-btn" data-face="4" title="Companion Planting">🌿</button>
-  <button class="face-btn" data-face="5" title="Indigenous &amp; Pollinator">🐝</button>
+  <button class="face-btn active" data-face="0" title="Autumn Planting" aria-label="Autumn Planting">🍂</button>
+  <button class="face-btn" data-face="1" title="Winter Planting" aria-label="Winter Planting">❄️</button>
+  <button class="face-btn" data-face="2" title="Spring Planting" aria-label="Spring Planting">🌸</button>
+  <button class="face-btn" data-face="3" title="Summer Planting" aria-label="Summer Planting">☀️</button>
+  <button class="face-btn" data-face="4" title="Companion Planting" aria-label="Companion Planting">🌿</button>
+  <button class="face-btn" data-face="5" title="Indigenous &amp; Pollinator" aria-label="Indigenous and Pollinator Planting">🐝</button>
 </div>
 
 <div id="hint">Drag to rotate · Click a panel to explore · Use buttons below to jump to a face</div>
@@ -774,7 +801,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 <!-- ══ PLANT DETAIL MODAL ══ -->
 <div id="modal-overlay">
   <div id="modal">
-    <button id="modal-close">✕</button>
+    <button id="modal-close" aria-label="Close plant details">✕</button>
     <span class="modal-emoji" id="m-emoji"></span>
     <span class="modal-season-badge" id="m-badge"></span>
     <h2 id="m-name"></h2>
@@ -816,7 +843,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   <!-- Top bar: face dots + exit -->
   <div id="ad-topbar">
     <div id="ad-face-dots"></div>
-    <button id="ad-exit-btn">✕</button>
+    <button id="ad-exit-btn" aria-label="Exit presentation mode">✕</button>
   </div>
 
   <!-- Scrollable season content -->
@@ -831,16 +858,16 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   <!-- Bottom: ring + prev/counter/next -->
   <div id="ad-bottom">
-    <button class="ad-nav-btn" id="ad-prev">◀</button>
+    <button class="ad-nav-btn" id="ad-prev" aria-label="Previous season">◀</button>
     <div id="ad-ring-wrap">
       <svg id="ad-ring-svg" viewBox="0 0 44 44">
         <circle id="ad-ring-track" cx="22" cy="22" r="19"/>
         <circle id="ad-ring-fill"  cx="22" cy="22" r="19"/>
       </svg>
-      <button id="ad-playpause">⏸</button>
+      <button id="ad-playpause" aria-label="Pause presentation">⏸</button>
     </div>
     <div id="ad-slide-counter"></div>
-    <button class="ad-nav-btn" id="ad-next">▶</button>
+    <button class="ad-nav-btn" id="ad-next" aria-label="Next season">▶</button>
   </div>
 </div>
 
@@ -853,7 +880,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
       <button class="btn-back-dark" id="journey-back-btn">← Plant Info</button>
-      <button id="journey-close-btn">✕</button>
+      <button id="journey-close-btn" aria-label="Close garden journey">✕</button>
     </div>
   </div>
   <div id="journey-stages-bar"></div>
@@ -881,7 +908,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
       <button class="btn-back-light" id="eco-back-btn">← Plant Info</button>
-      <button id="eco-close-btn">✕</button>
+      <button id="eco-close-btn" aria-label="Close eco pest guide">✕</button>
     </div>
   </div>
   <div id="eco-tabs">
@@ -895,7 +922,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 <!-- ══ EDIT PLANT OVERLAY ══ -->
 <div id="edit-overlay">
   <div id="edit-modal">
-    <button id="edit-close-btn">✕</button>
+    <button id="edit-close-btn" aria-label="Close edit panel">✕</button>
     <h3>✏️ Edit Plant Data</h3>
     <div class="edit-grid">
       <div class="edit-field"><label>Emoji</label><input id="ef-emoji" maxlength="4"></div>
@@ -927,6 +954,12 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
       <button class="edit-save-btn" id="edit-save-btn">💾 Save Changes</button>
       <button class="edit-cancel-btn" id="edit-cancel-btn">Cancel</button>
       <button class="edit-reset-btn" id="edit-reset-btn">↩ Reset Default</button>
+    </div>
+    <div class="edit-backup-row">
+      <span class="edit-backup-label">Backup all plant edits (not just this one), to move between devices:</span>
+      <button class="edit-cancel-btn" id="edit-export-btn">⬇ Export All Edits</button>
+      <button class="edit-cancel-btn" id="edit-import-btn">⬆ Import Edits</button>
+      <input type="file" id="edit-import-file" accept="application/json" style="display:none">
     </div>
   </div>
 </div>
@@ -1561,6 +1594,23 @@ const VEGGIES = [
 ];
 
 // ══════════════════════════════════════════════
+//  LOAD SAVED EDITS  (must run before the cube is built so tiles reflect edits)
+// ══════════════════════════════════════════════
+const STORAGE_KEY = 'newberry_edits_v1';
+// true hard-coded originals, captured BEFORE any saved edits are applied —
+// this is what "Reset Default" restores to, even across page reloads
+const VEGGIES_ORIGINAL = JSON.parse(JSON.stringify(VEGGIES));
+(function loadEdits() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    Object.keys(saved).forEach(idx => {
+      const i = parseInt(idx);
+      if (VEGGIES[i]) Object.assign(VEGGIES[i], saved[i]);
+    });
+  } catch(e) {}
+})();
+
+// ══════════════════════════════════════════════
 //  CUBE BUILD
 // ══════════════════════════════════════════════
 const FACE_ORDER = ['autumn','winter','spring','summer','companion','indigenous'];
@@ -1730,6 +1780,54 @@ darkBtn.addEventListener('click', () => {
   document.documentElement.classList.toggle('dark', darkMode);
   darkBtn.textContent = darkMode ? '☀️' : '🌙';
 });
+
+// ══════════════════════════════════════════════
+//  WEATHER — Somerset West, Western Cape
+// ══════════════════════════════════════════════
+const WEATHER_LAT = -34.0038, WEATHER_LON = 18.8493;
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=' + WEATHER_LAT +
+  '&longitude=' + WEATHER_LON + '&current=temperature_2m,weather_code&timezone=Africa%2FJohannesburg';
+// WMO weather codes → [emoji, description]
+const WEATHER_CODES = {
+  0:['☀️','Clear sky'], 1:['🌤️','Mainly clear'], 2:['⛅','Partly cloudy'], 3:['☁️','Overcast'],
+  45:['🌫️','Fog'], 48:['🌫️','Rime fog'],
+  51:['🌦️','Light drizzle'], 53:['🌦️','Drizzle'], 55:['🌦️','Dense drizzle'],
+  56:['🌧️','Freezing drizzle'], 57:['🌧️','Freezing drizzle'],
+  61:['🌧️','Slight rain'], 63:['🌧️','Rain'], 65:['🌧️','Heavy rain'],
+  66:['🌧️','Freezing rain'], 67:['🌧️','Freezing rain'],
+  71:['🌨️','Slight snow'], 73:['🌨️','Snow'], 75:['🌨️','Heavy snow'], 77:['🌨️','Snow grains'],
+  80:['🌦️','Rain showers'], 81:['🌦️','Rain showers'], 82:['⛈️','Violent showers'],
+  85:['🌨️','Snow showers'], 86:['🌨️','Snow showers'],
+  95:['⛈️','Thunderstorm'], 96:['⛈️','Thunderstorm, hail'], 99:['⛈️','Thunderstorm, hail'],
+};
+
+const weatherWidget  = document.getElementById('weather-widget');
+const weatherIconEl  = document.getElementById('weather-icon');
+const weatherTempEl  = document.getElementById('weather-temp');
+
+async function fetchWeather() {
+  weatherIconEl.textContent = '⏳';
+  try {
+    const res = await fetch(WEATHER_URL);
+    if (!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    const code = data.current.weather_code;
+    const temp = Math.round(data.current.temperature_2m);
+    const [icon, desc] = WEATHER_CODES[code] || ['🌡️', 'Unknown'];
+    weatherIconEl.textContent = icon;
+    weatherTempEl.textContent = temp + '°C';
+    weatherWidget.title = 'Somerset West — ' + desc + ', ' + temp + '°C (tap to refresh)';
+    weatherWidget.setAttribute('aria-label', weatherWidget.title);
+  } catch (e) {
+    weatherIconEl.textContent = '⚠️';
+    weatherTempEl.textContent = '--°';
+    weatherWidget.title = 'Weather unavailable — tap to retry';
+    weatherWidget.setAttribute('aria-label', weatherWidget.title);
+  }
+}
+weatherWidget.addEventListener('click', fetchWeather);
+fetchWeather();
+setInterval(fetchWeather, 30 * 60 * 1000); // refresh every 30 min
 
 // ══════════════════════════════════════════════
 //  FACE NAV
@@ -1989,9 +2087,11 @@ function stopRing() {
 function buildFaceDots() {
   const wrap = document.getElementById('ad-face-dots');
   wrap.innerHTML = '';
-  FACE_ORDER.forEach((_, i) => {
+  FACE_ORDER.forEach((season, i) => {
     const btn = document.createElement('button');
     btn.className = 'ad-face-dot' + (i === 0 ? ' active' : '');
+    const label = SEASONS.find(s => s.key === season);
+    btn.setAttribute('aria-label', label ? label.label : season);
     btn.addEventListener('click', () => { clearTimeout(adTimer); showAdFace(i); if (adPlaying) scheduleAdNext(); });
     wrap.appendChild(btn);
   });
@@ -2069,7 +2169,9 @@ function adPrev() { clearTimeout(adTimer); showAdFace(adFaceIndex - 1); if (adPl
 
 function toggleAdPlay() {
   adPlaying = !adPlaying;
-  document.getElementById('ad-playpause').textContent = adPlaying ? '⏸' : '▶';
+  const btn = document.getElementById('ad-playpause');
+  btn.textContent = adPlaying ? '⏸' : '▶';
+  btn.setAttribute('aria-label', adPlaying ? 'Pause presentation' : 'Play presentation');
   if (adPlaying) { scheduleAdNext(); startRing(); }
   else           { clearTimeout(adTimer); stopRing(); }
 }
@@ -2347,27 +2449,10 @@ document.querySelectorAll('.eco-tab').forEach(t => t.addEventListener('click', (
 // ══════════════════════════════════════════════
 //  EDIT PLANT
 // ══════════════════════════════════════════════
-const STORAGE_KEY = 'newberry_edits_v1';
 let editVeggieIdx = -1;
-let veggieDefaults = {}; // store originals for reset
-
-// load saved edits from localStorage on startup
-(function loadEdits() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(idx => {
-      const i = parseInt(idx);
-      if (VEGGIES[i]) Object.assign(VEGGIES[i], saved[i]);
-    });
-  } catch(e) {}
-})();
 
 function openEdit(v) {
   editVeggieIdx = VEGGIES.indexOf(v);
-  // store original for reset (once per veggie)
-  if (!veggieDefaults[editVeggieIdx]) {
-    veggieDefaults[editVeggieIdx] = JSON.parse(JSON.stringify(v));
-  }
   document.getElementById('ef-emoji').value       = v.emoji;
   document.getElementById('ef-name').value        = v.name;
   document.getElementById('ef-months').value      = v.months;
@@ -2416,31 +2501,39 @@ function saveEdit() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   } catch(e) {}
 
-  // update the panel on the cube
-  const panels = document.querySelectorAll('.panel');
-  panels.forEach(p => {
-    if (parseInt(p.dataset.veggieIdx) === editVeggieIdx) {
-      p.querySelector('.p-emoji').textContent = v.emoji;
-      p.querySelector('.p-name').textContent  = v.name;
-      p.querySelector('.p-dur').textContent   = v.duration;
-    }
-  });
+  refreshVeggiePanel(editVeggieIdx);
 
   showToast('✅ Changes saved!');
   closeEdit();
   openModal(v);
 }
 
+// update the on-cube panel for a veggie and re-apply age lighting
+// (needed whenever emoji/name/duration/difficulty change via save or reset)
+function refreshVeggiePanel(idx) {
+  const v = VEGGIES[idx];
+  if (!v) return;
+  document.querySelectorAll('.panel').forEach(p => {
+    if (parseInt(p.dataset.veggieIdx) === idx) {
+      p.querySelector('.p-emoji').textContent = v.emoji;
+      p.querySelector('.p-name').textContent  = v.name;
+      p.querySelector('.p-dur').textContent   = v.duration;
+    }
+  });
+  updatePanelLighting(currentAge);
+}
+
 function resetEdit() {
-  if (editVeggieIdx < 0 || !veggieDefaults[editVeggieIdx]) return;
+  if (editVeggieIdx < 0 || !VEGGIES_ORIGINAL[editVeggieIdx]) return;
   if (!confirm('Reset "' + VEGGIES[editVeggieIdx].name + '" to its original defaults?')) return;
-  Object.assign(VEGGIES[editVeggieIdx], veggieDefaults[editVeggieIdx]);
+  Object.assign(VEGGIES[editVeggieIdx], JSON.parse(JSON.stringify(VEGGIES_ORIGINAL[editVeggieIdx])));
   // remove from localStorage
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
     delete saved[editVeggieIdx];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
   } catch(e) {}
+  refreshVeggiePanel(editVeggieIdx);
   openEdit(VEGGIES[editVeggieIdx]);
 }
 
@@ -2455,6 +2548,49 @@ document.getElementById('edit-reset-btn').addEventListener('click', resetEdit);
 document.getElementById('edit-close-btn').addEventListener('click', () => {
   closeEdit();
   if (currentModalVeggie) overlay.classList.add('open');
+});
+
+// ── Export / Import ALL saved edits (backup across devices) ──
+document.getElementById('edit-export-btn').addEventListener('click', () => {
+  const saved = localStorage.getItem(STORAGE_KEY) || '{}';
+  const blob = new Blob([saved], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'newberry-cube-edits-' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇ Edits exported');
+});
+
+document.getElementById('edit-import-btn').addEventListener('click', () => {
+  document.getElementById('edit-import-file').click();
+});
+document.getElementById('edit-import-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const incoming = JSON.parse(reader.result);
+      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      const merged = Object.assign({}, existing, incoming);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      Object.keys(incoming).forEach(idx => {
+        const i = parseInt(idx);
+        if (VEGGIES[i]) {
+          Object.assign(VEGGIES[i], incoming[idx]);
+          refreshVeggiePanel(i);
+        }
+      });
+      showToast('⬆ Edits imported');
+      if (editVeggieIdx >= 0) openEdit(VEGGIES[editVeggieIdx]); // refresh open form, if any
+    } catch (err) {
+      showToast('⚠ Invalid edits file');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = ''; // allow re-importing the same filename later
 });
 
 // ── Toast notification ──
@@ -2526,6 +2662,13 @@ window.addEventListener('resize', updateLayout);
 // Run after everything (fonts, safe-area, layout) has settled
 setTimeout(updateLayout, 100);
 requestAnimationFrame(() => requestAnimationFrame(updateLayout));
+
+// ── Offline support: register service worker (no-op under file://, works when hosted) ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
 
 // ── Journey / Eco "← Plant Info" back buttons ──
 document.getElementById('journey-back-btn').addEventListener('click', () => {
