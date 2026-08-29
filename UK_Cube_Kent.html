@@ -963,7 +963,7 @@ const HERBICIDES=[
     best:'Every bed, every visit. The most important organic weed control — especially before weeds set seed.',
     caution:'Hoeing too deep brings buried weed seeds to the surface where they germinate. Always weed when the soil surface is dry.',
     age:{t:'Pull one weed gently and look at the whole root system.',p:'Practise careful hoeing in a clear path — short strokes.',
-      l:'Identify three common Kent weeds by name and leaf shape.',u:'Research the saying "one year's seeds, seven years' weeds."',
+      l:'Identify three common Kent weeds by name and leaf shape.',u:'Research the saying "one year\'s seeds, seven years\' weeds."',
       m:'Survey the weed seedbank: disturb 1 m² and count what germinates.',
       h:'Design a study of weed emergence depth versus cultivation depth.'},
     hs:['Weed seedbanks and dormancy in UK species','The critical period of weed competition','Organic weed management on a Kent plot']}
@@ -1003,7 +1003,7 @@ try {
   });
   renderer.setClearColor(0x000000, 0);
 } catch(e) {
-  canvas.parentElement.innerHTML='<div style="color:#fff;padding:40px;text-align:center"><p style="font-size:18px">3D view not supported on this device.</p><p style="font-size:13px;opacity:.6">Try opening the file in Safari or Chrome.</p></div>';
+  canvas.parentElement.innerHTML='<div style="color:var(--ink);padding:40px;text-align:center"><p style="font-size:18px">3D view not supported on this device.</p><p style="font-size:13px;opacity:.6">Try opening the file in Safari or Chrome.</p></div>';
   throw e;
 }
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
