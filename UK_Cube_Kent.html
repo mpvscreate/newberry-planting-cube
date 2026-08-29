@@ -290,7 +290,7 @@ body{transition:background .25s,color .25s}
       <h1 class="bar-h1">UK Cube</h1>
     </div>
     <div class="bar-actions">
-      <button class="ibtn" id="herbBtn" title="Natural weed management"><i class="ti ti-leaf" aria-hidden="true"></i><span class="lbl"> Weeds</span></button>
+      <button class="ibtn" id="herbBtn" title="Natural weed management" aria-label="Natural weed management"><i class="ti ti-leaf" aria-hidden="true"></i><span class="lbl"> Weeds</span></button>
       <button class="ibtn" id="resetBtn" title="Reset view" aria-label="Reset view"><i class="ti ti-restore" aria-hidden="true"></i></button>
       <button class="ibtn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode"><i class="ti ti-moon" aria-hidden="true"></i></button>
     </div>
@@ -361,7 +361,7 @@ body{transition:background .25s,color .25s}
     <button class="herb-tab-btn" role="tab" aria-selected="false" onclick="herbView(1,this)">Age activities</button>
     <button class="herb-tab-btn" role="tab" aria-selected="false" onclick="herbView(2,this)">Enquiry links</button>
   </div>
-  <div class="herb-scroll" id="herbScroll"></div>
+  <div class="herb-scroll" id="herbScroll" role="tabpanel"></div>
 </div>
 
 <span id="srStatus" class="sr-only" role="status" aria-live="polite"></span>
@@ -396,7 +396,7 @@ const PLANT_ICONS={
   onions:'🧅',garlic:'🧄',kale:'🌱',cabbage:'🥦',carrots:'🥕',
   radishes:'🌰',cauliflower:'🥬',swisschard:'🌿',tomatoes:'🍅',
   cucumbers:'🥒',sweetcorn:'🌽',greenbeans:'🫛',pumpkin:'🎃',
-  courgette:'🥒',marrows:'🥒',melons:'🍈',peppers:'🟢',basil:'🌿',sunflowers:'🌻',
+  courgette:'🥒',peppers:'🟢',basil:'🌿',sunflowers:'🌻',
   hops:'🌿',cobnuts:'🌰',kentLavender:'💜',
   tomBasil:'🍅',carrotOnion:'🥕',threeSisters:'🌽',lettuceRadish:'🥬',
   cabbageDill:'🥦',cucumberNasturtium:'🥒',spinachStrawberry:'🌿',
@@ -1462,11 +1462,11 @@ function herbView(v, btn){
     if(v===0) extra=
       '<div class="herb-field"><b>Method:</b> '+h.method+'</div>'+
       '<div class="herb-field"><b>Best for:</b> '+h.best+'</div>'+
-      '<div class="herb-caution"><i class="ti ti-alert-triangle"></i><span>'+h.caution+'</span></div>';
+      '<div class="herb-caution"><i class="ti ti-alert-triangle" aria-hidden="true"></i><span>'+h.caution+'</span></div>';
     else if(v===1) extra='<div class="herb-age-card"><b>'+ageLabel+'</b>'+(h.age[ageId]||h.age.l)+'</div>';
     else extra='<div class="herb-age-card"><b>Enquiry links</b>'+h.hs.map(s=>'<div style="margin-bottom:3px">· '+s+'</div>').join('')+'</div>';
     return '<div class="herb-item-card">'+
-      '<div class="herb-item-name"><i class="ti '+h.icon+'" style="color:var(--ink2)"></i>'+h.name+'</div>'+
+      '<div class="herb-item-name"><i class="ti '+h.icon+'" style="color:var(--ink2)" aria-hidden="true"></i>'+h.name+'</div>'+
       extra+'</div>';
   }).join('');
 }
@@ -1483,10 +1483,15 @@ document.getElementById('resetBtn').onclick=()=>{
 };
 
 const themeBtn=document.getElementById('themeBtn');
+if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches&&document.documentElement.getAttribute('data-theme')==='light'){
+  themeBtn.querySelector('i').className='ti ti-sun';
+}
 themeBtn.onclick=()=>{
-  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  const cur=document.documentElement.getAttribute('data-theme');
+  const dark=cur==='dark'||(cur!=='light'&&cur!=='dark'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches);
   document.documentElement.setAttribute('data-theme',dark?'light':'dark');
   themeBtn.querySelector('i').className=dark?'ti ti-moon':'ti ti-sun';
+  themeBtn.setAttribute('aria-label',dark?'Switch to dark mode':'Switch to light mode');
   buildCube(); if(renderer&&scene&&camera) renderer.render(scene,camera);
 };
 
