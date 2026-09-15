@@ -88,8 +88,8 @@ html, body {
 
 /* icon buttons */
 .icon-btn {
-  width:32px; height:32px; border-radius:50%; border:1.5px solid var(--border);
-  background:var(--card-bg); cursor:pointer; font-size:1rem;
+  width:36px; height:36px; border-radius:50%; border:1.5px solid var(--border);
+  background:var(--card-bg); cursor:pointer; font-size:1.05rem;
   display:flex; align-items:center; justify-content:center;
   transition:all .2s; color:var(--text);
   touch-action:manipulation; -webkit-tap-highlight-color:transparent;
@@ -136,16 +136,16 @@ button, .panel, .face-btn, .age-btn, .j-chip, .modal-action-btn,
 /* ── FACE NAV ── */
 #face-nav {
   position:fixed; bottom:max(16px, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%);
-  display:flex; gap:7px; z-index:50;
+  display:flex; gap:8px; z-index:50;
   background:var(--nav-bg); backdrop-filter:blur(10px);
-  padding:7px 12px; border-radius:30px;
+  padding:8px 16px; border-radius:30px;
   box-shadow:0 4px 20px rgba(0,0,0,0.14);
   border:1px solid var(--border);
 }
 .face-btn {
   position:relative;
-  width:30px; height:30px; border-radius:50%; border:2.5px solid transparent;
-  cursor:pointer; font-size:1rem;
+  width:34px; height:34px; border-radius:50%; border:2.5px solid transparent;
+  cursor:pointer; font-size:1.1rem;
   display:flex; align-items:center; justify-content:center;
   transition:transform .2s, box-shadow .2s;
 }
@@ -272,7 +272,7 @@ html.dark .panel::before {
 
 /* ── FACE LABEL TOAST ── */
 #face-label {
-  position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(6px);
+  position:fixed; bottom:86px; left:50%; transform:translateX(-50%) translateY(6px);
   font-size:1.1rem; font-weight:800; color:#fff;
   background:rgba(50,42,35,.88); backdrop-filter:blur(12px);
   padding:7px 26px; border-radius:22px;
@@ -386,9 +386,9 @@ body.is-dragging-cube .panel:active {
   pointer-events:none;
   text-shadow:0 0 4px rgba(0,0,0,0.4);
 }
-.panel .p-emoji { font-size:1.35rem; line-height:1; }
-.panel .p-name  { font-size:0.52rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.2; }
-.panel .p-dur   { font-size:0.46rem; color:var(--text2); }
+.panel .p-emoji { font-size:1.4rem; line-height:1; }
+.panel .p-name  { font-size:0.58rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.2; }
+.panel .p-dur   { font-size:0.5rem; color:var(--text2); }
 .panel[data-season="autumn"]    { background:var(--panel-light-autumn); }
 .panel[data-season="winter"]    { background:var(--panel-light-winter); }
 .panel[data-season="spring"]    { background:var(--panel-light-spring); }
@@ -397,7 +397,7 @@ body.is-dragging-cube .panel:active {
 .panel[data-season="indigenous"]{ background:var(--panel-light-indigenous); }
 
 /* ── HINT ── */
-#hint { position:fixed; bottom:78px; left:50%; transform:translateX(-50%); font-size:0.66rem; color:var(--text2); pointer-events:none; white-space:nowrap; }
+#hint { position:fixed; bottom:82px; left:50%; transform:translateX(-50%); font-size:0.66rem; color:var(--text2); pointer-events:none; white-space:nowrap; }
 
 /* ── UPDATE BANNER ── */
 #update-banner {
@@ -1252,9 +1252,12 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   background:var(--header-bg); backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
   overflow-x:auto; overflow-y:hidden;
-  padding:6px 12px; gap:6px;
+  padding:6px 12px 6px 12px; gap:6px;
   scrollbar-width:none; -webkit-overflow-scrolling:touch;
   white-space:nowrap;
+}
+#mobile-age-strip::after {
+  content:''; flex-shrink:0; width:12px;
 }
 #mobile-age-strip::-webkit-scrollbar { display:none; }
 #mobile-age-strip .age-btn { display:inline-flex; flex-shrink:0; font-size:0.7rem; padding:4px 10px; }
@@ -1328,26 +1331,32 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   /* Mobile age strip — top set dynamically by JS updateLayout() */
   #mobile-age-strip { display:flex; top:60px; }
-  #mobile-age-strip .age-btn { font-size:0.72rem; padding:6px 12px; min-height:36px; }
+  #mobile-age-strip .age-btn { font-size:0.75rem; padding:8px 14px; min-height:40px; }
 
   /* Scene top fallback — JS updateLayout() overrides with exact value */
   #scene, #particles { top:100px; }
 
   /* Mobile cube — fill more screen */
-  #cube-wrapper, .cube-face { width:300px; height:300px; }
-  .cube-face:nth-child(1) { transform:translateZ(150px); }
-  .cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(150px); }
-  .cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(150px); }
-  .cube-face:nth-child(4) { transform:rotateY(90deg)  translateZ(150px); }
-  .cube-face:nth-child(5) { transform:rotateX(90deg)  translateZ(150px); }
-  .cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(150px); }
+  #cube-wrapper, .cube-face { width:min(82vw, 340px); height:min(82vw, 340px); }
+  .cube-face:nth-child(1) { transform:translateZ(min(41vw, 170px)); }
+  .cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(min(41vw, 170px)); }
+  .cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(min(41vw, 170px)); }
+  .cube-face:nth-child(4) { transform:rotateY(90deg)  translateZ(min(41vw, 170px)); }
+  .cube-face:nth-child(5) { transform:rotateX(90deg)  translateZ(min(41vw, 170px)); }
+  .cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(min(41vw, 170px)); }
+
+  /* Shift cube upward to reduce empty space above it */
+  #cube-stage { align-items:flex-start; padding-top:min(18vh, 120px); }
 
   /* Face nav closer to bottom safe area */
-  #face-nav { bottom:10px; padding:5px 10px; gap:5px; }
-  .face-btn  { width:26px; height:26px; font-size:0.9rem; }
-  .face-btn::before { inset:-2px; }
+  #face-nav { bottom:max(12px, env(safe-area-inset-bottom)); padding:6px 14px; gap:8px; }
+  .face-btn  { width:34px; height:34px; font-size:1.05rem; }
+  .face-btn::before { inset:-4px; }
   #hint      { display:none; }
-  #face-label { bottom:60px; font-size:0.95rem; padding:6px 20px; }
+  #face-label { bottom:68px; font-size:0.95rem; padding:6px 20px; }
+
+  /* Copyright out of the way on mobile */
+  #copyright { bottom:max(54px, calc(env(safe-area-inset-bottom) + 50px)); right:8px; font-size:0.42rem; opacity:.3; }
 
   /* Modal full-width on mobile */
   #modal { border-radius:16px; padding:20px 16px; }
