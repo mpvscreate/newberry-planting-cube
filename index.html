@@ -1252,10 +1252,12 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   background:var(--header-bg); backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
   overflow:hidden;
-  padding:5px 8px; gap:4px;
+  padding:5px 8px;
   justify-content:center;
 }
-#mobile-age-strip .age-btn { flex:1 1 0; text-align:center; font-size:0.68rem; padding:5px 2px; min-width:0; white-space:nowrap; }
+#mobile-age-strip .seg-track { display:flex; background:rgba(139,109,71,0.12); border-radius:10px; padding:3px; width:100%; }
+#mobile-age-strip .age-btn { flex:1 1 0; text-align:center; font-size:0.72rem; padding:7px 2px; min-width:0; white-space:nowrap; border:none; border-radius:8px; background:transparent; color:var(--wood); cursor:pointer; transition:all .2s; font-weight:400; }
+#mobile-age-strip .age-btn.active { background:var(--wood); color:#fff; font-weight:500; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
 
 /* ── OVERFLOW MENU (mobile) ── */
 #overflow-toggle { display:none; }
@@ -1326,7 +1328,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   /* Mobile age strip — top set dynamically by JS updateLayout() */
   #mobile-age-strip { display:flex; top:60px; }
-  #mobile-age-strip .age-btn { font-size:0.68rem; padding:5px 2px; min-height:34px; }
+  #mobile-age-strip .age-btn { font-size:0.72rem; padding:7px 2px; min-height:34px; }
 
   /* Scene top fallback — JS updateLayout() overrides with exact value */
   #scene, #particles { top:100px; }
@@ -1471,12 +1473,14 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 
 <!-- ══ MOBILE AGE STRIP ══ -->
 <div id="mobile-age-strip">
-  <button class="age-btn active" data-age="toddler">Toddler</button>
-  <button class="age-btn" data-age="preschool">Pre Pri</button>
-  <button class="age-btn" data-age="lower">Lower El</button>
-  <button class="age-btn" data-age="upper">Upper El</button>
-  <button class="age-btn" data-age="middle">Middle</button>
-  <button class="age-btn" data-age="high">Staff</button>
+  <div class="seg-track">
+    <button class="age-btn active" data-age="toddler">Toddlers</button>
+    <button class="age-btn" data-age="preschool">PP</button>
+    <button class="age-btn" data-age="lower">LE</button>
+    <button class="age-btn" data-age="upper">UE</button>
+    <button class="age-btn" data-age="middle">MS</button>
+    <button class="age-btn" data-age="high">Staff</button>
+  </div>
 </div>
 
 <!-- ══ SCENE ══ -->
