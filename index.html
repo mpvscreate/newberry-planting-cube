@@ -1251,16 +1251,11 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   position:fixed; left:0; right:0; z-index:49;
   background:var(--header-bg); backdrop-filter:blur(10px);
   border-bottom:1px solid var(--border);
-  overflow-x:auto; overflow-y:hidden;
-  padding:6px 12px 6px 12px; gap:6px;
-  scrollbar-width:none; -webkit-overflow-scrolling:touch;
-  white-space:nowrap;
+  overflow:hidden;
+  padding:5px 8px; gap:4px;
+  justify-content:center;
 }
-#mobile-age-strip::after {
-  content:''; flex-shrink:0; width:12px;
-}
-#mobile-age-strip::-webkit-scrollbar { display:none; }
-#mobile-age-strip .age-btn { display:inline-flex; flex-shrink:0; font-size:0.7rem; padding:4px 10px; }
+#mobile-age-strip .age-btn { flex:1 1 0; text-align:center; font-size:0.68rem; padding:5px 2px; min-width:0; white-space:nowrap; }
 
 /* ── OVERFLOW MENU (mobile) ── */
 #overflow-toggle { display:none; }
@@ -1331,7 +1326,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   /* Mobile age strip — top set dynamically by JS updateLayout() */
   #mobile-age-strip { display:flex; top:60px; }
-  #mobile-age-strip .age-btn { font-size:0.75rem; padding:8px 14px; min-height:40px; }
+  #mobile-age-strip .age-btn { font-size:0.68rem; padding:5px 2px; min-height:34px; }
 
   /* Scene top fallback — JS updateLayout() overrides with exact value */
   #scene, #particles { top:100px; }
@@ -1477,11 +1472,11 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 <!-- ══ MOBILE AGE STRIP ══ -->
 <div id="mobile-age-strip">
   <button class="age-btn active" data-age="toddler">Toddler</button>
-  <button class="age-btn" data-age="preschool">Pre Primary</button>
-  <button class="age-btn" data-age="lower">Lower Elementary</button>
-  <button class="age-btn" data-age="upper">Upper Elementary</button>
-  <button class="age-btn" data-age="middle">Middle School</button>
-  <button class="age-btn" data-age="high">Grounds Team</button>
+  <button class="age-btn" data-age="preschool">Pre Pri</button>
+  <button class="age-btn" data-age="lower">Lower El</button>
+  <button class="age-btn" data-age="upper">Upper El</button>
+  <button class="age-btn" data-age="middle">Middle</button>
+  <button class="age-btn" data-age="high">Staff</button>
 </div>
 
 <!-- ══ SCENE ══ -->
