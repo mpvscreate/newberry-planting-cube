@@ -287,15 +287,22 @@ html.dark .panel::before {
 #hint { transition:opacity .6s; }
 #hint.faded { opacity:0; }
 
-/* ── 3D CUBE ── */
+/* ── 3D CUBE ──
+   --cube sets the size for everything: faces, depth, perspective and panel text
+   all follow it. It fits the height left between the header and the season
+   buttons (the 1.4 allows for the tilted cube's top edge and perspective). */
+:root {
+  --cube: max(260px, min(calc((100vh - 240px) / 1.4), 70vw, 560px));
+}
 #cube-stage {
   position:absolute; inset:0;
   display:flex; align-items:center; justify-content:center;
-  perspective:1000px; -webkit-perspective:1000px;
+  padding-bottom:110px; /* keep the cube clear of the season buttons and label */
+  perspective:calc(var(--cube) * 3); -webkit-perspective:calc(var(--cube) * 3);
   touch-action:none;
 }
 #cube-wrapper {
-  width:340px; height:340px;
+  width:var(--cube); height:var(--cube);
   transform-style:preserve-3d; -webkit-transform-style:preserve-3d;
   transform:rotateX(-25deg) rotateY(35deg);
   cursor:grab;
@@ -323,17 +330,17 @@ body.is-dragging-cube .panel:active {
   transform:none !important;
 }
 .cube-face {
-  position:absolute; width:340px; height:340px;
+  position:absolute; width:var(--cube); height:var(--cube);
   display:grid; grid-template-columns:repeat(3,1fr); gap:5px; padding:5px;
   border-radius:10px;
   backface-visibility:hidden; -webkit-backface-visibility:hidden;
 }
-.cube-face:nth-child(1) { transform:translateZ(170px); }
-.cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(170px); }
-.cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(170px); }
-.cube-face:nth-child(4) { transform:rotateY(90deg) translateZ(170px); }
-.cube-face:nth-child(5) { transform:rotateX(90deg) translateZ(170px); }
-.cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(170px); }
+.cube-face:nth-child(1) { transform:translateZ(calc(var(--cube) / 2)); }
+.cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(calc(var(--cube) / 2)); }
+.cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(calc(var(--cube) / 2)); }
+.cube-face:nth-child(4) { transform:rotateY(90deg) translateZ(calc(var(--cube) / 2)); }
+.cube-face:nth-child(5) { transform:rotateX(90deg) translateZ(calc(var(--cube) / 2)); }
+.cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(calc(var(--cube) / 2)); }
 .cube-face[data-season="autumn"]    { box-shadow:0 0 0 4px var(--autumn); }
 .cube-face[data-season="winter"]    { box-shadow:0 0 0 4px var(--winter); }
 .cube-face[data-season="spring"]    { box-shadow:0 0 0 4px var(--spring); }
@@ -358,13 +365,9 @@ body.is-dragging-cube .panel:active {
    Lit panels glow with their season colour to show best fit for selected age group. */
 .panel { transition:opacity .35s, filter .35s, transform .35s, box-shadow .35s; }
 
-.panel.p-dimmed {
-  opacity:0.42; filter:grayscale(0.55) brightness(0.95);
-  /* pointer-events:auto — panel is still clickable, just visually de-emphasised */
-}
-/* Dimmed panels can still be hovered / clicked */
+/* Dimmed panels can still be hovered / clicked. Their look is set after the
+   season backgrounds below, which would otherwise override it. */
 .panel.p-dimmed:hover {
-  opacity:0.75; filter:grayscale(0.2);
   transform:scale(1.04) translateZ(3px);
 }
 
@@ -380,57 +383,118 @@ body.is-dragging-cube .panel:active {
 /* Small star badge on lit panels so age-fit is obvious even when rotating */
 .panel.p-lit::after {
   content:'★';
-  position:absolute; top:2px; right:3px;
-  font-size:0.45rem; line-height:1;
+  position:absolute; top:3px; right:4px;
+  font-size:max(10px, calc(var(--cube) * 0.026)); line-height:1;
   color:rgba(255,255,255,0.85);
   pointer-events:none;
   text-shadow:0 0 4px rgba(0,0,0,0.4);
 }
 /* In-season leaf badge — a real element (not ::before, which the shine sweep uses) */
 .panel .p-leaf {
-  position:absolute; top:2px; left:3px; z-index:2;
-  font-size:0.5rem; line-height:1; pointer-events:none;
+  position:absolute; top:3px; left:4px; z-index:2;
+  font-size:max(10px, calc(var(--cube) * 0.026)); line-height:1; pointer-events:none;
   filter:drop-shadow(0 0 3px rgba(0,0,0,0.5));
 }
-.panel .p-emoji { font-size:1.4rem; line-height:1; }
-.panel .p-name  { font-size:0.58rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.2; }
-.panel .p-dur   { font-size:0.5rem; color:var(--text2); }
+.panel .p-emoji { font-size:calc(var(--cube) * 0.075); line-height:1; }
+.panel .p-name  { font-size:max(12px, calc(var(--cube) * 0.034)); font-weight:700; color:var(--text); margin-top:3px; line-height:1.2; }
+.panel .p-dur   { font-size:max(11px, calc(var(--cube) * 0.027)); color:var(--text2); width:100%; padding:0 4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .panel[data-season="autumn"]    { background:var(--panel-light-autumn); }
 .panel[data-season="winter"]    { background:var(--panel-light-winter); }
 .panel[data-season="spring"]    { background:var(--panel-light-spring); }
 .panel[data-season="summer"]    { background:var(--panel-light-summer); }
 .panel[data-season="companion"] { background:var(--panel-light-companion); }
 .panel[data-season="indigenous"]{ background:var(--panel-light-indigenous); }
+/* Not the best fit for this age: a plain tile with a muted picture, but the name
+   stays readable (about 5:1 contrast in light mode, 4.7:1 in dark). */
+.panel.p-dimmed, .panel.p-dimmed:hover { box-shadow:none; background:var(--card-bg); }
+.panel.p-dimmed .p-emoji { opacity:.65; filter:grayscale(.5); }
+.panel.p-dimmed .p-name { color:var(--text2); font-weight:600; }
 
 /* ── HINT ── */
 #hint { position:fixed; bottom:82px; left:50%; transform:translateX(-50%); font-size:0.66rem; color:var(--text2); pointer-events:none; white-space:nowrap; }
 
 /* ── UPDATE BANNER ── */
+/* A centred pill, not a full-width bar, so it never covers an overlay's ✕ button */
 #update-banner {
-  position:fixed; top:0; left:0; right:0; z-index:9999;
-  background:#4a8055; color:#fff; text-align:center;
-  padding:10px 16px; font-size:0.85rem; font-weight:600;
-  cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.15);
+  position:fixed; top:max(8px, env(safe-area-inset-top)); left:50%; transform:translateX(-50%); z-index:9999;
+  display:flex; align-items:center; gap:6px; max-width:calc(100vw - 96px); width:max-content;
+  background:#3f7249; color:#fff; border-radius:24px;
+  padding:5px 6px 5px 14px; font-size:0.8rem; font-weight:600;
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
 }
+#update-banner[hidden] { display:none; }
+#update-now {
+  min-height:32px; padding:4px 12px; border:none; border-radius:16px; cursor:pointer;
+  background:#fff; color:#2f5a38; font:inherit; font-weight:700; white-space:nowrap;
+}
+#update-later {
+  width:32px; height:32px; flex-shrink:0; border:none; border-radius:50%; cursor:pointer;
+  background:transparent; color:#fff; font-size:0.85rem;
+}
+#update-later:hover { background:rgba(255,255,255,.18); }
+
+/* ── PULL TO REFRESH ── */
+#ptr {
+  position:fixed; top:max(6px, env(safe-area-inset-top)); left:50%; z-index:9998;
+  transform:translate(-50%, -140%); opacity:0;
+  display:flex; align-items:center; gap:8px; padding:8px 16px; border-radius:20px; white-space:nowrap;
+  background:var(--modal-bg); color:var(--text); border:1px solid var(--border);
+  font-size:0.8rem; font-weight:700; box-shadow:0 4px 18px rgba(0,0,0,.2);
+  pointer-events:none;
+}
+#ptr.settling { transition:transform .2s ease, opacity .2s ease; }
+#ptr-icon { display:inline-block; font-size:1rem; line-height:1; transition:transform .2s ease; }
+#ptr.ready #ptr-icon { transform:rotate(180deg); }
+#ptr.busy #ptr-icon { animation:ptrSpin .9s linear infinite; }
+@keyframes ptrSpin { to { transform:rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { #ptr.busy #ptr-icon { animation:none; } }
+@media (hover:hover) { .touch-only { display:none; } }
 
 /* ── COPYRIGHT ── */
 #copyright { position:fixed; bottom:6px; right:10px; font-size:0.5rem; line-height:1.4; color:var(--text2); opacity:.45; pointer-events:none; text-align:right; z-index:40; }
 
 /* ── MODAL ACTION BUTTONS ── */
-.modal-actions { display:flex; flex-direction:column; gap:0; margin:14px 0 4px; border:1.5px solid var(--border); border-radius:12px; overflow:hidden; }
+.modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0 4px; }
 .modal-action-btn {
-  display:flex; align-items:center; gap:10px; width:100%;
-  padding:11px 14px; border:none; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:8px; width:100%; min-height:44px;
+  padding:9px 12px; border:1.5px solid var(--border); border-radius:12px;
   background:var(--card-bg); cursor:pointer;
   font-size:0.82rem; font-weight:600; color:var(--text);
   transition:background .15s; text-align:left;
 }
-.modal-action-btn:last-child { border-bottom:none; }
+.modal-head { display:flex; align-items:center; gap:14px; padding-right:30px; margin-bottom:12px; }
+.modal-head .modal-emoji { margin-bottom:0; flex-shrink:0; }
+.modal-head .modal-season-badge { margin-bottom:5px; }
+.modal-head #m-name { margin-bottom:1px; }
+#modal .modal-head .subtitle { margin-bottom:0; }
+.activity-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 7px; }
+.activity-head label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); white-space:nowrap; }
+#m-age {
+  min-height:36px; min-width:0; flex:0 1 auto; padding:5px 10px; border-radius:10px;
+  border:1.5px solid var(--border); background:var(--card-bg); color:var(--text);
+  font:inherit; font-size:0.85rem; font-weight:700; cursor:pointer;
+}
+html.dark #m-age option { background:var(--modal-bg); }
+/* Previous / next plant stays in reach while reading a long card */
+.modal-plant-nav {
+  position:sticky; bottom:-26px; z-index:2; /* offset by #modal's padding to sit on the edge */
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+  margin:16px -26px -26px; padding:8px 12px;
+  background:var(--modal-bg); border-top:1px solid var(--border);
+}
+.modal-plant-nav button {
+  min-height:40px; min-width:0; padding:4px 8px; border:none; border-radius:10px;
+  background:transparent; color:var(--text); cursor:pointer;
+  font:inherit; font-size:0.78rem; font-weight:600;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.modal-plant-nav button:hover { background:var(--card-bg); }
+#m-prev { text-align:left; }
+#m-next { text-align:right; }
+#m-pos { font-size:0.7rem; color:var(--text2); white-space:nowrap; font-variant-numeric:tabular-nums; }
 .modal-action-btn:hover { background:var(--wood); color:#fff; }
 .modal-action-btn .ma-icon { font-size:1.05rem; width:1.4rem; text-align:center; flex-shrink:0; }
 .modal-action-btn .ma-label { flex:1; }
-.modal-action-btn .ma-arrow { font-size:0.7rem; color:var(--text2); transition:color .15s; }
-.modal-action-btn:hover .ma-arrow { color:#fff; }
 
 /* ═══════════════════════════════════════
    GARDEN JOURNEY OVERLAY
@@ -540,6 +604,18 @@ body.is-dragging-cube .panel:active {
   background:var(--card-bg); border:1px solid var(--border); color:var(--text);
   font:inherit; transition:all .2s;
 }
+.month-card { position:relative; }
+.month-card.is-fit { border:1.5px solid var(--wood-dark); }
+.month-card .mc-star { position:absolute; top:6px; right:8px; font-size:0.72rem; line-height:1; color:var(--wood-dark); }
+.month-card:hover .mc-star { color:#fff; }
+#month-pill {
+  display:none; position:absolute; top:12px; left:50%; transform:translateX(-50%); z-index:3;
+  min-height:36px; padding:6px 14px; border-radius:18px; white-space:nowrap;
+  border:1.5px solid var(--border); background:var(--nav-bg); color:var(--text);
+  font:inherit; font-size:0.78rem; font-weight:700; cursor:pointer;
+  box-shadow:0 2px 10px rgba(0,0,0,0.08);
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
 .month-card:hover { background:var(--wood); border-color:var(--wood); }
 .month-card:hover .mc-name, .month-card:hover .mc-dur, .month-card:hover .mc-season { color:#fff; }
 .month-card .mc-emoji { font-size:1.5rem; line-height:1; }
@@ -606,7 +682,6 @@ body.is-dragging-cube .panel:active {
 .eco-field strong { color:var(--text); }
 .eco-wc { margin-top:8px; padding:8px 12px; background:rgba(95,158,143,0.12); border-left:3px solid var(--indigenous); border-radius:0 8px 8px 0; font-size:0.78rem; color:var(--text); line-height:1.5; }
 .eco-weed-warning {
-  display:flex; gap:10px; align-items:flex-start;
   background:rgba(192,98,47,0.12); border:1.5px solid var(--autumn); border-radius:12px;
   padding:12px 14px; margin-bottom:14px; font-size:0.82rem; line-height:1.55; color:var(--text);
 }
@@ -705,7 +780,12 @@ body.is-dragging-cube .panel:active {
 }
 .edit-age-section { margin-top:14px; }
 .edit-age-section h4 { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin-bottom:10px; }
-.edit-actions { display:flex; gap:8px; margin-top:18px; }
+/* Save stays on screen however far down the long form you've scrolled */
+.edit-actions {
+  display:flex; gap:8px; margin-top:18px; padding:10px 0;
+  position:sticky; bottom:-24px; z-index:2; /* offset by #edit-modal's padding */
+  background:var(--modal-bg); border-top:1px solid var(--border);
+}
 .edit-save-btn {
   flex:1; padding:11px; border-radius:12px; border:none;
   background:var(--spring); color:#fff; font-size:0.9rem; font-weight:700; cursor:pointer;
@@ -1306,7 +1386,14 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 #mobile-age-strip .age-btn.active { background:var(--wood); color:#fff; font-weight:500; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
 
 /* ── OVERFLOW MENU (mobile) ── */
-#overflow-toggle { display:none; }
+/* Wider screens already show these in the header; the menu then holds the guides */
+@media (min-width:701px) {
+  #overflow-weather-row, #ov-month, #ov-dark-toggle, #ov-help, #ov-print, #ov-present { display:none; }
+}
+.overflow-section {
+  padding:14px 18px 6px; font-size:0.68rem; font-weight:700; color:var(--text2);
+  text-transform:uppercase; letter-spacing:0.1em;
+}
 #overflow-menu {
   display:none; position:fixed; top:0; right:0; z-index:600;
   width:min(280px,85vw); height:100%; background:var(--modal-bg);
@@ -1380,16 +1467,18 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   #scene, #particles { top:100px; }
 
   /* Mobile cube — fill more screen */
-  #cube-wrapper, .cube-face { width:min(82vw, 340px); height:min(82vw, 340px); }
-  .cube-face:nth-child(1) { transform:translateZ(min(41vw, 170px)); }
-  .cube-face:nth-child(2) { transform:rotateY(180deg) translateZ(min(41vw, 170px)); }
-  .cube-face:nth-child(3) { transform:rotateY(-90deg) translateZ(min(41vw, 170px)); }
-  .cube-face:nth-child(4) { transform:rotateY(90deg)  translateZ(min(41vw, 170px)); }
-  .cube-face:nth-child(5) { transform:rotateX(90deg)  translateZ(min(41vw, 170px)); }
-  .cube-face:nth-child(6) { transform:rotateX(-90deg) translateZ(min(41vw, 170px)); }
+  :root { --cube: min(82vw, 340px, calc((100vh - 270px) / 1.1)); }
+  /* Duration is on the plant card; panels keep the name readable instead */
+  .panel .p-dur { display:none; }
+  /* Small phones: give long single words the full panel width before any trimming */
+  .panel { padding:3px 1px; }
+  .panel .p-name { padding:0 1px; }
+  @media (max-width:340px) { .panel .p-name { font-size:11px; } }
 
   /* Shift cube upward to reduce empty space above it */
-  #cube-stage { align-items:flex-start; padding-top:min(18vh, 120px); }
+  /* Flatter perspective here so the cube's near edge stays inside the screen */
+  #cube-stage { align-items:flex-start; padding-top:min(18vh, 120px); padding-bottom:0;
+    perspective:calc(var(--cube) * 4.5); -webkit-perspective:calc(var(--cube) * 4.5); }
 
   /* Face nav closer to bottom safe area */
   #face-nav { bottom:max(12px, env(safe-area-inset-bottom)); padding:6px 14px; gap:8px; }
@@ -1405,7 +1494,10 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   #modal { border-radius:16px; padding:20px 16px; }
   .info-grid { grid-template-columns:1fr; }
   .info-card.full { grid-column:1; }
-  .modal-action-btn { font-size:0.78rem; padding:10px 12px; }
+  .modal-action-btn { font-size:0.78rem; padding:9px 10px; }
+  .modal-plant-nav { margin:14px -16px -20px; bottom:-20px; }
+  .edit-actions { bottom:-18px; }
+  #m-age { font-size:16px; } /* 16px stops iOS zooming the page when it opens */
 
   /* Edit modal full width */
   #edit-modal { border-radius:16px; padding:18px 14px; }
@@ -1421,6 +1513,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   /* Eco overlay */
   #eco-header h2 { font-size:0.95rem; }
   #month-header h2 { font-size:0.95rem; }
+  #month-pill { display:block; }
   .month-grid { grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); }
 }
 
@@ -1535,6 +1628,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 <!-- ══ SCENE ══ -->
 <div id="scene">
   <div id="scene-glow"></div>
+  <button id="month-pill" type="button" aria-label="Open this month's planting guide">📅 This Month</button>
   <div id="cube-stage">
     <div id="cube-wrapper"></div>
   </div>
@@ -1559,29 +1653,18 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 <div id="modal-overlay">
   <div id="modal" role="dialog" aria-modal="true" aria-labelledby="m-name">
     <button id="modal-close" aria-label="Close plant details">✕</button>
-    <span class="modal-emoji" id="m-emoji"></span>
-    <span class="modal-season-badge" id="m-badge"></span>
-    <h2 id="m-name"></h2>
-    <p class="subtitle" id="m-sub"></p>
-    <div class="modal-actions">
-      <button class="modal-action-btn" id="btn-journey"><span class="ma-icon">🌱</span><span class="ma-label">Garden Journey</span><span class="ma-arrow">›</span></button>
-      <button class="modal-action-btn" id="btn-rotation"><span class="ma-icon">🔄</span><span class="ma-label">Crop Rotation</span><span class="ma-arrow">›</span></button>
-      <button class="modal-action-btn" id="btn-boxes"><span class="ma-icon">🪴</span><span class="ma-label">Planter Boxes</span><span class="ma-arrow">›</span></button>
-      <button class="modal-action-btn" id="btn-eco"><span class="ma-icon">🌿</span><span class="ma-label">Eco Guide</span><span class="ma-arrow">›</span></button>
-      <button class="modal-action-btn" id="btn-compost"><span class="ma-icon">♻️</span><span class="ma-label">Eco Composting</span><span class="ma-arrow">›</span></button>
-      <button class="modal-action-btn" id="btn-edit"><span class="ma-icon">✏️</span><span class="ma-label">Edit Plant</span><span class="ma-arrow">›</span></button>
+    <div class="modal-head">
+      <span class="modal-emoji" id="m-emoji"></span>
+      <div>
+        <span class="modal-season-badge" id="m-badge"></span>
+        <h2 id="m-name"></h2>
+        <p class="subtitle" id="m-sub"></p>
+      </div>
     </div>
-    <div class="info-grid">
-      <div class="info-card"><div class="label">Planting Months</div><div class="value" id="m-months"></div></div>
-      <div class="info-card"><div class="label">Duration</div><div class="value" id="m-dur"></div></div>
-      <div class="info-card"><div class="label">Difficulty</div><div class="value" style="display:flex;align-items:center;gap:8px"><div class="difficulty-dots" id="m-dots"></div><span id="m-diff-label"></span></div></div>
-      <div class="info-card"><div class="label">Water</div><div class="value" id="m-water"></div></div>
-      <div class="info-card full"><div class="label">Soil Preparation</div><div class="value" id="m-soil"></div></div>
-      <div class="info-card full"><div class="label">Companion Plants</div><div class="value" id="m-companions"></div></div>
-      <div class="info-card full"><div class="label">Organic Pest Control</div><div class="value" id="m-pest"></div></div>
-      <div class="info-card full"><div class="label">Harvest Indicator</div><div class="value" id="m-harvest"></div></div>
+    <div class="activity-head">
+      <label for="m-age">Activity for</label>
+      <select id="m-age"></select>
     </div>
-    <div class="section-title">Age-Appropriate Activity</div>
     <div class="tip-box">
       <div class="age-content" data-ac="toddler"  id="ac-toddler"></div>
       <div class="age-content" data-ac="preschool" id="ac-preschool"></div>
@@ -1592,6 +1675,31 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
     </div>
     <div class="section-title">Montessori Observation Prompt</div>
     <div class="tip-box" id="m-observation"></div>
+    <div class="modal-actions">
+      <button class="modal-action-btn" id="btn-journey"><span class="ma-icon">🌱</span><span class="ma-label">Garden Journey</span></button>
+      <button class="modal-action-btn" id="btn-edit"><span class="ma-icon">✏️</span><span class="ma-label">Edit Plant</span></button>
+    </div>
+    <div class="info-grid">
+      <div class="info-card"><div class="label">Planting Months</div><div class="value" id="m-months"></div></div>
+      <div class="info-card"><div class="label">Difficulty</div><div class="value" style="display:flex;align-items:center;gap:8px"><div class="difficulty-dots" id="m-dots"></div><span id="m-diff-label"></span></div></div>
+      <div class="info-card full"><div class="label">Water</div><div class="value" id="m-water"></div></div>
+      <div class="info-card full"><div class="label">Soil Preparation</div><div class="value" id="m-soil"></div></div>
+      <div class="info-card full"><div class="label">Companion Plants</div><div class="value" id="m-companions"></div></div>
+      <div class="info-card full"><div class="label">Organic Pest Control</div><div class="value" id="m-pest"></div></div>
+      <div class="info-card full"><div class="label">Harvest Indicator</div><div class="value" id="m-harvest"></div></div>
+    </div>
+    <div class="section-title">More garden guides</div>
+    <div class="modal-actions">
+      <button class="modal-action-btn" id="btn-rotation"><span class="ma-icon">🔄</span><span class="ma-label">Crop Rotation</span></button>
+      <button class="modal-action-btn" id="btn-boxes"><span class="ma-icon">🪴</span><span class="ma-label">Planter Boxes</span></button>
+      <button class="modal-action-btn" id="btn-eco"><span class="ma-icon">🌿</span><span class="ma-label">Eco Guide</span></button>
+      <button class="modal-action-btn" id="btn-compost"><span class="ma-icon">♻️</span><span class="ma-label">Eco Composting</span></button>
+    </div>
+    <div class="modal-plant-nav">
+      <button id="m-prev" type="button"></button>
+      <span id="m-pos"></span>
+      <button id="m-next" type="button"></button>
+    </div>
   </div>
 </div>
 
@@ -1892,10 +2000,20 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button class="overflow-item" id="ov-help"><span class="ov-icon">ℹ️</span><span class="ov-label">How to Use</span></button>
   <button class="overflow-item" id="ov-print"><span class="ov-icon">🖨️</span><span class="ov-label">Print Handout</span></button>
   <button class="overflow-item" id="ov-present"><span class="ov-icon">📺</span><span class="ov-label">Presentation Mode</span></button>
+  <div class="overflow-section">Garden guides</div>
+  <button class="overflow-item" id="ov-rotation"><span class="ov-icon">🔄</span><span class="ov-label">Crop Rotation</span></button>
+  <button class="overflow-item" id="ov-boxes"><span class="ov-icon">🪴</span><span class="ov-label">Planter Boxes</span></button>
+  <button class="overflow-item" id="ov-eco"><span class="ov-icon">🌿</span><span class="ov-label">Eco Guide</span></button>
+  <button class="overflow-item" id="ov-compost"><span class="ov-icon">♻️</span><span class="ov-label">Eco Composting</span></button>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
-<div id="update-banner" hidden>Update available — tap to refresh</div>
+<div id="update-banner" role="status" hidden>
+  <span>New version available</span>
+  <button id="update-now" type="button">Update</button>
+  <button id="update-later" type="button" aria-label="Remind me later">✕</button>
+</div>
+<div id="ptr" aria-live="polite"><span id="ptr-icon" aria-hidden="true">⬇️</span><span id="ptr-label">Pull to refresh</span></div>
 
 <div id="intro-overlay" aria-hidden="true">
   <div id="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
@@ -1908,6 +2026,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <li><span class="intro-ico">🎨</span><div><b>The season dots</b> below jump straight to Autumn, Winter, Spring, Summer, Companions or Indigenous.</div></li>
       <li><span class="intro-ico">🧒</span><div><b>The age buttons</b> (top-left) rewrite every activity for Toddler → Grounds Team.</div></li>
       <li><span class="intro-ico">🖨️</span><div><b>Print</b> a ready-made handout for the season and age you are viewing.</div></li>
+      <li class="touch-only"><span class="intro-ico">⬇️</span><div><b>Pull down</b> from the top of the screen, above the cube, to refresh.</div></li>
     </ul>
     <button id="intro-dismiss">Start exploring 🌿</button>
     <div id="intro-reopen-note">You can reopen this any time with the ℹ️ button.</div>
@@ -2630,7 +2749,11 @@ FACE_ORDER.forEach((season) => {
     panel.addEventListener('keydown', e => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openModal(v); }
     });
-    panel.addEventListener('click', e => { e.stopPropagation(); openModal(v); });
+    panel.addEventListener('click', e => {
+      e.stopPropagation();
+      if (dragMoved) return;   // this click is the end of a drag, not a tap
+      openModal(v);
+    });
     face.appendChild(panel);
   });
   cubeEl.appendChild(face);
@@ -2659,7 +2782,8 @@ let journeyVeggie = null;
 const overlay = document.getElementById('modal-overlay');
 const modalClose = document.getElementById('modal-close');
 
-function openModal(v) {
+// stepping: moving between plants inside an open card, so skip the entrance effects
+function openModal(v, stepping) {
   currentModalVeggie = v;
   journeyVeggie      = v;
   const s = SEASONS.find(s => s.key === v.season);
@@ -2668,9 +2792,9 @@ function openModal(v) {
   badge.textContent = s.label;
   badge.style.background = s.color;
   document.getElementById('m-name').textContent = v.name;
-  document.getElementById('m-sub').textContent = s.emoji + ' ' + s.label + ' · ' + v.duration;
+  document.getElementById('m-sub').textContent = v.duration;
+  document.getElementById('m-age').value = currentAge;
   document.getElementById('m-months').textContent = v.months;
-  document.getElementById('m-dur').textContent = v.duration;
   document.getElementById('m-water').textContent = v.water;
   document.getElementById('m-soil').textContent = v.soil;
   document.getElementById('m-companions').textContent = v.companions;
@@ -2694,15 +2818,42 @@ function openModal(v) {
 
   document.getElementById('m-diff-label').textContent = ['','Easy','Medium','Hard'][v.difficulty] || '';
 
+  // Neighbouring plants on the same face, wrapping round at the ends
+  const list = VEGGIES.filter(x => x.season === v.season);
+  const i = list.indexOf(v), n = list.length;
+  document.getElementById('m-prev').textContent = '‹ ' + list[(i - 1 + n) % n].name;
+  document.getElementById('m-next').textContent = list[(i + 1) % n].name + ' ›';
+  document.getElementById('m-prev').setAttribute('aria-label', 'Previous plant: ' + list[(i - 1 + n) % n].name);
+  document.getElementById('m-next').setAttribute('aria-label', 'Next plant: ' + list[(i + 1) % n].name);
+  document.getElementById('m-pos').textContent = (i + 1) + ' of ' + n;
+
+  const mEl = document.getElementById('modal');
+  mEl.scrollTop = 0;
+  if (stepping) return;
   overlay.classList.add('open');
   setTimeout(() => modalClose.focus(), 80);
   spawnParticles(v.season);
   // restart pop animation each open
-  const mEl = document.getElementById('modal');
   mEl.style.animation = 'none';
   void mEl.offsetWidth;
   mEl.style.animation = '';
 }
+function stepPlant(dir) {
+  if (!currentModalVeggie) return;
+  const list = VEGGIES.filter(x => x.season === currentModalVeggie.season);
+  const i = list.indexOf(currentModalVeggie);
+  openModal(list[(i + dir + list.length) % list.length], true);
+}
+document.getElementById('m-prev').addEventListener('click', () => stepPlant(-1));
+document.getElementById('m-next').addEventListener('click', () => stepPlant(1));
+
+// Age picker inside the card: same setting as the age buttons on the main screen
+document.getElementById('m-age').innerHTML =
+  [...document.querySelectorAll('#age-filter .age-btn')]
+    .map(b => '<option value="' + b.dataset.age + '">' + b.textContent + '</option>').join('');
+document.getElementById('m-age').addEventListener('change', e => {
+  document.querySelectorAll('.age-btn[data-age="' + e.target.value + '"]').forEach(b => b.click());
+});
 
 modalClose.addEventListener('click', () => overlay.classList.remove('open'));
 overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
@@ -2827,6 +2978,15 @@ document.getElementById('ov-dark-toggle').addEventListener('click', () => {
 document.getElementById('ov-help').addEventListener('click', () => { closeOverflow(); document.getElementById('help-toggle').click(); });
 document.getElementById('ov-print').addEventListener('click', () => { closeOverflow(); document.getElementById('print-toggle').click(); });
 document.getElementById('ov-present').addEventListener('click', () => { closeOverflow(); document.getElementById('ad-toggle').click(); });
+// Guides opened from the menu have no plant to go back to, so hide "← Plant Info"
+document.getElementById('ov-rotation').addEventListener('click', () => { closeOverflow(); openRotation(false); });
+document.getElementById('ov-boxes').addEventListener('click', () => { closeOverflow(); openSfg(false); });
+document.getElementById('ov-eco').addEventListener('click', () => {
+  closeOverflow(); document.getElementById('eco-back-btn').style.display = 'none'; openEco();
+});
+document.getElementById('ov-compost').addEventListener('click', () => {
+  closeOverflow(); document.getElementById('compost-back-btn').style.display = 'none'; openCompost();
+});
 function syncOverflowTheme() {
   const el = document.getElementById('ov-dark-toggle');
   el.querySelector('.ov-icon').textContent = darkMode ? '☀️' : '🌙';
@@ -2954,11 +3114,34 @@ const FACE_ROTATIONS = [
   [-20, 180],   // back   – winter
   [-20,  90],   // right  – spring
   [-20, -90],   // left   – summer
-  [ 70,   0],   // top    – companion
-  [-110,  0],   // bottom – indigenous
+  [-70,   0],   // top    – companion
+  [ 70,   0],   // bottom – indigenous
 ];
 
 let baseRX = -25, baseRY = 35;
+
+// Outward direction of each face (same order as FACE_ORDER), used to work out
+// which face is pointing most directly at the viewer after a drag.
+const FACE_NORMALS = [[0,0,1],[0,0,-1],[-1,0,0],[1,0,0],[0,-1,0],[0,1,0]];
+function nearestFaceIdx() {
+  const rad = Math.PI / 180;
+  const sx = Math.sin(baseRX * rad), cx = Math.cos(baseRX * rad);
+  const sy = Math.sin(baseRY * rad), cy = Math.cos(baseRY * rad);
+  let best = 0, bestZ = -Infinity;
+  FACE_NORMALS.forEach(([x, y, z], i) => {
+    const towardViewer = y * sx + (-x * sy + z * cy) * cx;
+    if (towardViewer > bestZ) { bestZ = towardViewer; best = i; }
+  });
+  return best;
+}
+// Equivalent angle closest to where the cube is now, so it never unwinds extra turns
+function nearestTurn(target, from) { return target + Math.round((from - target) / 360) * 360; }
+function turnInDirection(target, from, dir) {
+  let t = nearestTurn(target, from);
+  if (dir < 0) { while (t >= from - 1) t -= 360; }
+  else         { while (t <= from + 1) t += 360; }
+  return t;
+}
 
 const sceneGlow = document.getElementById('scene-glow');
 const faceLabel = document.getElementById('face-label');
@@ -2975,10 +3158,12 @@ function showFaceLabel(season) {
   faceLabelTimer = setTimeout(() => faceLabel.classList.remove('show'), 1500);
 }
 
-function rotateToCubeFace(fi) {
+// dir: optional -1 / +1 to force the turn to follow a swipe's direction
+function rotateToCubeFace(fi, dir) {
+  if (momentumRaf) { cancelAnimationFrame(momentumRaf); momentumRaf = null; }
   const [rx, ry] = FACE_ROTATIONS[fi];
-  baseRX = rx;
-  baseRY = ry;
+  baseRX = nearestTurn(rx, baseRX);
+  baseRY = dir ? turnInDirection(ry, baseRY, dir) : nearestTurn(ry, baseRY);
   cubeEl.style.transition = 'transform .35s cubic-bezier(.25,.8,.25,1)';
   cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg) scale(' + cubeScale + ')';
   updateSceneGlow(FACE_ORDER[fi]);
@@ -2993,6 +3178,21 @@ function onFaceChanged() {
   try { history.replaceState(null, '', '#' + FACE_ORDER[currentFaceIdx]); } catch (e) {}
 }
 window.addEventListener('pagehide', saveFace);
+
+// Keep the season buttons, saved face and URL in step with the face on screen,
+// so Print and Presentation always use the season the viewer is looking at.
+function setActiveFace(fi) {
+  currentFaceIdx = fi;
+  document.querySelectorAll('.face-btn').forEach((b, i) => b.classList.toggle('active', i === fi));
+  onFaceChanged();
+}
+function settleOnNearestFace() {
+  const fi = nearestFaceIdx();
+  const changed = fi !== currentFaceIdx;
+  if (changed) setActiveFace(fi);
+  rotateToCubeFace(fi);
+  if (changed) spawnParticles(FACE_ORDER[fi]);
+}
 
 // Mark the real-world current season button
 (function markNowSeason() {
@@ -3030,10 +3230,11 @@ document.querySelectorAll('.face-btn').forEach(btn => {
 let isDragging    = false;
 let pointerDown   = false;   // true for the WHOLE press, from press to release —
                               // unlike isDragging, which only flips true once the
-                              // cursor has moved past DRAG_THRESHOLD. Idle auto-rotate
-                              // must check this, not isDragging, or it can wake up
-                              // and start spinning while the button is still held
-                              // but hasn't moved yet.
+                              // cursor has moved past DRAG_THRESHOLD.
+let dragMoved     = false;   // this press rotated the cube, so the click that follows
+                              // must not open a plant card
+let spinInterrupted = false; // a press stopped the momentum spin part-way
+let pinchGesture  = false;   // a second finger joined, so this isn't a swipe
 let lastX = 0, lastY = 0;
 let rafPending    = false;
 let velX = 0, velY = 0, lastMoveT = 0, momentumRaf = null;
@@ -3069,10 +3270,10 @@ function scheduleRotation() {
    since window-level mousemove fires no matter where the pointer is. */
 cubeEl.addEventListener('mousedown', e => {
   if (e.button !== 0) return;
-  isDragging = false; pointerDown = true; lastX = e.clientX; lastY = e.clientY;
+  isDragging = false; dragMoved = false; pointerDown = true; lastX = e.clientX; lastY = e.clientY;
   velX = 0; velY = 0; lastMoveT = Date.now();
-  if (momentumRaf) { cancelAnimationFrame(momentumRaf); momentumRaf = null; }
-  cubeEl.style.transition = 'none'; stopIdle(); dismissHint();
+  if (momentumRaf) { cancelAnimationFrame(momentumRaf); momentumRaf = null; spinInterrupted = true; }
+  cubeEl.style.transition = 'none'; dismissHint();
   document.body.classList.add('is-dragging-cube');
   e.preventDefault();
 });
@@ -3085,36 +3286,37 @@ window.addEventListener('mousemove', e => {
   // If the button was released outside the window (so no mouseup reached us),
   // e.buttons is 0 on the next move — treat that as the drag having ended.
   if (pointerDown && e.buttons === 0) {
-    isDragging = false; pointerDown = false;
-    document.body.classList.remove('is-dragging-cube');
-    resetIdle();
+    finishCubePress();
     return;
   }
   const dx = e.clientX - lastX, dy = e.clientY - lastY;
+  if (!pointerDown || !overStage) { lastX = e.clientX; lastY = e.clientY; return; }
+  // Until the drag starts, keep measuring from the press point, so slow
+  // movement adds up instead of each tiny step falling below the threshold.
+  if (!isDragging && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
   const now = Date.now(), dt = Math.max(now - lastMoveT, 1);
   lastX = e.clientX; lastY = e.clientY; lastMoveT = now;
-  if (!pointerDown || !overStage) return;
-  if (!isDragging && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
-  isDragging = true;
+  isDragging = true; dragMoved = true;
   baseRY += dx * 0.5; baseRX -= dy * 0.5;
   velX = dx / dt * 16; velY = dy / dt * 16;
   scheduleRotation();
 });
-window.addEventListener('mouseup', () => {
-  const wasDragging = isDragging;
-  isDragging = false; pointerDown = false;
+// Shared end of a press: coast if it was a drag, then settle on the nearest face.
+function finishCubePress() {
+  const wasDragging = isDragging, interrupted = spinInterrupted;
+  isDragging = false; pointerDown = false; spinInterrupted = false;
   document.body.classList.remove('is-dragging-cube');
   if (wasDragging) startMomentum();
-  resetIdle();
-});
+  else if (interrupted) settleOnNearestFace();
+  // The click that ends a drag fires right after release; clear the flag once it
+  // has passed so keyboard and screen-reader activation still work afterwards.
+  if (dragMoved) setTimeout(() => { dragMoved = false; }, 50);
+}
+window.addEventListener('mouseup', finishCubePress);
 // Safety net: if the mouse button is released outside the window (or the
 // window loses focus mid-drag), still clear the drag state so the cursor
 // and interactions don't get stuck.
-window.addEventListener('blur', () => {
-  isDragging = false; pointerDown = false;
-  document.body.classList.remove('is-dragging-cube');
-  resetIdle();
-});
+window.addEventListener('blur', finishCubePress);
 
 /* ── Touch: drag / pinch / swipe ──
    touchstart is bound to cubeEl for the same reason as mousedown above —
@@ -3125,12 +3327,14 @@ window.addEventListener('blur', () => {
    outside the cube's visible bounds — no need to move those to `window`. */
 cubeEl.addEventListener('touchstart', e => {
   pointerDown = true;
-  stopIdle(); dismissHint();
-  if (momentumRaf) { cancelAnimationFrame(momentumRaf); momentumRaf = null; }
+  dismissHint();
+  if (momentumRaf) { cancelAnimationFrame(momentumRaf); momentumRaf = null; spinInterrupted = true; }
   cubeEl.style.transition = 'none';
 
   if (e.touches.length === 1) {
     isDragging  = false;
+    dragMoved   = false;
+    pinchGesture = false;
     lastX       = e.touches[0].clientX;
     lastY       = e.touches[0].clientY;
     velX = 0; velY = 0; lastMoveT = Date.now();
@@ -3140,6 +3344,7 @@ cubeEl.addEventListener('touchstart', e => {
   }
   if (e.touches.length === 2) {
     isDragging  = false;   // cancel drag when second finger lands
+    pinchGesture = true;
     pinchDist0  = Math.hypot(
       e.touches[1].clientX - e.touches[0].clientX,
       e.touches[1].clientY - e.touches[0].clientY
@@ -3169,7 +3374,7 @@ stage.addEventListener('touchmove', e => {
     const dy = e.touches[0].clientY - lastY;
     const now = Date.now(), dt = Math.max(now - lastMoveT, 1);
     if (!isDragging && Math.abs(dx) + Math.abs(dy) < DRAG_THRESHOLD) return;
-    isDragging = true;
+    isDragging = true; dragMoved = true;
     baseRY += dx * 0.5; baseRX -= dy * 0.5;
     velX = dx / dt * 16; velY = dy / dt * 16;
     lastX = e.touches[0].clientX; lastY = e.touches[0].clientY; lastMoveT = now;
@@ -3178,27 +3383,26 @@ stage.addEventListener('touchmove', e => {
 }, { passive: true });
 
 stage.addEventListener('touchend', e => {
-  /* ── Swipe to change face (quick, horizontal, no drag) ── */
-  if (!isDragging && e.changedTouches.length === 1) {
-    const dx = e.changedTouches[0].clientX - swipeStartX;
-    const dy = e.changedTouches[0].clientY - swipeStartY;
-    const dt = Date.now() - swipeStartT;
-    if (dt < 400 && Math.abs(dx) > 55 && Math.abs(dy) < 55) {
-      const dir = dx < 0 ? 1 : -1;
-      currentFaceIdx = ((currentFaceIdx + dir) + 6) % 6;
-      rotateToCubeFace(currentFaceIdx);
-      document.querySelectorAll('.face-btn').forEach((b, i) => b.classList.toggle('active', i === currentFaceIdx));
-      spawnParticles(FACE_ORDER[currentFaceIdx]);
-      onFaceChanged();
-    }
+  if (e.touches.length > 0 || !pointerDown) return;
+  /* ── Swipe: a quick horizontal flick moves to the next or previous season.
+     A flick always passes the drag threshold on its way, so test it first —
+     a slower drag falls through to rotate freely, then settle on a face. ── */
+  const dx = e.changedTouches[0].clientX - swipeStartX;
+  const dy = e.changedTouches[0].clientY - swipeStartY;
+  const dt = Date.now() - swipeStartT;
+  if (!pinchGesture && dt < 400 && Math.abs(dx) > 55 && Math.abs(dy) < 55) {
+    const prev = currentFaceIdx;
+    const next = (prev + (dx < 0 ? 1 : -1) + 6) % 6;
+    isDragging = false; pointerDown = false; spinInterrupted = false; velX = 0; velY = 0;
+    setActiveFace(next);
+    // Follow the finger between the four seasons; top and bottom just tilt
+    rotateToCubeFace(next, (prev < 4 && next < 4) ? (dx < 0 ? -1 : 1) : 0);
+    spawnParticles(FACE_ORDER[next]);
+    return;
   }
-  const wasDragging = isDragging;
-  isDragging = false;
-  if (e.touches.length === 0) { pointerDown = false; if (wasDragging) startMomentum(); resetIdle(); }
+  finishCubePress();
 });
-stage.addEventListener('touchcancel', () => {
-  isDragging = false; pointerDown = false; resetIdle();
-});
+stage.addEventListener('touchcancel', finishCubePress);
 
 /* ── Double-tap to reset scale ── */
 let lastTapTime = 0;
@@ -3216,47 +3420,23 @@ stage.addEventListener('touchend', e => {
 }, { passive: true });
 
 function startMomentum() {
-  if (Math.abs(velX) < 0.3 && Math.abs(velY) < 0.3) return;
+  // Holding still before letting go means there's nothing to coast on
+  if (Date.now() - lastMoveT > 80) { velX = 0; velY = 0; }
+  // Cap the coast so a quick nudge moves about one face at most, not several
+  const MAX_COAST = 14;
+  velX = Math.max(-MAX_COAST, Math.min(MAX_COAST, velX));
+  velY = Math.max(-MAX_COAST, Math.min(MAX_COAST, velY));
+  if (REDUCED_MOTION || (Math.abs(velX) < 1 && Math.abs(velY) < 1)) { settleOnNearestFace(); return; }
   const friction = 0.92;
   function tick() {
     velX *= friction; velY *= friction;
-    if (Math.abs(velX) < 0.15 && Math.abs(velY) < 0.15) { momentumRaf = null; return; }
+    if (Math.abs(velX) < 1 && Math.abs(velY) < 1) { momentumRaf = null; settleOnNearestFace(); return; }
     baseRY += velX * 0.5; baseRX -= velY * 0.5;
     scheduleRotation();
     momentumRaf = requestAnimationFrame(tick);
   }
   momentumRaf = requestAnimationFrame(tick);
 }
-
-// ══════════════════════════════════════════════
-//  IDLE AUTO-ROTATE  (RAF-based, pauses when hidden)
-// ══════════════════════════════════════════════
-let idleTimer = null;
-let idleRaf   = null;
-
-function stopIdle() {
-  if (idleRaf)   { cancelAnimationFrame(idleRaf); idleRaf = null; }
-  if (idleTimer) { clearTimeout(idleTimer); idleTimer = null; }
-}
-function idleTick() {
-  if (!pointerDown && !isDragging && !document.hidden &&
-      !overlay.classList.contains('open') &&
-      !adOverlay.classList.contains('open')) {
-    baseRY += 0.18;
-    cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg) scale(' + cubeScale + ')';
-  }
-  idleRaf = requestAnimationFrame(idleTick);
-}
-function startIdle() { if (REDUCED_MOTION) return; if (!idleRaf) idleRaf = requestAnimationFrame(idleTick); }
-function resetIdle()  { stopIdle(); idleTimer = setTimeout(startIdle, 5000); }
-
-window.addEventListener('mousemove',  resetIdle);
-window.addEventListener('touchstart', resetIdle, { passive: true });
-// Pause when app is backgrounded / screen off
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) stopIdle(); else resetIdle();
-});
-resetIdle();
 
 // ══════════════════════════════════════════════
 //  PARTICLES
@@ -3435,14 +3615,12 @@ function openAd() {
   adOverlay.classList.add('open');
   adPlaying = true;
   document.getElementById('ad-playpause').textContent = '⏸';
-  stopIdle();
   showAdFace(currentFaceIdx);   // start from current cube face
   scheduleAdNext();
 }
 function closeAd() {
   adOverlay.classList.remove('open');
   clearTimeout(adTimer); stopRing();
-  resetIdle();
 }
 
 document.getElementById('ad-toggle').addEventListener('click', openAd);
@@ -3592,11 +3770,17 @@ window.addEventListener('keydown', e => {
   } else if (document.getElementById('compost-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeCompost();
   } else if (document.getElementById('edit-overlay').classList.contains('open')) {
-    if (e.key === 'Escape') closeEdit();
+    if (e.key === 'Escape') requestCloseEdit();
   } else if (document.getElementById('search-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeSearch();
+  } else if (overflowMenu.classList.contains('open')) {
+    if (e.key === 'Escape') closeOverflow();
   } else {
     if (e.key === 'Escape') overlay.classList.remove('open');
+    if (overlay.classList.contains('open') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight') &&
+        !(e.target && e.target.matches && e.target.matches('input, textarea, select'))) {
+      e.preventDefault(); stepPlant(e.key === 'ArrowRight' ? 1 : -1);
+    }
     if (e.key === '/' && !overlay.classList.contains('open') &&
         !(e.target && e.target.matches && e.target.matches('input, textarea'))) {
       e.preventDefault(); openSearch();
@@ -4148,6 +4332,9 @@ const ECO_SHORT_FIELDS = ['name', 'emoji', 'strength'];
 function renderEcoTab(tab) {
   currentEcoTab = tab;
   document.querySelectorAll('.eco-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  // The tab row scrolls sideways on phones; keep the selected tab in view
+  const activeTab = document.querySelector('.eco-tab.active');
+  if (activeTab) activeTab.scrollIntoView({ block:'nearest', inline:'nearest' });
   const body = document.getElementById('eco-body');
   body.innerHTML = '';
 
@@ -4196,31 +4383,70 @@ function renderEcoTab(tab) {
 const MONTH_LABELS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const monthOverlay = document.getElementById('month-overlay');
 
+// Garden jobs that live on the Summer face alongside the crops
+const MONTH_TASK_NAMES = ['Succession Planting','Water-Wise Garden','Mulch Management','Compost Harvest','Harvesting'];
+
+// One entry per plant name: some plants sit on two faces (Tomatoes on Spring and
+// Summer). Opens the current season's version where there is one.
+function mergeByName(list) {
+  const nowSeason = currentSHSeason();
+  const byName = new Map();
+  list.forEach(v => {
+    const e = byName.get(v.name);
+    if (!e) byName.set(v.name, { v, all: [v] });
+    else { e.all.push(v); if (v.season === nowSeason) e.v = v; }
+  });
+  return [...byName.values()];
+}
+function getMonthLists() {
+  const mi = currentMonthIdx();
+  const due = mergeByName(VEGGIES.filter(v => isInSeasonMonth(v, mi)));
+  return {
+    crops:  due.filter(e => !MONTH_TASK_NAMES.includes(e.v.name)),
+    tasks:  due.filter(e =>  MONTH_TASK_NAMES.includes(e.v.name)),
+    always: mergeByName(VEGGIES.filter(v => isYearRound(v))),
+  };
+}
+// Same "best fit" the cube shows with its glow and star for the selected age
+function isBestFitForAge(entry) {
+  return entry.all.some(v => {
+    const p = document.querySelector('.panel[data-veggie-idx="' + VEGGIES.indexOf(v) + '"]');
+    return p && p.classList.contains('p-lit');
+  });
+}
+
 function renderMonthOverlay() {
   const mi = currentMonthIdx();
   const s  = SEASONS.find(x => x.key === currentSHSeason());
+  const ageBtn = document.querySelector('#age-filter .age-btn.active');
   document.getElementById('month-title').textContent = '🌱 ' + MONTH_LABELS_FULL[mi];
   document.getElementById('month-sub').textContent =
-    s.emoji + ' ' + s.label + ' in Somerset West · tap a plant for full details';
+    s.emoji + ' ' + s.label + ' in Somerset West · ★ best fit for ' + (ageBtn ? ageBtn.textContent : 'this age');
 
-  const specific  = VEGGIES.filter(v => isInSeasonMonth(v, mi));
-  const yearRound = VEGGIES.filter(v => isYearRound(v));
+  const { crops, tasks, always } = getMonthLists();
   const body = document.getElementById('month-body');
   body.innerHTML = '';
 
   function buildGrid(list) {
     const grid = document.createElement('div');
     grid.className = 'month-grid';
-    list.forEach(v => {
-      const sInfo = SEASONS.find(x => x.key === v.season);
+    // Best fits first; sort() keeps the original order within each group
+    const ranked = list.map(e => ({ e, fit: isBestFitForAge(e) })).sort((a, b) => b.fit - a.fit);
+    ranked.forEach(({ e, fit }) => {
+      const v = e.v;
+      const seasons = e.all.map(x => {
+        const info = SEASONS.find(i => i.key === x.season);
+        return info.emoji + ' ' + (SEASON_LABELS[x.season] || x.season);
+      }).join(' · ');
       const card = document.createElement('button');
       card.type = 'button';
-      card.className = 'month-card';
+      card.className = 'month-card' + (fit ? ' is-fit' : '');
       card.innerHTML =
+        (fit ? '<span class="mc-star" aria-label="Best fit for this age">★</span>' : '') +
         '<span class="mc-emoji">' + v.emoji + '</span>' +
         '<span class="mc-name">'  + v.name  + '</span>' +
         '<span class="mc-dur">'   + v.duration + '</span>' +
-        '<span class="mc-season">' + sInfo.emoji + ' ' + sInfo.label + '</span>';
+        '<span class="mc-season">' + seasons + '</span>';
       card.addEventListener('click', () => { closeMonth(); openModal(v); });
       grid.appendChild(card);
     });
@@ -4233,25 +4459,38 @@ function renderMonthOverlay() {
     body.appendChild(t);
   }
 
-  if (specific.length) {
-    addTitle('🌱 Plant & Tend Now (' + specific.length + ')');
-    body.appendChild(buildGrid(specific));
+  if (crops.length) {
+    addTitle('🌱 Plant Now (' + crops.length + ')');
+    body.appendChild(buildGrid(crops));
   } else {
     const empty = document.createElement('div');
     empty.id = 'month-empty';
-    empty.textContent = 'No month-specific crops are due right now — check the evergreens below.';
+    empty.textContent = 'No crops are due for planting this month — the garden jobs and evergreens below still need you.';
     body.appendChild(empty);
   }
-  if (yearRound.length) {
-    addTitle('🌿 Always In Season (' + yearRound.length + ')');
-    body.appendChild(buildGrid(yearRound));
+  if (tasks.length) {
+    addTitle('🧺 Garden Jobs (' + tasks.length + ')');
+    body.appendChild(buildGrid(tasks));
+  }
+  if (always.length) {
+    addTitle('🌿 Always In Season (' + always.length + ')');
+    body.appendChild(buildGrid(always));
   }
 }
-function openMonth()  { renderMonthOverlay(); monthOverlay.classList.add('open'); stopIdle(); const c = document.getElementById('month-close-btn'); if (c) c.focus(); }
-function closeMonth() { monthOverlay.classList.remove('open'); resetIdle(); }
+function openMonth()  { renderMonthOverlay(); monthOverlay.classList.add('open'); const c = document.getElementById('month-close-btn'); if (c) c.focus(); }
+function closeMonth() { monthOverlay.classList.remove('open'); }
 document.getElementById('month-toggle').addEventListener('click', openMonth);
 document.getElementById('month-close-btn').addEventListener('click', closeMonth);
 document.getElementById('ov-month').addEventListener('click', () => { closeOverflow(); openMonth(); });
+
+// Phones keep the header to two buttons, so This Month gets its own pill above the cube
+function updateMonthPill() {
+  const { crops } = getMonthLists();
+  document.getElementById('month-pill').textContent =
+    '📅 ' + MONTH_LABELS_FULL[currentMonthIdx()] + ': ' + crops.length + ' to plant';
+}
+document.getElementById('month-pill').addEventListener('click', openMonth);
+updateMonthPill();
 
 function openEco()  { document.getElementById('eco-overlay').classList.add('open'); renderEcoTab(currentEcoTab); }
 function closeEco() { document.getElementById('eco-overlay').classList.remove('open'); }
@@ -5548,8 +5787,29 @@ function openEdit(v) {
   eEl.style.animation = 'none';
   void eEl.offsetWidth;
   eEl.style.animation = '';
+  eEl.scrollTop = 0;
   document.getElementById('edit-overlay').classList.add('open');
+  editSnapshot = editFormValues();
 }
+
+// ── Unsaved-changes guard ──
+let editSnapshot = '';
+function editFormValues() {
+  return JSON.stringify([...document.querySelectorAll('#edit-modal .edit-field input, #edit-modal .edit-field textarea, #edit-modal .edit-field select')]
+    .map(el => el.value));
+}
+function editIsDirty() {
+  return document.getElementById('edit-overlay').classList.contains('open') && editFormValues() !== editSnapshot;
+}
+// Close from ✕, Cancel or Esc, checking first if there's anything to lose
+function requestCloseEdit() {
+  if (editIsDirty() && !confirm('Discard your unsaved changes to "' + VEGGIES[editVeggieIdx].name + '"?')) return;
+  closeEdit();
+  if (currentModalVeggie) overlay.classList.add('open');
+}
+window.addEventListener('beforeunload', e => {
+  if (editIsDirty()) { e.preventDefault(); e.returnValue = ''; }
+});
 
 function saveEdit() {
   if (editVeggieIdx < 0) return;
@@ -5599,6 +5859,7 @@ function refreshVeggiePanel(idx) {
     }
   });
   updatePanelLighting(currentAge);
+  updateMonthPill();
 }
 
 function resetEdit() {
@@ -5618,15 +5879,9 @@ function resetEdit() {
 function closeEdit() { document.getElementById('edit-overlay').classList.remove('open'); }
 
 document.getElementById('edit-save-btn').addEventListener('click', saveEdit);
-document.getElementById('edit-cancel-btn').addEventListener('click', () => {
-  closeEdit();
-  if (currentModalVeggie) overlay.classList.add('open');
-});
+document.getElementById('edit-cancel-btn').addEventListener('click', requestCloseEdit);
 document.getElementById('edit-reset-btn').addEventListener('click', resetEdit);
-document.getElementById('edit-close-btn').addEventListener('click', () => {
-  closeEdit();
-  if (currentModalVeggie) overlay.classList.add('open');
-});
+document.getElementById('edit-close-btn').addEventListener('click', requestCloseEdit);
 
 // ── Export / Import ALL saved edits (backup across devices) ──
 document.getElementById('edit-export-btn').addEventListener('click', () => {
@@ -5688,10 +5943,12 @@ document.getElementById('btn-journey').addEventListener('click', () => {
 });
 document.getElementById('btn-eco').addEventListener('click', () => {
   overlay.classList.remove('open');
+  document.getElementById('eco-back-btn').style.display = '';
   openEco();
 });
 document.getElementById('btn-compost').addEventListener('click', () => {
   overlay.classList.remove('open');
+  document.getElementById('compost-back-btn').style.display = '';
   openCompost();
 });
 document.getElementById('btn-edit').addEventListener('click', () => {
@@ -5832,24 +6089,46 @@ searchInput.addEventListener('input', () => renderSearch(searchInput.value));
   currentFaceIdx = fi;
   document.querySelectorAll('.face-btn').forEach((b, i) => b.classList.toggle('active', i === fi));
   updateSceneGlow(FACE_ORDER[fi]);
-  if (!REDUCED_MOTION) cubeEl.classList.add('entering');
-  if (fi === 0) {
-    if (!REDUCED_MOTION) setTimeout(() => cubeEl.classList.remove('entering'), 850);
+  const [rx, ry] = FACE_ROTATIONS[fi];
+  const applyStart = () => {
+    cubeEl.style.transform = 'rotateX(' + baseRX + 'deg) rotateY(' + baseRY + 'deg) scale(' + cubeScale + ')';
+  };
+  if (REDUCED_MOTION) {
+    baseRX = rx; baseRY = ry;
+    cubeEl.style.transition = 'none';
+    applyStart();
     return;
   }
+  // One gentle full turn on opening, then the cube stays still on this face
+  cubeEl.classList.add('entering');
   setTimeout(() => {
     cubeEl.classList.remove('entering');
-    rotateToCubeFace(fi);
-    if (!REDUCED_MOTION) spawnParticles(FACE_ORDER[fi]);
-  }, REDUCED_MOTION ? 0 : 500);
+    if (pointerDown || dragMoved) return;   // the visitor has already taken over
+    baseRX = rx; baseRY = ry + 360;
+    cubeEl.style.transition = 'transform 1.8s cubic-bezier(.3,.7,.2,1)';
+    applyStart();
+    showFaceLabel(FACE_ORDER[fi]);
+    spawnParticles(FACE_ORDER[fi]);
+  }, 500);
 })();
 
 // ── Service worker with auto-update prompt ──
 function showUpdateBanner() { document.getElementById('update-banner').hidden = false; }
+// Install the waiting version; the controllerchange listener below then reloads the page
+function applyUpdate(reg) {
+  if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+  else location.reload();
+}
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    // A first-ever visit also fires controllerchange when the worker takes over.
+    // Only reload when replacing an older version, or new visitors get a surprise reload.
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (hadController) location.reload();
+    });
     navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting && navigator.serviceWorker.controller) { showUpdateBanner(); return; }
+      if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner();
       reg.addEventListener('updatefound', () => {
         const newSW = reg.installing;
         if (!newSW) return;
@@ -5859,17 +6138,116 @@ if ('serviceWorker' in navigator) {
           }
         });
       });
-      setInterval(() => { reg.update(); }, 60 * 60 * 1000);
+      // Check hourly while open, and whenever the app comes back to the screen, since
+      // phones freeze timers in the background. At most once every 5 minutes.
+      let lastCheck = Date.now();
+      const checkForUpdate = () => {
+        if (Date.now() - lastCheck < 5 * 60 * 1000 || !navigator.onLine) return;
+        lastCheck = Date.now();
+        reg.update().catch(() => {});
+      };
+      setInterval(checkForUpdate, 60 * 60 * 1000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) checkForUpdate(); });
+      window.addEventListener('online', checkForUpdate);
     }).catch(() => {});
-    navigator.serviceWorker.addEventListener('controllerchange', () => location.reload());
   });
 }
-document.getElementById('update-banner').addEventListener('click', () => {
-  navigator.serviceWorker.getRegistration().then(reg => {
-    if (reg && reg.waiting) { reg.waiting.postMessage({ type: 'SKIP_WAITING' }); }
-    else { location.reload(); }
-  });
+document.getElementById('update-now').addEventListener('click', () => {
+  navigator.serviceWorker.getRegistration().then(applyUpdate);
 });
+// "Later" hides it for now; it comes back the next time the app opens
+document.getElementById('update-later').addEventListener('click', () => {
+  document.getElementById('update-banner').hidden = true;
+});
+
+// ── Pull down to refresh ──
+// Starts only from the top of the screen and never on the cube, so dragging the
+// cube can't refresh by accident. Skipped while any overlay or menu is open, so
+// it can't interrupt reading or an edit in progress.
+(function pullToRefresh() {
+  const ptr = document.getElementById('ptr');
+  const label = document.getElementById('ptr-label');
+  const PULL_NEEDED = 90;   // px of finger travel
+  let startX = 0, startY = null, pulled = 0, busy = false;
+
+  function showPull(dy) {
+    ptr.classList.remove('settling');
+    ptr.classList.toggle('ready', dy >= PULL_NEEDED);
+    label.textContent = dy >= PULL_NEEDED ? 'Release to refresh' : 'Pull to refresh';
+    ptr.style.opacity = Math.min(1, dy / 40);
+    ptr.style.transform = 'translate(-50%, ' + (Math.min(dy, 160) * 0.45 - 40) + 'px)';
+  }
+  function hidePull() {
+    pulled = 0; startY = null;
+    ptr.classList.add('settling');
+    ptr.classList.remove('ready', 'busy');
+    ptr.style.opacity = '';
+    ptr.style.transform = '';
+  }
+  async function refreshApp() {
+    if (!navigator.onLine) {
+      hidePull();
+      showToast('📴 You\'re offline — showing the saved copy');
+      return;
+    }
+    busy = true;
+    ptr.classList.add('settling', 'busy');
+    ptr.classList.remove('ready');
+    document.getElementById('ptr-icon').textContent = '🔄';
+    label.textContent = 'Checking for updates…';
+    ptr.style.opacity = 1;
+    ptr.style.transform = 'translate(-50%, 16px)';
+    let reg = null;
+    try {
+      reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration() : null;
+      if (reg) {
+        await reg.update();
+        // A newer version found just now needs a moment to finish installing
+        const installing = reg.installing;
+        if (installing) {
+          await new Promise(resolve => {
+            installing.addEventListener('statechange', () => {
+              if (installing.state === 'installed' || installing.state === 'redundant') resolve();
+            });
+            setTimeout(resolve, 5000);
+          });
+        }
+      }
+    } catch (e) {}
+    applyUpdate(reg);
+  }
+
+  document.addEventListener('touchstart', e => {
+    startY = null; pulled = 0;
+    if (busy || e.touches.length !== 1) return;
+    if (document.querySelector('[id$="-overlay"].open, #overflow-menu.open')) return;
+    const t = e.touches[0];
+    if (t.clientY > window.innerHeight * 0.4) return;
+    if (e.target.closest && e.target.closest('#cube-wrapper, #face-nav, input, textarea, select')) return;
+    startX = t.clientX; startY = t.clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (startY === null) return;
+    if (e.touches.length !== 1) { hidePull(); return; }
+    const dy = e.touches[0].clientY - startY;
+    const dx = Math.abs(e.touches[0].clientX - startX);
+    // Sideways first means scrolling the age strip, not pulling
+    if (pulled === 0 && dx > 10 && dx > dy) { startY = null; return; }
+    if (dy <= 0) { if (pulled) showPull(0); pulled = 0; return; }
+    pulled = dy;
+    if (e.cancelable) e.preventDefault();
+    showPull(dy);
+  }, { passive: false });
+
+  function endPull() {
+    if (startY === null) return;
+    if (pulled >= PULL_NEEDED) { startY = null; refreshApp(); }
+    else hidePull();
+  }
+  document.addEventListener('touchend', endPull, { passive: true });
+  document.addEventListener('touchcancel', hidePull, { passive: true });
+})();
 
 // ── Journey / Eco "← Plant Info" back buttons ──
 document.getElementById('journey-back-btn').addEventListener('click', () => {
