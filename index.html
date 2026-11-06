@@ -837,6 +837,63 @@ html.dark #m-age option { background:var(--modal-bg); }
 }
 #recipes-close-btn:hover { background:var(--wood); color:#fff; }
 #recipes-body { flex:1; overflow-y:auto; padding:16px 20px 40px; }
+.rc-switch { display:flex; justify-content:center; gap:4px; max-width:1040px; margin:0 auto 6px; }
+.rc-tab, .rc-plane {
+  min-height:44px; padding:6px 12px; border:none; border-bottom:2px solid transparent; background:transparent;
+  font-family:inherit; font-size:0.75rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  color:var(--brand-gold); cursor:pointer; transition:color .2s, border-color .2s;
+}
+.rc-tab:hover, .rc-plane:hover { color:var(--brand-green); border-bottom-color:var(--brand-line); }
+.rc-tab[aria-pressed="true"], .rc-plane[aria-pressed="true"] { color:var(--brand-green); border-bottom-color:var(--brand-green); }
+.rc-wrap { overflow:hidden; display:flex; flex-direction:column; align-items:center; }
+.rc-planes { position:relative; z-index:1; display:flex; flex-wrap:wrap; justify-content:center; margin-top:2px; }
+.rc-status { min-height:1.3em; margin-top:4px; font-size:0.8rem; font-weight:600; color:var(--text); text-align:center; }
+.rc-hint { margin-top:2px; font-size:0.78rem; line-height:1.35; color:var(--text2); text-align:center; }
+.rc-stage {
+  --rcube:max(220px, min(calc((100vh - 330px) / 1.42), 76vw, 500px));
+  width:100%; height:calc(var(--rcube) * 1.42); display:flex; align-items:center; justify-content:center;
+  perspective:calc(var(--rcube) * 3.2); touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none;
+}
+.rc-stage.is-dragging { cursor:grabbing; }
+.rc-cube { position:relative; width:var(--rcube); height:var(--rcube); transform-style:preserve-3d; transition:transform .5s cubic-bezier(.22,.8,.3,1); }
+.rc-cube.no-ease { transition:none; }
+.rc-face {
+  position:absolute; inset:0; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(3,minmax(0,1fr));
+  gap:5px; padding:5px; border-radius:10px; background:var(--bg); box-shadow:0 0 0 4px #3f7a35;
+  backface-visibility:hidden; -webkit-backface-visibility:hidden;
+}
+.rc-face[data-face="0"] { transform:translateZ(calc(var(--rcube) / 2)); }
+.rc-face[data-face="1"] { transform:rotateY(90deg) translateZ(calc(var(--rcube) / 2)); }
+.rc-face[data-face="2"] { transform:rotateY(180deg) translateZ(calc(var(--rcube) / 2)); }
+.rc-face[data-face="3"] { transform:rotateY(-90deg) translateZ(calc(var(--rcube) / 2)); }
+.rc-face[data-face="4"] { transform:rotateX(90deg) translateZ(calc(var(--rcube) / 2)); }
+.rc-face[data-face="5"] { transform:rotateX(-90deg) translateZ(calc(var(--rcube) / 2)); }
+.rc-tile {
+  position:relative; min-width:0; min-height:0; padding:0; overflow:hidden; border-radius:7px;
+  font-family:inherit; color:var(--text); transition:transform .28s ease;
+}
+button.rc-tile { display:flex; align-items:center; justify-content:center; border:1px solid var(--brand-line); background:rgba(63,122,53,0.1); cursor:pointer; }
+button.rc-tile:hover { border-color:#3f7a35; }
+.rc-empty { border:1px dashed var(--brand-line); }
+.rc-tile.is-swapping { transform:scaleX(0); }
+.rc-tile img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+.rc-tile-icon { font-size:calc(var(--rcube) * 0.075); padding-bottom:30%; pointer-events:none; }
+.rc-tile-name {
+  position:absolute; left:0; right:0; bottom:0; padding:3px 4px; pointer-events:none;
+  background:rgba(20,18,16,0.72); color:#fff; text-align:center;
+  font-size:max(12px, calc(var(--rcube) * 0.032)); font-weight:700; line-height:1.2;
+}
+.rc-tile-text { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
+@media (max-width:760px) {
+  .rc-plane { padding:4px 4px; font-size:0.69rem; letter-spacing:0.03em; line-height:1.15; }
+  .rc-wrap { padding:0 4px; }
+  .rc-planes { display:grid; grid-template-columns:repeat(3,1fr); width:100%; }
+  .rc-stage { --rcube:max(200px, min(calc((100vh - 370px) / 1.42), 72vw, 400px)); width:calc(var(--rcube) * 1.14); height:calc(var(--rcube) * 1.42); perspective:calc(var(--rcube) * 4.5); }
+  .rc-tile-name { padding:2px 3px; line-height:1.1; }
+  .recipes-header h2 { font-size:1rem; }
+  .recipes-header > div:first-child { min-width:0; }
+}
+@media (prefers-reduced-motion:reduce) { .rc-cube, .rc-tile { transition:none; } }
 .recipes-tools {
   display:grid; grid-template-columns:minmax(180px,2fr) repeat(5,minmax(105px,1fr));
   gap:8px; max-width:1040px; margin:0 auto 8px;
@@ -4201,6 +4258,10 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') requestCloseRecipeForm();
   } else if (document.getElementById('recipes-overlay').classList.contains('open')) {
     if (e.key === 'Escape') recipesEscape();
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && document.querySelector('.rc-cube')) {
+      e.preventDefault();
+      stepRecipeCube(e.key === 'ArrowRight' ? 1 : -1);
+    }
   } else if (document.getElementById('eco-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeEco();
   } else if (document.getElementById('compost-overlay').classList.contains('open')) {
@@ -6994,6 +7055,7 @@ const MAX_RECIPE_PHOTOS = 5;
 const CLIP_SECONDS = 5;
 const CLIP_LONG_EDGE = 960;
 const PHOTO_LONG_EDGE = 1400;
+const THUMB_LONG_EDGE = 360;
 const MAX_CLIP_UPLOAD = 15 * 1024 * 1024;
 
 let recipes = [];
@@ -7021,8 +7083,9 @@ function strList(a) { return Array.isArray(a) ? a.filter(x => typeof x === 'stri
 function str(x) { return typeof x === 'string' ? x : ''; }
 function cleanMedia(m) {
   if (!m || typeof m !== 'object' || !mediaUrl(m.path)) return null;
-  if (m.type === 'image') return { type:'image', path:m.path };
-  if (m.type === 'video') return { type:'video', path:m.path, poster:mediaUrl(m.poster) ? m.poster : '' };
+  const thumb = mediaUrl(m.thumb) ? m.thumb : '';
+  if (m.type === 'image') return { type:'image', path:m.path, thumb:thumb };
+  if (m.type === 'video') return { type:'video', path:m.path, poster:mediaUrl(m.poster) ? m.poster : '', thumb:thumb };
   return null;
 }
 // Only files in our own storage, named the way this app names them, ever get loaded.
@@ -7100,7 +7163,7 @@ function recipePlaneNames(r) {
 function recipeThumbPath(r) {
   const m = r.photos[0] || r.main_media || (r.steps.find(s => s.media) || {}).media;
   if (!m) return { path:'', video:false };
-  return { path:m.type === 'image' ? m.path : (m.poster || ''), video:m.type === 'video' };
+  return { path:m.thumb || (m.type === 'image' ? m.path : (m.poster || '')), video:m.type === 'video' };
 }
 function recipeMatches(r) {
   const f = recipeFilters;
@@ -7120,7 +7183,309 @@ function renderRecipesView() {
   if (recipeOpenId && !r) recipeOpenId = null;
   document.getElementById('recipe-add-btn').style.display = recipeOpenId ? 'none' : '';
   document.getElementById('recipes-back-btn').style.display = recipeFromPlant ? '' : 'none';
-  if (r) renderRecipeDetail(r); else renderRecipeList();
+  stopRecipeCubeSwaps();
+  if (r) renderRecipeDetail(r);
+  else if (recipeView === 'cube') renderRecipeCube();
+  else renderRecipeList();
+}
+// One side per plane, 9 blocks a side. Which recipes are showing is decided on each device
+// and never saved, so swapping can't change or lose a recipe. Every recipe stays in the List.
+const RC_FACE_ANGLES = [[-20, 0], [-20, -90], [-20, 180], [-20, 90], [-70, 0], [70, 0]];
+const RC_BLOCKS = 9;
+const RC_SWAP_MS = 8000;
+const RC_VIEW_KEY = 'ec_recipe_view';
+let recipeView = 'cube';
+try { if (localStorage.getItem(RC_VIEW_KEY) === 'list') recipeView = 'list'; } catch(e) {}
+const recipeCubeSlots = AGE_FIELDS.map(() => []);
+let recipeCubeFront = -1;
+let recipeCubeX = -20, recipeCubeY = 0;
+let recipeCubeTimer = 0;
+let recipeCubeDragging = false;
+let recipeCubePressed = false;
+let recipeCubeLastSide = 0;
+
+function recipeViewSwitch() {
+  const box = rEl('div', 'rc-switch');
+  box.setAttribute('role', 'group');
+  box.setAttribute('aria-label', 'How to show the recipes');
+  [['cube', 'Cube'], ['list', 'List']].forEach(([view, text]) => {
+    const b = rEl('button', 'rc-tab', text);
+    b.type = 'button';
+    b.setAttribute('aria-pressed', recipeView === view ? 'true' : 'false');
+    b.addEventListener('click', () => {
+      if (recipeView === view) return;
+      recipeView = view;
+      try { localStorage.setItem(RC_VIEW_KEY, view); } catch(e) {}
+      renderRecipesView();
+      document.getElementById('recipes-body').scrollTop = 0;
+      const again = [...document.querySelectorAll('.rc-tab')].find(x => x.textContent === text);
+      if (again) again.focus({ preventScroll:true });
+    });
+    box.appendChild(b);
+  });
+  return box;
+}
+function recipesForPlane(i) { return recipes.filter(r => r.planes.includes(AGE_FIELDS[i])); }
+function shuffled(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+// Keep what's already showing, drop anything removed, and fill any empty blocks.
+function buildRecipeCubeSlots() {
+  AGE_FIELDS.forEach((_, i) => {
+    const list = recipesForPlane(i);
+    const ids = new Set(list.map(r => r.id));
+    const slots = recipeCubeSlots[i];
+    for (let n = 0; n < RC_BLOCKS; n++) if (!ids.has(slots[n])) slots[n] = null;
+    const waiting = list.filter(r => !slots.includes(r.id));
+    const queue = list.length > RC_BLOCKS ? shuffled(waiting) : waiting;
+    for (let n = 0; n < RC_BLOCKS && queue.length; n++) if (!slots[n]) slots[n] = queue.shift().id;
+  });
+}
+// A newly saved recipe goes on the cube straight away, even on a full side.
+function placeRecipeOnCube(r) {
+  r.planes.forEach(p => {
+    const slots = recipeCubeSlots[AGE_FIELDS.indexOf(p)];
+    if (slots.includes(r.id)) return;
+    let n = -1;
+    for (let k = 0; k < RC_BLOCKS; k++) if (!slots[k]) { n = k; break; }
+    if (n < 0) n = Math.floor(Math.random() * RC_BLOCKS);
+    slots[n] = r.id;
+  });
+  if (r.planes.length && !r.planes.includes(AGE_FIELDS[recipeCubeFront])) setRecipeCubeFace(AGE_FIELDS.indexOf(r.planes[0]));
+}
+function fillRecipeTile(tile, r) {
+  tile.textContent = '';
+  tile.dataset.recipeId = r.id;
+  tile.setAttribute('aria-label', r.title);
+  const t = recipeThumbPath(r);
+  if (t.path && mediaUrl(t.path)) {
+    const img = rEl('img');
+    img.src = mediaUrl(t.path);
+    img.alt = '';
+    img.decoding = 'async';
+    img.draggable = false;
+    tile.appendChild(img);
+  } else {
+    tile.appendChild(rEl('span', 'rc-tile-icon', '🥗'));
+  }
+  const bar = rEl('span', 'rc-tile-name');
+  bar.appendChild(rEl('span', 'rc-tile-text', r.title));
+  tile.appendChild(bar);
+}
+function setRecipeCubeFace(i) {
+  recipeCubeFront = i;
+  if (i < 4) recipeCubeLastSide = i;
+  const [x, y] = RC_FACE_ANGLES[i];
+  recipeCubeX = x;
+  if (i >= 4) recipeCubeY = Math.round(recipeCubeY / 360) * 360;
+  else recipeCubeY += ((y - recipeCubeY) % 360 + 540) % 360 - 180;
+}
+function applyRecipeCubeTransform() {
+  const cube = document.querySelector('.rc-cube');
+  if (cube) cube.style.transform = 'rotateX(' + recipeCubeX + 'deg) rotateY(' + recipeCubeY + 'deg)';
+}
+function recipeCubeStatusText() {
+  const i = recipeCubeFront, n = recipesForPlane(i).length, name = AGE_LABELS[AGE_FIELDS[i]];
+  if (!n) return name + ': no recipes yet';
+  return name + ': ' + n + (n === 1 ? ' recipe' : ' recipes') +
+    (n > RC_BLOCKS ? '. Blocks change now and then, and all ' + n + ' are in the List.' : '');
+}
+function syncRecipeCube() {
+  document.querySelectorAll('.rc-face').forEach(f => {
+    const on = parseInt(f.dataset.face, 10) === recipeCubeFront;
+    f.classList.toggle('is-front', on);
+    f.inert = !on; // only the side you can see can be tabbed to or tapped
+  });
+  document.querySelectorAll('.rc-plane').forEach((b, i) => b.setAttribute('aria-pressed', i === recipeCubeFront ? 'true' : 'false'));
+  const status = document.querySelector('.rc-status');
+  if (status) status.textContent = recipeCubeStatusText();
+  applyRecipeCubeTransform();
+}
+function showRecipeCubeFace(i) {
+  setRecipeCubeFace(i);
+  syncRecipeCube();
+}
+function stepRecipeCube(dir) {
+  showRecipeCubeFace((recipeCubeFront + dir + AGE_FIELDS.length) % AGE_FIELDS.length);
+}
+const RC_DRAG_TURN = 70;
+const RC_FLICK_MS = 350;
+const RC_FLICK_MOVE = 40;
+// After a drag, decide the side from which way it went and how far.
+function settleRecipeCube(d, dx, dy) {
+  const quick = Date.now() - d.t < RC_FLICK_MS;
+  if (d.axis === 'x') {
+    const far = Math.abs(dx) >= RC_DRAG_TURN || (quick && Math.abs(dx) > RC_FLICK_MOVE);
+    if (d.startFace >= 4 && !far) { recipeCubeY = d.startY; showRecipeCubeFace(d.startFace); return; }
+    // A quick swipe moves exactly one side. A slower drag settles on the nearest one.
+    const q = quick && Math.abs(dx) > RC_FLICK_MOVE
+      ? Math.round(d.startY / 90) + Math.sign(dx)
+      : Math.round(recipeCubeY / 90);
+    recipeCubeY = q * 90;
+    showRecipeCubeFace([0, 3, 2, 1][((q % 4) + 4) % 4]);
+    return;
+  }
+  const far = Math.abs(dy) >= RC_DRAG_TURN || (quick && Math.abs(dy) > RC_FLICK_MOVE);
+  let face = d.startFace;
+  if (far) {
+    if (d.startFace < 4) face = dy > 0 ? 4 : 5;
+    else if (d.startFace === 4 && dy < 0) face = recipeCubeLastSide;
+    else if (d.startFace === 5 && dy > 0) face = recipeCubeLastSide;
+  }
+  showRecipeCubeFace(face);
+}
+function renderRecipeCube() {
+  const body = document.getElementById('recipes-body');
+  body.textContent = '';
+  body.appendChild(recipeViewSwitch());
+  if (recipeCubeFront < 0) {
+    const start = AGE_FIELDS.indexOf(currentAge);
+    setRecipeCubeFace(start < 0 ? 0 : start);
+  }
+  buildRecipeCubeSlots();
+  const wrap = rEl('div', 'rc-wrap');
+  const stage = rEl('div', 'rc-stage');
+  const cube = rEl('div', 'rc-cube no-ease');
+  stage.setAttribute('role', 'group');
+  stage.setAttribute('aria-label', 'Recipe cube, one side for each plane');
+  AGE_FIELDS.forEach((a, i) => {
+    const face = rEl('div', 'rc-face');
+    face.dataset.face = String(i);
+    face.setAttribute('role', 'group');
+    face.setAttribute('aria-label', AGE_LABELS[a] + ' recipes');
+    for (let n = 0; n < RC_BLOCKS; n++) {
+      const r = recipes.find(x => x.id === recipeCubeSlots[i][n]);
+      if (r) {
+        const tile = rEl('button', 'rc-tile');
+        tile.type = 'button';
+        tile.dataset.slot = String(n);
+        fillRecipeTile(tile, r);
+        face.appendChild(tile);
+      } else {
+        const tile = rEl('div', 'rc-tile rc-empty');
+        tile.setAttribute('aria-hidden', 'true');
+        face.appendChild(tile);
+      }
+    }
+    cube.appendChild(face);
+  });
+  stage.appendChild(cube);
+  wrap.appendChild(stage);
+  const planes = rEl('div', 'rc-planes');
+  planes.setAttribute('role', 'group');
+  planes.setAttribute('aria-label', 'Choose a plane');
+  AGE_FIELDS.forEach((a, i) => {
+    const b = rEl('button', 'rc-plane', AGE_LABELS[a]);
+    b.type = 'button';
+    b.addEventListener('click', () => showRecipeCubeFace(i));
+    planes.appendChild(b);
+  });
+  wrap.appendChild(planes);
+  const status = rEl('p', 'rc-status');
+  status.setAttribute('role', 'status');
+  wrap.appendChild(status);
+  wrap.appendChild(rEl('p', 'rc-hint', recipesFailed ? 'Recipes couldn’t load. Check your connection and try again.'
+    : !recipesLoaded ? 'Loading recipes…'
+    : !recipes.length ? (canEditNow() ? 'No recipes yet. Use “+ Add recipe” to write the first one.' : 'No recipes yet. Newberry House staff will be adding them soon.')
+    : 'Swipe sideways to turn, or up and down for Middle School and Grounds Team. Tap a block to open it.'));
+  body.appendChild(wrap);
+  syncRecipeCube();
+  void cube.offsetWidth; // place the cube first, so it doesn't spin in when redrawn
+  cube.classList.remove('no-ease');
+  attachRecipeCubeDrag(stage, cube);
+  startRecipeCubeSwaps();
+}
+function attachRecipeCubeDrag(stage, cube) {
+  let down = null, swallowClick = false;
+  stage.addEventListener('pointerdown', e => {
+    if (e.button) return;
+    down = { id:e.pointerId, x:e.clientX, y:e.clientY, lastX:e.clientX, lastY:e.clientY, t:Date.now(), moved:false,
+      axis:'', startX:recipeCubeX, startY:recipeCubeY, startFace:recipeCubeFront };
+    recipeCubePressed = true;
+    const release = () => {
+      recipeCubePressed = false;
+      window.removeEventListener('pointerup', release);
+      window.removeEventListener('pointercancel', release);
+    };
+    window.addEventListener('pointerup', release);
+    window.addEventListener('pointercancel', release);
+  });
+  stage.addEventListener('pointermove', e => {
+    if (!down || e.pointerId !== down.id) return;
+    if (!down.moved) {
+      if (Math.abs(e.clientX - down.x) < 8 && Math.abs(e.clientY - down.y) < 8) return;
+      down.moved = true;
+      down.axis = Math.abs(e.clientX - down.x) >= Math.abs(e.clientY - down.y) ? 'x' : 'y';
+      recipeCubeDragging = true;
+      stage.classList.add('is-dragging');
+      cube.classList.add('no-ease');
+      try { stage.setPointerCapture(e.pointerId); } catch(err) {}
+    }
+    if (down.axis === 'x') recipeCubeY = down.startY + (e.clientX - down.x) * 0.45;
+    else recipeCubeX = Math.max(-85, Math.min(85, down.startX - (e.clientY - down.y) * 0.45));
+    down.lastX = e.clientX; down.lastY = e.clientY;
+    applyRecipeCubeTransform();
+  });
+  const finish = e => {
+    if (!down || (e.pointerId !== undefined && e.pointerId !== down.id)) return;
+    const d = down;
+    down = null;
+    if (!d.moved) return;
+    swallowClick = true;
+    setTimeout(() => { swallowClick = false; }, 0);
+    recipeCubeDragging = false;
+    stage.classList.remove('is-dragging');
+    cube.classList.remove('no-ease');
+    settleRecipeCube(d, d.lastX - d.x, d.lastY - d.y);
+  };
+  stage.addEventListener('pointerup', finish);
+  stage.addEventListener('pointercancel', finish);
+  stage.addEventListener('click', e => {
+    if (swallowClick) { e.preventDefault(); e.stopPropagation(); return; }
+    const tile = e.target.closest && e.target.closest('button.rc-tile');
+    if (tile && tile.dataset.recipeId) openRecipe(tile.dataset.recipeId);
+  }, true);
+}
+function stopRecipeCubeSwaps() {
+  clearInterval(recipeCubeTimer);
+  recipeCubeTimer = 0;
+  recipeCubeDragging = false;
+  recipeCubePressed = false;
+}
+function startRecipeCubeSwaps() {
+  stopRecipeCubeSwaps();
+  // People who ask for less motion still get a fresh mix each time, without the movement.
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  recipeCubeTimer = setInterval(swapRecipeCubeTile, RC_SWAP_MS);
+}
+function swapRecipeCubeTile() {
+  if (document.hidden || recipeCubeDragging || recipeCubePressed || recipeForm || !document.querySelector('.rc-cube')) return;
+  const i = recipeCubeFront, list = recipesForPlane(i), slots = recipeCubeSlots[i];
+  if (list.length <= RC_BLOCKS) return;
+  const waiting = list.filter(r => !slots.includes(r.id));
+  if (!waiting.length) return;
+  // A block never changes under someone's finger, mouse or keyboard focus
+  const tiles = [...document.querySelectorAll('.rc-face.is-front button.rc-tile')]
+    .filter(t => !t.matches(':hover') && t !== document.activeElement);
+  if (!tiles.length) return;
+  const tile = tiles[Math.floor(Math.random() * tiles.length)];
+  const next = waiting[Math.floor(Math.random() * waiting.length)];
+  const n = parseInt(tile.dataset.slot, 10);
+  tile.classList.add('is-swapping');
+  setTimeout(() => {
+    if (!document.contains(tile) || !recipes.includes(next) || tile === document.activeElement || recipeCubePressed) {
+      tile.classList.remove('is-swapping');
+      return;
+    }
+    slots[n] = next.id;
+    fillRecipeTile(tile, next);
+    tile.classList.remove('is-swapping');
+  }, 280);
 }
 function recipeSelect(label, key, options) {
   const sel = rEl('select');
@@ -7134,6 +7499,7 @@ function recipeSelect(label, key, options) {
 function renderRecipeList() {
   const body = document.getElementById('recipes-body');
   body.textContent = '';
+  body.appendChild(recipeViewSwitch());
   if (!recipes.length) {
     const empty = rEl('div', 'recipes-empty');
     empty.appendChild(rEl('span', 'recipes-empty-icon', '🥗'));
@@ -7297,7 +7663,7 @@ function renderRecipeDetail(r) {
           if (n === 0) b.setAttribute('aria-current', 'true');
           b.setAttribute('aria-label', 'Show photo ' + (n + 1) + ' of ' + r.photos.length);
           const img = rEl('img');
-          img.src = mediaUrl(p.path); img.alt = ''; img.loading = 'lazy';
+          img.src = mediaUrl(p.thumb || p.path); img.alt = ''; img.loading = 'lazy';
           b.appendChild(img);
           b.addEventListener('click', () => {
             hero.src = mediaUrl(p.path);
@@ -7399,11 +7765,12 @@ function backToRecipeList() {
   renderRecipesView();
   body.scrollTop = cameFromList ? recipeListScroll : 0;
   const card = cameFromList && recipeReturnCard
-    ? [...document.querySelectorAll('.recipe-card')].find(c => c.dataset.recipeId === recipeReturnCard) : null;
+    ? [...document.querySelectorAll('.recipe-card, .rc-face.is-front button.rc-tile')].find(c => c.dataset.recipeId === recipeReturnCard) : null;
   if (card) focusQuietly(card); else focusQuietly(document.getElementById('recipes-title'));
 }
 function pauseRecipeMedia() { document.querySelectorAll('#recipes-body video').forEach(v => v.pause()); }
 function closeRecipes() {
+  stopRecipeCubeSwaps();
   pauseRecipeMedia();
   document.getElementById('recipes-overlay').classList.remove('open');
   document.getElementById('recipes-body').textContent = '';
@@ -7466,14 +7833,14 @@ function fitSize(w, h, longEdge) {
   // Video encoders need even dimensions
   return [Math.max(2, Math.round(w * scale / 2) * 2), Math.max(2, Math.round(h * scale / 2) * 2)];
 }
-async function compressPhoto(file) {
+async function compressPhoto(file, longEdge) {
   const url = URL.createObjectURL(file);
   try {
     const img = new Image();
     const ready = waitForMedia(img, 'load', 30000);
     img.src = url;
     await ready;
-    const [w, h] = fitSize(img.naturalWidth, img.naturalHeight, PHOTO_LONG_EDGE);
+    const [w, h] = fitSize(img.naturalWidth, img.naturalHeight, longEdge || PHOTO_LONG_EDGE);
     const canvas = rEl('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
@@ -7665,20 +8032,26 @@ async function uploadRecipeFile(sb, recipeId, blob, ext, contentType, uploaded) 
   uploaded.push(path);
   return path;
 }
+async function savePhotoWithThumb(sb, recipeId, file, uploaded) {
+  const blob = await compressPhoto(file);
+  const path = await uploadRecipeFile(sb, recipeId, blob, 'jpg', 'image/jpeg', uploaded);
+  const small = await compressPhoto(file, THUMB_LONG_EDGE);
+  const thumb = await uploadRecipeFile(sb, recipeId, small, 'jpg', 'image/jpeg', uploaded);
+  return { type:'image', path:path, thumb:thumb };
+}
 async function saveSlotMedia(sb, recipeId, slot, uploaded) {
   if (!slot.file) return slot.existing ? cleanMedia(slot.existing) : null;
-  if (slot.type === 'image') {
-    const blob = await compressPhoto(slot.file);
-    return { type:'image', path:await uploadRecipeFile(sb, recipeId, blob, 'jpg', 'image/jpeg', uploaded) };
-  }
+  if (slot.type === 'image') return savePhotoWithThumb(sb, recipeId, slot.file, uploaded);
   const clip = await compressClip(slot.file, slot.start);
   const path = await uploadRecipeFile(sb, recipeId, clip.blob, clip.ext, clip.contentType, uploaded);
   const poster = await uploadRecipeFile(sb, recipeId, clip.poster, 'jpg', 'image/jpeg', uploaded);
-  return { type:'video', path:path, poster:poster };
+  const small = await compressPhoto(clip.poster, THUMB_LONG_EDGE);
+  const thumb = await uploadRecipeFile(sb, recipeId, small, 'jpg', 'image/jpeg', uploaded);
+  return { type:'video', path:path, poster:poster, thumb:thumb };
 }
 function recipeMediaPaths(r) {
   const paths = [];
-  const add = m => { if (m) { paths.push(m.path); if (m.poster) paths.push(m.poster); } };
+  const add = m => { if (m) { paths.push(m.path); if (m.poster) paths.push(m.poster); if (m.thumb) paths.push(m.thumb); } };
   add(r.main_media);
   r.photos.forEach(add);
   r.steps.forEach(s => add(s.media));
@@ -7721,7 +8094,7 @@ function drawRecipePhotos() {
   photos.forEach((p, i) => {
     const item = rEl('div', 'recipe-photo-item');
     const img = rEl('img');
-    img.src = p.previewUrl || mediaUrl(p.existing.path);
+    img.src = p.previewUrl || mediaUrl(p.existing.thumb || p.existing.path);
     img.alt = 'Photo ' + (i + 1);
     const tools = rEl('div', 'recipe-photo-tools');
     const tool = (text, label, disabled, fn) => {
@@ -7834,10 +8207,10 @@ function syncPlaneTasks() {
   });
   document.getElementById('rf-ages-hint').hidden = chosen.length > 0;
 }
-function openRecipeForm(r) {
+function openRecipeForm(r, startPlane) {
   if (!canEditNow()) return;
   recipeFormOpener = document.activeElement;
-  const base = r || cleanRecipe({});
+  const base = r || cleanRecipe({ planes:startPlane ? [startPlane] : [] });
   recipeForm = { id:r ? r.id : crypto.randomUUID(), isNew:!r, original:r || null, steps:[], main:null, photos:base.photos.map(m => ({ existing:m })), dirty:false, saving:false };
   document.getElementById('recipe-form-title').textContent = r ? 'Edit recipe' : 'Add a recipe';
   document.getElementById('rf-title').value = base.title;
@@ -7896,7 +8269,7 @@ function openRecipeForm(r) {
   const form = document.getElementById('recipe-form');
   form.scrollTop = 0;
   document.getElementById('recipe-edit-overlay').classList.add('open');
-  (r ? document.getElementById('rf-title') : document.querySelector('#rf-planes input')).focus();
+  (base.planes.length ? document.getElementById('rf-title') : document.querySelector('#rf-planes input')).focus();
 }
 function disposeRecipeForm() {
   if (!recipeForm) return;
@@ -8009,8 +8382,7 @@ async function saveRecipe(e) {
     for (const p of form.photos) {
       if (!p.file) { photos.push(p.existing); continue; }
       working('photo');
-      const blob = await compressPhoto(p.file);
-      photos.push({ type:'image', path:await uploadRecipeFile(sb, form.id, blob, 'jpg', 'image/jpeg', uploaded) });
+      photos.push(await savePhotoWithThumb(sb, form.id, p.file, uploaded));
     }
     const main_media = await saveOne(form.main);
     const steps = [];
@@ -8058,6 +8430,7 @@ async function saveRecipe(e) {
     }
     recipes = [saved, ...recipes.filter(x => x.id !== saved.id)];
     storeRecipes();
+    placeRecipeOnCube(saved);
     form.saving = false;
     setRecipeFormBusy(false);
     btn.textContent = '💾 Save recipe';
@@ -8118,7 +8491,10 @@ async function deleteRecipe() {
 document.getElementById('ov-recipes').addEventListener('click', () => { closeOverflow(); openRecipes(); });
 document.getElementById('recipes-close-btn').addEventListener('click', closeRecipes);
 document.getElementById('recipes-back-btn').addEventListener('click', returnToPlantFromRecipe);
-document.getElementById('recipe-add-btn').addEventListener('click', () => openRecipeForm(null));
+document.getElementById('recipe-add-btn').addEventListener('click', () => {
+  const cubeShowing = !!document.querySelector('.rc-cube');
+  openRecipeForm(null, cubeShowing ? AGE_FIELDS[recipeCubeFront] : recipeFilters.plane);
+});
 document.getElementById('recipe-form').addEventListener('submit', saveRecipe);
 document.getElementById('rf-planes').addEventListener('change', syncPlaneTasks);
 document.getElementById('recipe-form').addEventListener('keydown', e => {
