@@ -386,6 +386,12 @@ body.is-dragging-cube .panel:active {
   pointer-events:none;
   text-shadow:0 0 4px rgba(0,0,0,0.4);
 }
+/* In-season leaf badge — a real element (not ::before, which the shine sweep uses) */
+.panel .p-leaf {
+  position:absolute; top:2px; left:3px; z-index:2;
+  font-size:0.5rem; line-height:1; pointer-events:none;
+  filter:drop-shadow(0 0 3px rgba(0,0,0,0.5));
+}
 .panel .p-emoji { font-size:1.4rem; line-height:1; }
 .panel .p-name  { font-size:0.58rem; font-weight:700; color:var(--text); margin-top:2px; line-height:1.2; }
 .panel .p-dur   { font-size:0.5rem; color:var(--text2); }
@@ -502,6 +508,46 @@ body.is-dragging-cube .panel:active {
 /* ═══════════════════════════════════════
    ECO GUIDE OVERLAY
 ═══════════════════════════════════════ */
+/* ── THIS MONTH OVERLAY ── */
+#month-overlay {
+  position:fixed; inset:0; z-index:300;
+  background:var(--bg); display:none; flex-direction:column;
+}
+#month-overlay.open { display:flex; }
+#month-header {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  background:var(--header-bg); backdrop-filter:blur(8px); flex-shrink:0;
+}
+#month-header h2 { font-size:1.1rem; font-weight:800; color:var(--text); }
+#month-header p  { font-size:0.7rem; color:var(--text2); margin-top:2px; }
+#month-close-btn {
+  width:32px; height:32px; border-radius:50%; border:none;
+  background:var(--card-bg); color:var(--text); cursor:pointer; font-size:1rem;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+#month-close-btn:hover { background:var(--wood); color:#fff; }
+#month-body { flex:1; overflow-y:auto; padding:16px 20px; }
+.month-section-title {
+  font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--text2); margin:18px 0 8px;
+}
+.month-section-title:first-child { margin-top:0; }
+.month-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:8px; }
+.month-card {
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+  padding:12px 6px; border-radius:14px; text-align:center; cursor:pointer;
+  background:var(--card-bg); border:1px solid var(--border); color:var(--text);
+  font:inherit; transition:all .2s;
+}
+.month-card:hover { background:var(--wood); border-color:var(--wood); }
+.month-card:hover .mc-name, .month-card:hover .mc-dur, .month-card:hover .mc-season { color:#fff; }
+.month-card .mc-emoji { font-size:1.5rem; line-height:1; }
+.month-card .mc-name  { font-size:0.72rem; font-weight:700; color:var(--text); line-height:1.25; }
+.month-card .mc-dur   { font-size:0.6rem; color:var(--text2); }
+.month-card .mc-season{ font-size:0.56rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text2); }
+#month-empty { font-size:0.85rem; color:var(--text2); text-align:center; padding:30px 10px; }
+
 #eco-overlay {
   position:fixed; inset:0; z-index:300;
   background:var(--bg); display:none; flex-direction:column;
@@ -1323,7 +1369,7 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
   .icon-btn { width:38px; height:38px; font-size:1.1rem; }
   #age-filter { display:none; }
   /* Move to overflow menu on mobile */
-  #weather-widget, #dark-toggle, #help-toggle, #print-toggle, #ad-toggle { display:none; }
+  #weather-widget, #month-toggle, #dark-toggle, #help-toggle, #print-toggle, #ad-toggle { display:none; }
   #overflow-toggle { display:flex; }
 
   /* Mobile age strip — top set dynamically by JS updateLayout() */
@@ -1374,6 +1420,8 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   /* Eco overlay */
   #eco-header h2 { font-size:0.95rem; }
+  #month-header h2 { font-size:0.95rem; }
+  .month-grid { grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); }
 }
 
 /* ── FIRST-RUN WELCOME GUIDE ── */
@@ -1462,6 +1510,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
     <button id="weather-widget" title="Somerset West weather — tap to refresh" aria-label="Somerset West weather, tap to refresh">
       <span class="w-icon" id="weather-icon">⏳</span><span id="weather-temp">--°</span><span class="w-rain" id="weather-rain"></span><span class="w-loc">Somerset West</span>
     </button>
+    <button class="icon-btn" id="month-toggle" title="This month's planting guide" aria-label="This month's planting guide">📅</button>
     <button class="icon-btn" id="search-toggle" title="Search plants (press /)" aria-label="Search plants">🔍</button>
     <button class="icon-btn" id="dark-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
     <button class="icon-btn" id="help-toggle" title="How to use this — quick guide" aria-label="Open the quick guide">ℹ️</button>
@@ -1612,6 +1661,17 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 </div>
 
 <!-- ══ ECO GUIDE OVERLAY ══ -->
+<div id="month-overlay" role="dialog" aria-modal="true" aria-labelledby="month-title">
+  <div id="month-header">
+    <div>
+      <h2 id="month-title">🌱 This Month</h2>
+      <p id="month-sub">What's plantable and in season right now in Somerset West</p>
+    </div>
+    <button id="month-close-btn" aria-label="Close this month's guide">✕</button>
+  </div>
+  <div id="month-body"></div>
+</div>
+
 <div id="eco-overlay">
   <div id="eco-header">
     <div>
@@ -1827,6 +1887,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <div class="ov-detail" id="ov-weather-detail">Somerset West</div>
     </div>
   </div>
+  <button class="overflow-item" id="ov-month"><span class="ov-icon">📅</span><span class="ov-label">This Month</span></button>
   <button class="overflow-item" id="ov-dark-toggle"><span class="ov-icon">🌙</span><span class="ov-label">Dark Mode</span></button>
   <button class="overflow-item" id="ov-help"><span class="ov-icon">ℹ️</span><span class="ov-label">How to Use</span></button>
   <button class="overflow-item" id="ov-print"><span class="ov-icon">🖨️</span><span class="ov-label">Print Handout</span></button>
@@ -2502,6 +2563,50 @@ const VEGGIES_ORIGINAL = JSON.parse(JSON.stringify(VEGGIES));
 // ══════════════════════════════════════════════
 //  CUBE BUILD
 // ══════════════════════════════════════════════
+// ── MONTH AWARENESS — what's in season right now (Southern Hemisphere) ──
+const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+const SH_SEASON_BY_MONTH = ['summer','summer','autumn','autumn','autumn','winter','winter','winter','spring','spring','spring','summer'];
+function monthIndexFromToken(tok) {
+  if (tok.length < 3) return -1;
+  for (let i = 0; i < 12; i++) if (MONTH_NAMES[i].startsWith(tok)) return i;
+  return -1;
+}
+// Parses free-text "months" fields ("March – August", "Nov–Feb (main crop)", "Year-round",
+// "Winter flowering") into {start,end} (0-indexed, inclusive, wraps year-end),
+// {yearRound:true} or {unknown:true}.
+function parseMonthsField(str) {
+  const s = (str || '').toLowerCase();
+  if (s.includes('year-round') || s.includes('year round')) return { yearRound: true };
+  const idxs = [];
+  (s.match(/[a-z]+/g) || []).forEach(t => { const i = monthIndexFromToken(t); if (i >= 0) idxs.push(i); });
+  if (idxs.length >= 2) return { start: idxs[0], end: idxs[1] };
+  if (idxs.length === 1) return { start: idxs[0], end: idxs[0] };
+  if (s.includes('winter')) return { start: 5, end: 7 };
+  if (s.includes('spring')) return { start: 8, end: 10 };
+  if (s.includes('summer')) return { start: 11, end: 1 };
+  if (s.includes('autumn') || s.includes('fall')) return { start: 2, end: 4 };
+  return { unknown: true };
+}
+function isInSeasonMonth(v, monthIdx) {
+  const r = parseMonthsField(v.months);
+  if (r.yearRound || r.unknown) return false;
+  return r.start <= r.end ? (monthIdx >= r.start && monthIdx <= r.end)
+                          : (monthIdx >= r.start || monthIdx <= r.end);
+}
+function isYearRound(v)    { return !!parseMonthsField(v.months).yearRound; }
+function currentMonthIdx() { return new Date().getMonth(); }
+function currentSHSeason() { return SH_SEASON_BY_MONTH[currentMonthIdx()]; }
+// add / remove the 🌱 corner badge on a panel element
+function syncLeafBadge(panel, v) {
+  const want = isInSeasonMonth(v, currentMonthIdx());
+  const has  = panel.querySelector('.p-leaf');
+  if (want && !has) {
+    const s = document.createElement('span');
+    s.className = 'p-leaf'; s.setAttribute('aria-hidden', 'true'); s.textContent = '🌱';
+    panel.appendChild(s);
+  } else if (!want && has) has.remove();
+}
+
 const FACE_ORDER = ['autumn','winter','spring','summer','companion','indigenous'];
 const cubeEl = document.getElementById('cube-wrapper');
 const adCubeEl = document.getElementById('ad-cube-wrap');
@@ -2518,6 +2623,7 @@ FACE_ORDER.forEach((season) => {
     panel.dataset.season = season;
     panel.innerHTML = '<span class="p-emoji">' + v.emoji + '</span><span class="p-name">' + v.name + '</span><span class="p-dur">' + v.duration + '</span>';
     panel.dataset.veggieIdx = VEGGIES.indexOf(v);
+    syncLeafBadge(panel, v);
     panel.setAttribute('role', 'button');
     panel.setAttribute('tabindex', '0');
     panel.setAttribute('aria-label', v.name + ', ' + v.duration + ' — open details');
@@ -3479,6 +3585,8 @@ window.addEventListener('keydown', e => {
     if (e.key === 'ArrowRight') { e.preventDefault(); rotStep(1); }
     if (e.key === 'ArrowLeft')  { e.preventDefault(); rotStep(-1); }
     if (e.key === 'Escape') closeRotation();
+  } else if (document.getElementById('month-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') closeMonth();
   } else if (document.getElementById('eco-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeEco();
   } else if (document.getElementById('compost-overlay').classList.contains('open')) {
@@ -3499,7 +3607,7 @@ window.addEventListener('keydown', e => {
 // ── Focus trap: keep Tab inside the open overlay/modal (accessibility) ──
 const TRAP_OVERLAY_IDS = ['intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
   'sfg-pick-overlay','sfg-overlay','rot-overlay','journey-overlay','eco-overlay','compost-overlay',
-  'ad-overlay','search-overlay','modal-overlay'];
+  'ad-overlay','search-overlay','month-overlay','modal-overlay'];
 function topOpenOverlay() {
   let best = null, bestZ = -1;
   for (const id of TRAP_OVERLAY_IDS) {
@@ -4083,6 +4191,67 @@ function renderEcoTab(tab) {
     body.appendChild(card);
   });
 }
+
+// ── THIS MONTH — what's plantable / tendable right now ──
+const MONTH_LABELS_FULL = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const monthOverlay = document.getElementById('month-overlay');
+
+function renderMonthOverlay() {
+  const mi = currentMonthIdx();
+  const s  = SEASONS.find(x => x.key === currentSHSeason());
+  document.getElementById('month-title').textContent = '🌱 ' + MONTH_LABELS_FULL[mi];
+  document.getElementById('month-sub').textContent =
+    s.emoji + ' ' + s.label + ' in Somerset West · tap a plant for full details';
+
+  const specific  = VEGGIES.filter(v => isInSeasonMonth(v, mi));
+  const yearRound = VEGGIES.filter(v => isYearRound(v));
+  const body = document.getElementById('month-body');
+  body.innerHTML = '';
+
+  function buildGrid(list) {
+    const grid = document.createElement('div');
+    grid.className = 'month-grid';
+    list.forEach(v => {
+      const sInfo = SEASONS.find(x => x.key === v.season);
+      const card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'month-card';
+      card.innerHTML =
+        '<span class="mc-emoji">' + v.emoji + '</span>' +
+        '<span class="mc-name">'  + v.name  + '</span>' +
+        '<span class="mc-dur">'   + v.duration + '</span>' +
+        '<span class="mc-season">' + sInfo.emoji + ' ' + sInfo.label + '</span>';
+      card.addEventListener('click', () => { closeMonth(); openModal(v); });
+      grid.appendChild(card);
+    });
+    return grid;
+  }
+  function addTitle(text) {
+    const t = document.createElement('div');
+    t.className = 'month-section-title';
+    t.textContent = text;
+    body.appendChild(t);
+  }
+
+  if (specific.length) {
+    addTitle('🌱 Plant & Tend Now (' + specific.length + ')');
+    body.appendChild(buildGrid(specific));
+  } else {
+    const empty = document.createElement('div');
+    empty.id = 'month-empty';
+    empty.textContent = 'No month-specific crops are due right now — check the evergreens below.';
+    body.appendChild(empty);
+  }
+  if (yearRound.length) {
+    addTitle('🌿 Always In Season (' + yearRound.length + ')');
+    body.appendChild(buildGrid(yearRound));
+  }
+}
+function openMonth()  { renderMonthOverlay(); monthOverlay.classList.add('open'); stopIdle(); const c = document.getElementById('month-close-btn'); if (c) c.focus(); }
+function closeMonth() { monthOverlay.classList.remove('open'); resetIdle(); }
+document.getElementById('month-toggle').addEventListener('click', openMonth);
+document.getElementById('month-close-btn').addEventListener('click', closeMonth);
+document.getElementById('ov-month').addEventListener('click', () => { closeOverflow(); openMonth(); });
 
 function openEco()  { document.getElementById('eco-overlay').classList.add('open'); renderEcoTab(currentEcoTab); }
 function closeEco() { document.getElementById('eco-overlay').classList.remove('open'); }
@@ -5426,6 +5595,7 @@ function refreshVeggiePanel(idx) {
       p.querySelector('.p-emoji').textContent = v.emoji;
       p.querySelector('.p-name').textContent  = v.name;
       p.querySelector('.p-dur').textContent   = v.duration;
+      syncLeafBadge(p, v);
     }
   });
   updatePanelLighting(currentAge);
