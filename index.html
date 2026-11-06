@@ -799,11 +799,171 @@ html.dark #m-age option { background:var(--modal-bg); }
 }
 .edit-cancel-btn:hover, .edit-reset-btn:hover { background:rgba(128,128,128,0.2); }
 .edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
+/* ── Healthy Recipes ── */
+#recipes-overlay {
+  position:fixed; inset:0; z-index:300; background:var(--bg);
+  display:none; flex-direction:column;
+}
+#recipes-overlay.open { display:flex; }
+.recipes-header {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  background:var(--header-bg); backdrop-filter:blur(8px); flex-shrink:0;
+}
+.recipes-header h2 { font-size:1.1rem; font-weight:800; color:var(--text); }
+.recipes-header p { font-size:0.7rem; color:var(--text2); }
+.recipes-header-actions { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+#recipes-close-btn {
+  width:32px; height:32px; border-radius:50%; border:none; background:var(--card-bg);
+  color:var(--text); cursor:pointer; font-size:1rem;
+}
+#recipes-close-btn:hover { background:var(--wood); color:#fff; }
+#recipes-body { flex:1; overflow-y:auto; padding:16px 20px 40px; }
+.recipes-tools {
+  display:grid; grid-template-columns:minmax(180px,2fr) repeat(4,minmax(110px,1fr));
+  gap:8px; max-width:1040px; margin:0 auto 8px;
+}
+.recipes-tools input, .recipes-tools select {
+  width:100%; min-width:0; padding:9px 10px; border-radius:10px; border:1px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:0.82rem; font-family:inherit;
+}
+.recipes-tools option { color:#3d3326; background:#faf5ee; }
+.recipes-count { max-width:1040px; margin:0 auto 12px; font-size:0.74rem; color:var(--text2); }
+.recipes-empty { max-width:520px; margin:48px auto; text-align:center; color:var(--text2); font-size:0.92rem; line-height:1.5; }
+.recipes-empty .recipes-empty-icon { display:block; font-size:2.6rem; margin-bottom:8px; }
+.recipe-grid {
+  display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:14px; max-width:1040px; margin:0 auto;
+}
+.recipe-card {
+  display:flex; flex-direction:column; text-align:left; padding:0; overflow:hidden; cursor:pointer;
+  border:1px solid var(--border); border-radius:14px; background:var(--card-bg); color:var(--text);
+  font-family:inherit; transition:transform .15s, box-shadow .15s;
+}
+.recipe-card:hover { transform:translateY(-2px); box-shadow:0 6px 18px var(--shadow); }
+.recipe-thumb {
+  position:relative; width:100%; aspect-ratio:4/3; background:var(--card-bg);
+  display:flex; align-items:center; justify-content:center; font-size:2.8rem; overflow:hidden;
+}
+.recipe-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.recipe-thumb-badge {
+  position:absolute; right:8px; bottom:8px; padding:2px 8px; border-radius:10px;
+  background:rgba(0,0,0,0.65); color:#fff; font-size:0.68rem; font-weight:700;
+}
+.recipe-card-body { padding:10px 12px 12px; }
+.recipe-card-body h3 { font-size:0.95rem; font-weight:700; line-height:1.3; margin-bottom:4px; overflow-wrap:anywhere; }
+.recipe-card-meta { font-size:0.72rem; color:var(--text2); }
+.recipe-chips { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.recipe-chip {
+  padding:2px 8px; border-radius:10px; font-size:0.68rem; font-weight:600;
+  background:rgba(106,170,94,0.16); color:var(--text);
+}
+.recipe-detail { max-width:720px; margin:0 auto; }
+.recipe-detail h2 { font-size:1.5rem; font-weight:800; color:var(--text); margin:14px 0 6px; overflow-wrap:anywhere; }
+.recipe-detail .recipe-summary { color:var(--text); font-size:0.95rem; line-height:1.5; margin-bottom:8px; overflow-wrap:anywhere; }
+.recipe-detail .recipe-card-meta { font-size:0.82rem; }
+.recipe-media { display:block; width:100%; max-height:60vh; object-fit:contain; border-radius:12px; background:rgba(0,0,0,0.75); }
+.recipe-gallery-thumbs { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.recipe-gallery-thumb {
+  width:64px; height:64px; padding:0; border-radius:8px; overflow:hidden; cursor:pointer;
+  border:2px solid transparent; background:var(--card-bg);
+}
+.recipe-gallery-thumb.is-current { border-color:var(--spring); }
+.recipe-gallery-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.recipe-hero-video { margin-top:10px; }
+.recipe-photo-list { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+.recipe-photo-item { width:112px; }
+.recipe-photo-item img { display:block; width:112px; height:84px; object-fit:cover; border-radius:8px; background:var(--card-bg); }
+.recipe-photo-tools { display:flex; gap:3px; margin-top:3px; }
+.recipe-photo-tools .recipe-small-btn { flex:1; min-width:0; padding:0; height:32px; }
+.recipe-cover-tag { display:block; font-size:0.68rem; font-weight:700; color:var(--text2); margin-top:2px; }
+.recipe-detail-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+.recipe-allergens {
+  margin:14px 0; padding:10px 12px; border-radius:10px; font-size:0.86rem; line-height:1.45; color:var(--text);
+  background:rgba(192,98,47,0.13); border:1px solid rgba(192,98,47,0.35);
+}
+.recipe-ingredients { margin:0; padding:0; list-style:none; }
+.recipe-ingredients li {
+  display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--border);
+  font-size:0.92rem; color:var(--text); overflow-wrap:anywhere;
+}
+.recipe-qty { flex:0 0 32%; font-weight:700; }
+.recipe-steps { margin:0; padding:0; list-style:none; counter-reset:rstep; }
+.recipe-steps > li { counter-increment:rstep; display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+.recipe-steps > li::before {
+  content:counter(rstep); flex:0 0 26px; height:26px; border-radius:50%;
+  background:var(--spring); color:#fff; font-size:0.78rem; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+}
+.recipe-step-body { flex:1; min-width:0; font-size:0.92rem; line-height:1.5; color:var(--text); overflow-wrap:anywhere; white-space:pre-wrap; }
+.recipe-step-body .recipe-media { margin-top:8px; white-space:normal; }
+.recipe-age-row { padding:8px 10px; border-radius:10px; font-size:0.88rem; line-height:1.45; color:var(--text); overflow-wrap:anywhere; }
+.recipe-age-row b { display:block; font-size:0.7rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--text2); }
+.recipe-age-row.is-current { background:rgba(106,170,94,0.16); }
+.recipe-note { font-size:0.9rem; line-height:1.5; color:var(--text); overflow-wrap:anywhere; white-space:pre-wrap; }
+.recipe-plant-link {
+  padding:6px 10px; border-radius:16px; border:1px solid var(--border); background:var(--card-bg);
+  color:var(--text); font-size:0.8rem; cursor:pointer; font-family:inherit;
+}
+.recipe-plant-link:hover { border-color:var(--spring); }
+.recipe-credit { margin-top:18px; font-size:0.7rem; color:var(--text2); }
+#recipe-edit-overlay .mini-edit-modal { width:min(760px,100%); }
+.recipe-form-section { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin:18px 0 8px; }
+.recipe-form-hint { font-size:0.76rem; color:var(--text2); line-height:1.4; margin-bottom:8px; }
+.recipe-row { display:flex; gap:6px; align-items:flex-start; margin-bottom:6px; }
+.recipe-row input, .recipe-row textarea {
+  min-width:0; padding:8px 10px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:16px; font-family:inherit;
+}
+.recipe-row .recipe-qty-input { flex:0 0 32%; }
+.recipe-row .recipe-item-input { flex:1; }
+.recipe-small-btn {
+  flex:0 0 auto; min-width:36px; height:36px; padding:0 8px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card-bg); color:var(--text); cursor:pointer; font-size:0.85rem; font-family:inherit;
+}
+.recipe-small-btn:hover { border-color:var(--wood); }
+.recipe-small-btn:disabled { opacity:.35; cursor:default; }
+.recipe-step-row { border:1px solid var(--border); border-radius:12px; padding:10px; margin-bottom:10px; }
+.recipe-step-head { display:flex; align-items:center; gap:6px; margin-bottom:6px; font-size:0.78rem; font-weight:700; color:var(--text2); }
+.recipe-step-head span { flex:1; }
+.recipe-step-row textarea {
+  display:block; width:100%; padding:8px 10px; border-radius:8px; border:1px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:16px; font-family:inherit; margin-bottom:8px;
+}
+.recipe-media-slot { font-size:0.8rem; color:var(--text2); }
+.recipe-slot-preview { display:block; width:100%; max-width:280px; max-height:190px; object-fit:contain; border-radius:10px; background:rgba(0,0,0,0.7); margin-bottom:6px; }
+.recipe-slot-actions { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.recipe-slot-start { display:block; margin-top:6px; max-width:280px; }
+.recipe-slot-start input { width:100%; }
+.recipe-slot-msg { color:var(--autumn); font-weight:600; margin-top:4px; }
+.recipe-check-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:4px 10px; }
+.recipe-check-grid label, .recipe-confirm {
+  display:flex; align-items:flex-start; gap:7px; font-size:0.84rem; color:var(--text); cursor:pointer; line-height:1.35;
+}
+.recipe-check-grid input, .recipe-confirm input { flex-shrink:0; margin-top:2px; width:16px; height:16px; }
+.recipe-plant-grid { max-height:180px; overflow-y:auto; padding:8px; border:1px solid var(--border); border-radius:10px; }
+.recipe-confirm { margin:12px 0; padding:10px 12px; border-radius:10px; background:var(--card-bg); }
+#recipe-form-msg { color:var(--autumn); font-weight:700; font-size:0.86rem; margin-top:12px; }
+#recipe-form-msg:empty { display:none; }
+.recipe-delete-btn { margin-left:auto; }
+body:not(.can-edit) .recipe-staff-only { display:none !important; }
+@media (max-width:760px) {
+  .recipes-tools { grid-template-columns:1fr 1fr; }
+  .recipes-tools input { grid-column:1 / -1; font-size:16px; }
+  .recipes-tools select { font-size:16px; }
+  #recipes-body { padding:12px 14px 36px; }
+  .recipes-header { padding:10px 14px; }
+  .recipes-header p { display:none; }
+  .recipe-grid { grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
+  #recipe-edit-overlay { padding:0; }
+  #recipe-edit-overlay .mini-edit-modal { width:100%; max-height:100%; height:100%; border-radius:0; padding:18px; }
+  #recipe-edit-overlay .edit-actions { bottom:-18px; }
+}
 /* Editing is for approved staff only */
 body:not(.can-edit) #btn-edit,
 body:not(.can-edit) #journey-edit-btn,
 body:not(.can-edit) .eco-edit-btn { display:none !important; }
-body:not(.can-edit) .modal-actions { grid-template-columns:1fr; }
+body:not(.can-edit) .modal-actions:has(#btn-edit) { grid-template-columns:1fr; }
 .staff-note { font-size:0.84rem; color:var(--text2); line-height:1.5; margin-bottom:12px; }
 .staff-note:empty { display:none; }
 .staff-msg { color:var(--text); font-weight:600; margin:12px 0 0; }
@@ -1701,6 +1861,10 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <button class="modal-action-btn" id="btn-journey"><span class="ma-icon">🌱</span><span class="ma-label">Garden Journey</span></button>
       <button class="modal-action-btn" id="btn-edit"><span class="ma-icon">✏️</span><span class="ma-label">Edit Plant</span></button>
     </div>
+    <div id="m-recipes-wrap" hidden>
+      <div class="section-title">Recipes with this plant</div>
+      <div class="modal-actions" id="m-recipes"></div>
+    </div>
     <div class="info-grid">
       <div class="info-card"><div class="label">Planting Months</div><div class="value" id="m-months"></div></div>
       <div class="info-card"><div class="label">Difficulty</div><div class="value" style="display:flex;align-items:center;gap:8px"><div class="difficulty-dots" id="m-dots"></div><span id="m-diff-label"></span></div></div>
@@ -1893,6 +2057,86 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   </div>
 </div>
 
+<!-- ══ HEALTHY RECIPES ══ -->
+<div id="recipes-overlay">
+  <div class="recipes-header">
+    <div>
+      <h2>🥗 Healthy Recipes</h2>
+      <p>Recipes from the Newberry House staff, using what grows in the garden</p>
+    </div>
+    <div class="recipes-header-actions">
+      <button class="edit-save-btn recipe-staff-only" id="recipe-add-btn" type="button">+ Add recipe</button>
+      <button class="btn-back-light" id="recipes-back-btn" type="button" style="display:none">← Plant Info</button>
+      <button id="recipes-close-btn" type="button" aria-label="Close healthy recipes">✕</button>
+    </div>
+  </div>
+  <div id="recipes-body"></div>
+</div>
+
+<div id="recipe-edit-overlay" class="mini-edit-overlay">
+  <form class="mini-edit-modal" id="recipe-form" role="dialog" aria-modal="true" aria-labelledby="recipe-form-title" novalidate>
+    <button class="mini-edit-close-btn" id="recipe-form-close" type="button" aria-label="Close recipe form">✕</button>
+    <h3 id="recipe-form-title">Add a recipe</h3>
+
+    <div class="edit-grid">
+      <div class="edit-field full"><label for="rf-title">Recipe name (required)</label><input id="rf-title" maxlength="120"></div>
+      <div class="edit-field full"><label for="rf-summary">Short description</label><textarea id="rf-summary" rows="2" maxlength="500"></textarea></div>
+      <div class="edit-field"><label for="rf-meal">Meal type</label><select id="rf-meal"></select></div>
+      <div class="edit-field"><label for="rf-servings">Servings</label><input id="rf-servings" type="number" min="1" max="200" inputmode="numeric"></div>
+      <div class="edit-field"><label for="rf-prep">Preparation (minutes)</label><input id="rf-prep" type="number" min="0" max="1440" inputmode="numeric"></div>
+      <div class="edit-field"><label for="rf-cook">Cooking (minutes)</label><input id="rf-cook" type="number" min="0" max="1440" inputmode="numeric"></div>
+    </div>
+
+    <div class="recipe-form-section">Photos (up to 5)</div>
+    <p class="recipe-form-hint">The first photo is the one shown on the recipe card.</p>
+    <div class="recipe-photo-list" id="rf-photo-list"></div>
+    <input type="file" id="rf-photo-input" accept="image/*" multiple hidden>
+    <button class="recipe-small-btn" id="rf-add-photos" type="button">📷 Add photos</button>
+    <div class="recipe-slot-msg" id="rf-photo-msg" role="status"></div>
+
+    <div class="recipe-form-section">Main video (optional)</div>
+    <div id="rf-main-media"></div>
+
+    <div class="recipe-form-section">Ingredients (at least one)</div>
+    <div id="rf-ingredients"></div>
+    <button class="recipe-small-btn" id="rf-add-ingredient" type="button">+ Add ingredient</button>
+
+    <div class="recipe-form-section">Method (at least one step)</div>
+    <p class="recipe-form-hint">Each step can have its own photo or 5-second video.</p>
+    <div id="rf-steps"></div>
+    <button class="recipe-small-btn" id="rf-add-step" type="button">+ Add step</button>
+
+    <div class="recipe-form-section">Allergens</div>
+    <div class="recipe-check-grid" id="rf-allergens"></div>
+    <label class="recipe-confirm"><input type="checkbox" id="rf-allergens-checked"><span>I've checked every ingredient for allergens (required)</span></label>
+
+    <div class="recipe-form-section">Diet</div>
+    <div class="recipe-check-grid" id="rf-diets"></div>
+
+    <div class="recipe-form-section">Season</div>
+    <div class="recipe-check-grid" id="rf-seasons"></div>
+
+    <div class="recipe-form-section">Garden plants used</div>
+    <div class="recipe-check-grid recipe-plant-grid" id="rf-plants"></div>
+
+    <div class="recipe-form-section">Why it's healthy</div>
+    <div class="edit-field full"><textarea id="rf-health" rows="2" maxlength="1000" aria-label="Why it's healthy"></textarea></div>
+
+    <div class="recipe-form-section">What children can do</div>
+    <div class="edit-grid" id="rf-ages"></div>
+    <div class="edit-field full" style="margin-top:10px"><label for="rf-adult">Adult-only steps (knives, heat)</label><textarea id="rf-adult" rows="2" maxlength="1000"></textarea></div>
+
+    <label class="recipe-confirm" id="rf-consent-wrap"><input type="checkbox" id="rf-consent"><span>This app is public. I have permission to share anyone shown in these photos and videos, and no child can be identified without consent. (required for new media)</span></label>
+
+    <p id="recipe-form-msg" role="alert"></p>
+    <div class="edit-actions">
+      <button class="edit-save-btn" id="rf-save" type="submit">💾 Save recipe</button>
+      <button class="edit-cancel-btn" id="rf-cancel" type="button">Cancel</button>
+      <button class="edit-reset-btn recipe-delete-btn" id="rf-delete" type="button">🗑 Delete</button>
+    </div>
+  </form>
+</div>
+
 <!-- ══ STAFF SIGN-IN AND EDITOR LIST ══ -->
 <div id="staff-overlay" class="mini-edit-overlay">
   <div class="mini-edit-modal" role="dialog" aria-modal="true" aria-labelledby="staff-title">
@@ -2069,6 +2313,8 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button class="overflow-item" id="ov-boxes"><span class="ov-icon">🪴</span><span class="ov-label">Planter Boxes</span></button>
   <button class="overflow-item" id="ov-eco"><span class="ov-icon">🌿</span><span class="ov-label">Eco Guide</span></button>
   <button class="overflow-item" id="ov-compost"><span class="ov-icon">♻️</span><span class="ov-label">Eco Composting</span></button>
+  <div class="overflow-section">Kitchen</div>
+  <button class="overflow-item" id="ov-recipes"><span class="ov-icon">🥗</span><span class="ov-label">Healthy Recipes</span></button>
   <div class="overflow-section">Staff</div>
   <button class="overflow-item" id="ov-staff"><span class="ov-icon">🔑</span><span class="ov-label" id="ov-staff-label">Staff sign in</span></button>
 </div>
@@ -2944,6 +3190,7 @@ function openModal(v, stepping) {
   document.getElementById('m-prev').setAttribute('aria-label', 'Previous plant: ' + list[(i - 1 + n) % n].name);
   document.getElementById('m-next').setAttribute('aria-label', 'Next plant: ' + list[(i + 1) % n].name);
   document.getElementById('m-pos').textContent = (i + 1) + ' of ' + n;
+  renderPlantRecipes(v);
 
   const mEl = document.getElementById('modal');
   mEl.scrollTop = 0;
@@ -3883,6 +4130,10 @@ window.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeRotation();
   } else if (document.getElementById('month-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeMonth();
+  } else if (document.getElementById('recipe-edit-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') requestCloseRecipeForm();
+  } else if (document.getElementById('recipes-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') recipesEscape();
   } else if (document.getElementById('eco-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeEco();
   } else if (document.getElementById('compost-overlay').classList.contains('open')) {
@@ -3907,7 +4158,7 @@ window.addEventListener('keydown', e => {
 });
 
 // ── Focus trap: keep Tab inside the open overlay/modal (accessibility) ──
-const TRAP_OVERLAY_IDS = ['staff-overlay','intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
+const TRAP_OVERLAY_IDS = ['staff-overlay','recipe-edit-overlay','recipes-overlay','intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
   'sfg-pick-overlay','sfg-overlay','rot-overlay','journey-overlay','eco-overlay','compost-overlay',
   'ad-overlay','search-overlay','month-overlay','modal-overlay'];
 function topOpenOverlay() {
@@ -6660,6 +6911,1010 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Date.now() - lastSharedFetch > 300000) fetchSharedEdits();
 });
 try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
+
+// ══════════════════════════════════════════════
+//  HEALTHY RECIPES
+//  Everyone can read. Approved staff add recipes, photos and 5-second clips.
+//  Everything from the database goes on screen as plain text, never as page code.
+// ══════════════════════════════════════════════
+const RECIPES_CACHE_KEY = 'ec_recipes_v1';
+const RECIPE_BUCKET = 'recipe-media';
+const RECIPE_MEALS = ['Breakfast','Snack','Lunch','Supper','Drink','Treat'];
+const RECIPE_ALLERGENS = ['Gluten','Dairy','Egg','Peanuts','Tree nuts','Soy','Fish','Shellfish','Sesame'];
+const RECIPE_DIETS = ['Vegetarian','Vegan','Halaal'];
+const RECIPE_SEASONS = [['all','All year'],['autumn','Autumn'],['winter','Winter'],['spring','Spring'],['summer','Summer']];
+const MAX_RECIPE_PHOTOS = 5;
+const CLIP_SECONDS = 5;
+const CLIP_LONG_EDGE = 960;
+const PHOTO_LONG_EDGE = 1400;
+const MAX_CLIP_UPLOAD = 15 * 1024 * 1024;
+
+let recipes = [];
+let recipesLoaded = false;
+let recipesFailed = false;
+let recipeFilters = { q:'', season:'', meal:'', diet:'', free:'' };
+let recipeOpenId = null;
+let recipeFromPlant = false;
+
+function rEl(tag, cls, text) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (text !== undefined && text !== null) n.textContent = text;
+  return n;
+}
+function strList(a) { return Array.isArray(a) ? a.filter(x => typeof x === 'string') : []; }
+function str(x) { return typeof x === 'string' ? x : ''; }
+function cleanMedia(m) {
+  if (!m || typeof m !== 'object' || !mediaUrl(m.path)) return null;
+  if (m.type === 'image') return { type:'image', path:m.path };
+  if (m.type === 'video') return { type:'video', path:m.path, poster:mediaUrl(m.poster) ? m.poster : '' };
+  return null;
+}
+// Only files in our own storage, named the way this app names them, ever get loaded.
+function mediaUrl(path) {
+  if (typeof path !== 'string' || !/^[0-9a-f-]{36}\/[0-9a-f-]{36}\.(jpg|mp4|webm|mov)$/.test(path)) return '';
+  return EC_SB_URL + '/storage/v1/object/public/' + RECIPE_BUCKET + '/' + path;
+}
+function cleanRecipe(r) {
+  const tasks = {};
+  AGE_FIELDS.forEach(a => { tasks[a] = str(r.child_tasks && r.child_tasks[a]); });
+  return {
+    id:str(r.id), title:str(r.title), summary:str(r.summary), meal_type:str(r.meal_type),
+    servings:Number.isInteger(r.servings) ? r.servings : null,
+    prep_min:Number.isInteger(r.prep_min) ? r.prep_min : null,
+    cook_min:Number.isInteger(r.cook_min) ? r.cook_min : null,
+    seasons:strList(r.seasons), allergens:strList(r.allergens), allergens_checked:r.allergens_checked === true,
+    diets:strList(r.diets), plants:strList(r.plants),
+    ingredients:(Array.isArray(r.ingredients) ? r.ingredients : []).map(i => ({ qty:str(i && i.qty), item:str(i && i.item) })).filter(i => i.item),
+    steps:(Array.isArray(r.steps) ? r.steps : []).map(s => ({ text:str(s && s.text), media:cleanMedia(s && s.media) })).filter(s => s.text || s.media),
+    child_tasks:tasks, adult_note:str(r.adult_note), health_note:str(r.health_note),
+    main_media:cleanMedia(r.main_media),
+    photos:(Array.isArray(r.photos) ? r.photos : []).map(cleanMedia).filter(m => m && m.type === 'image').slice(0, MAX_RECIPE_PHOTOS),
+    created_by:str(r.created_by), created_at:str(r.created_at),
+    updated_by:str(r.updated_by), updated_at:str(r.updated_at)
+  };
+}
+function storeRecipes() {
+  try { localStorage.setItem(RECIPES_CACHE_KEY, JSON.stringify(recipes)); } catch(e) {}
+}
+try {
+  const cached = JSON.parse(localStorage.getItem(RECIPES_CACHE_KEY) || '[]');
+  if (Array.isArray(cached)) { recipes = cached.map(cleanRecipe).filter(r => r.id && r.title); recipesLoaded = recipes.length > 0; }
+} catch(e) {}
+
+let lastRecipesFetch = 0;
+async function fetchRecipes() {
+  lastRecipesFetch = Date.now();
+  try {
+    const res = await fetch(EC_SB_URL + '/rest/v1/recipes?select=*&order=created_at.desc', { headers:{ apikey:EC_SB_KEY } });
+    if (!res.ok) throw new Error('status');
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error('shape');
+    recipes = rows.map(cleanRecipe).filter(r => r.id && r.title);
+    recipesLoaded = true;
+    recipesFailed = false;
+    storeRecipes();
+  } catch(e) {
+    recipesFailed = !recipesLoaded;
+  }
+  if (document.getElementById('recipes-overlay').classList.contains('open')) renderRecipesView();
+  if (overlay.classList.contains('open') && currentModalVeggie) renderPlantRecipes(currentModalVeggie);
+}
+
+// ── Viewing ──
+function originalPlantName(v) { const o = VEGGIES_ORIGINAL[VEGGIES.indexOf(v)]; return o ? o.name : v.name; }
+function recipeTimeText(r) {
+  const t = (r.prep_min || 0) + (r.cook_min || 0);
+  const bits = [];
+  if (t) bits.push(t + ' min');
+  if (r.servings) bits.push('Serves ' + r.servings);
+  if (r.meal_type) bits.push(r.meal_type);
+  return bits.join(' · ');
+}
+function recipeThumbPath(r) {
+  const m = r.photos[0] || r.main_media || (r.steps.find(s => s.media) || {}).media;
+  if (!m) return { path:'', video:false };
+  return { path:m.type === 'image' ? m.path : (m.poster || ''), video:m.type === 'video' };
+}
+function recipeMatches(r) {
+  const f = recipeFilters;
+  if (f.q) {
+    const hay = [r.title, r.summary, r.health_note, r.plants.join(' '), r.ingredients.map(i => i.item).join(' ')].join(' ').toLowerCase();
+    if (!f.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w))) return false;
+  }
+  if (f.season && !r.seasons.includes(f.season) && !r.seasons.includes('all')) return false;
+  if (f.meal && r.meal_type !== f.meal) return false;
+  if (f.diet && !r.diets.includes(f.diet)) return false;
+  if (f.free && (!r.allergens_checked || r.allergens.includes(f.free))) return false;
+  return true;
+}
+function renderRecipesView() {
+  const r = recipeOpenId && recipes.find(x => x.id === recipeOpenId);
+  if (recipeOpenId && !r) recipeOpenId = null;
+  document.getElementById('recipe-add-btn').style.display = recipeOpenId ? 'none' : '';
+  document.getElementById('recipes-back-btn').style.display = recipeFromPlant ? '' : 'none';
+  if (r) renderRecipeDetail(r); else renderRecipeList();
+}
+function recipeSelect(label, key, options) {
+  const sel = rEl('select');
+  sel.setAttribute('aria-label', label);
+  const none = rEl('option', '', label); none.value = ''; sel.appendChild(none);
+  options.forEach(([value, text]) => { const o = rEl('option', '', text); o.value = value; sel.appendChild(o); });
+  sel.value = recipeFilters[key];
+  sel.addEventListener('change', () => { recipeFilters[key] = sel.value; renderRecipeGrid(); });
+  return sel;
+}
+function renderRecipeList() {
+  const body = document.getElementById('recipes-body');
+  body.textContent = '';
+  if (!recipes.length) {
+    const empty = rEl('div', 'recipes-empty');
+    empty.appendChild(rEl('span', 'recipes-empty-icon', '🥗'));
+    const canAdd = canEditNow();
+    empty.appendChild(rEl('p', '', recipesFailed ? 'Recipes couldn’t load. Check your connection and try again.'
+      : !recipesLoaded ? 'Loading recipes…'
+      : canAdd ? 'No recipes yet. Use “+ Add recipe” to write the first one.'
+      : 'No recipes yet. Newberry House staff will be adding them soon.'));
+    body.appendChild(empty);
+    return;
+  }
+  const tools = rEl('div', 'recipes-tools');
+  const search = rEl('input');
+  search.type = 'search';
+  search.placeholder = 'Search recipes, ingredients or plants';
+  search.setAttribute('aria-label', 'Search recipes');
+  search.value = recipeFilters.q;
+  search.addEventListener('input', () => { recipeFilters.q = search.value.trim(); renderRecipeGrid(); });
+  tools.appendChild(search);
+  tools.appendChild(recipeSelect('Any season', 'season', RECIPE_SEASONS.filter(s => s[0] !== 'all')));
+  tools.appendChild(recipeSelect('Any meal', 'meal', RECIPE_MEALS.map(m => [m, m])));
+  tools.appendChild(recipeSelect('Any diet', 'diet', RECIPE_DIETS.map(d => [d, d])));
+  tools.appendChild(recipeSelect('Free from…', 'free', RECIPE_ALLERGENS.map(a => [a, 'No ' + a.toLowerCase()])));
+  body.appendChild(tools);
+  const count = rEl('p', 'recipes-count'); count.id = 'recipes-count'; count.setAttribute('role', 'status');
+  body.appendChild(count);
+  const grid = rEl('div', 'recipe-grid'); grid.id = 'recipe-grid';
+  body.appendChild(grid);
+  renderRecipeGrid();
+}
+function renderRecipeGrid() {
+  const grid = document.getElementById('recipe-grid');
+  if (!grid) return;
+  grid.textContent = '';
+  const list = recipes.filter(recipeMatches);
+  document.getElementById('recipes-count').textContent = list.length === 1 ? '1 recipe' : list.length + ' recipes';
+  list.forEach(r => {
+    const card = rEl('button', 'recipe-card');
+    card.type = 'button';
+    const thumb = rEl('div', 'recipe-thumb');
+    const t = recipeThumbPath(r);
+    if (t.path && mediaUrl(t.path)) {
+      const img = rEl('img');
+      img.src = mediaUrl(t.path);
+      img.alt = '';
+      img.loading = 'lazy';
+      thumb.appendChild(img);
+    } else {
+      thumb.textContent = '🥗';
+    }
+    if (r.main_media || t.video) thumb.appendChild(rEl('span', 'recipe-thumb-badge', '▶ Video'));
+    card.appendChild(thumb);
+    const info = rEl('div', 'recipe-card-body');
+    info.appendChild(rEl('h3', '', r.title));
+    info.appendChild(rEl('div', 'recipe-card-meta', recipeTimeText(r)));
+    if (r.diets.length) {
+      const chips = rEl('div', 'recipe-chips');
+      r.diets.forEach(d => chips.appendChild(rEl('span', 'recipe-chip', d)));
+      info.appendChild(chips);
+    }
+    card.appendChild(info);
+    card.addEventListener('click', () => openRecipe(r.id));
+    grid.appendChild(card);
+  });
+  if (!list.length) grid.appendChild(rEl('p', 'recipes-count', 'No recipes match. Try removing a filter.'));
+}
+// Clips only download when someone presses play, which keeps data use low for everyone.
+function recipeMediaNode(m, label) {
+  const url = m && mediaUrl(m.path);
+  if (!url) return null;
+  if (m.type === 'image') {
+    const img = rEl('img', 'recipe-media');
+    img.src = url; img.alt = label; img.loading = 'lazy';
+    return img;
+  }
+  const v = rEl('video', 'recipe-media');
+  v.src = url;
+  v.controls = true; v.playsInline = true; v.muted = true; v.loop = true;
+  v.preload = 'none';
+  v.setAttribute('aria-label', label);
+  if (m.poster && mediaUrl(m.poster)) v.poster = mediaUrl(m.poster);
+  return v;
+}
+function recipeSection(parent, title) {
+  parent.appendChild(rEl('div', 'section-title', title));
+}
+function renderRecipeDetail(r) {
+  const body = document.getElementById('recipes-body');
+  body.textContent = '';
+  body.scrollTop = 0;
+  const wrap = rEl('article', 'recipe-detail');
+  const actions = rEl('div', 'recipe-detail-actions');
+  const back = rEl('button', 'btn-back-light', '← All recipes');
+  back.type = 'button';
+  back.addEventListener('click', () => { recipeFromPlant = false; recipeOpenId = null; renderRecipesView(); });
+  actions.appendChild(back);
+  const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', '✏️ Edit recipe');
+  edit.type = 'button';
+  edit.addEventListener('click', () => openRecipeForm(r));
+  actions.appendChild(edit);
+  wrap.appendChild(actions);
+
+  if (r.photos.length) {
+    const hero = recipeMediaNode(r.photos[0], 'Photo of ' + r.title);
+    wrap.appendChild(hero);
+    if (r.photos.length > 1) {
+      const thumbs = rEl('div', 'recipe-gallery-thumbs');
+      r.photos.forEach((p, n) => {
+        const b = rEl('button', 'recipe-gallery-thumb' + (n === 0 ? ' is-current' : ''));
+        b.type = 'button';
+        b.setAttribute('aria-label', 'Show photo ' + (n + 1) + ' of ' + r.photos.length);
+        const img = rEl('img');
+        img.src = mediaUrl(p.path); img.alt = ''; img.loading = 'lazy';
+        b.appendChild(img);
+        b.addEventListener('click', () => {
+          hero.src = mediaUrl(p.path);
+          hero.alt = 'Photo ' + (n + 1) + ' of ' + r.title;
+          thumbs.querySelectorAll('.is-current').forEach(x => x.classList.remove('is-current'));
+          b.classList.add('is-current');
+        });
+        thumbs.appendChild(b);
+      });
+      wrap.appendChild(thumbs);
+    }
+  }
+  const heroVideo = recipeMediaNode(r.main_media, 'Video of ' + r.title);
+  if (heroVideo) { heroVideo.classList.add('recipe-hero-video'); wrap.appendChild(heroVideo); }
+  wrap.appendChild(rEl('h2', '', r.title));
+  if (r.summary) wrap.appendChild(rEl('p', 'recipe-summary', r.summary));
+  const meta = [];
+  if (r.prep_min !== null) meta.push('Prep ' + r.prep_min + ' min');
+  if (r.cook_min !== null) meta.push('Cook ' + r.cook_min + ' min');
+  if (r.servings) meta.push('Serves ' + r.servings);
+  if (r.meal_type) meta.push(r.meal_type);
+  const seasonText = r.seasons.map(s => (RECIPE_SEASONS.find(x => x[0] === s) || [])[1]).filter(Boolean).join(', ');
+  if (seasonText) meta.push(seasonText);
+  if (meta.length) wrap.appendChild(rEl('div', 'recipe-card-meta', meta.join(' · ')));
+  if (r.diets.length) {
+    const chips = rEl('div', 'recipe-chips');
+    r.diets.forEach(d => chips.appendChild(rEl('span', 'recipe-chip', d)));
+    wrap.appendChild(chips);
+  }
+  wrap.appendChild(rEl('div', 'recipe-allergens',
+    (r.allergens.length ? '⚠️ Contains: ' + r.allergens.join(', ') + '. ' : '⚠️ No allergens listed by staff. ') +
+    'Always check product labels, and check with parents about each child’s allergies.'));
+
+  if (r.ingredients.length) {
+    recipeSection(wrap, 'Ingredients');
+    const ul = rEl('ul', 'recipe-ingredients');
+    r.ingredients.forEach(i => {
+      const li = rEl('li');
+      li.appendChild(rEl('span', 'recipe-qty', i.qty));
+      li.appendChild(rEl('span', '', i.item));
+      ul.appendChild(li);
+    });
+    wrap.appendChild(ul);
+  }
+  if (r.steps.length) {
+    recipeSection(wrap, 'Method');
+    const ol = rEl('ol', 'recipe-steps');
+    r.steps.forEach((s, n) => {
+      const li = rEl('li');
+      const step = rEl('div', 'recipe-step-body', s.text);
+      const m = recipeMediaNode(s.media, 'Step ' + (n + 1));
+      if (m) step.appendChild(m);
+      li.appendChild(step);
+      ol.appendChild(li);
+    });
+    wrap.appendChild(ol);
+  }
+  const ageRows = AGE_FIELDS.filter(a => r.child_tasks[a]);
+  if (ageRows.length || r.adult_note) {
+    recipeSection(wrap, 'What children can do');
+    ageRows.forEach(a => {
+      const row = rEl('div', 'recipe-age-row' + (a === currentAge ? ' is-current' : ''));
+      row.appendChild(rEl('b', '', AGE_LABELS[a]));
+      row.appendChild(document.createTextNode(r.child_tasks[a]));
+      wrap.appendChild(row);
+    });
+    if (r.adult_note) wrap.appendChild(rEl('div', 'recipe-allergens', '🔪 Adults only: ' + r.adult_note));
+  }
+  if (r.health_note) {
+    recipeSection(wrap, 'Why it’s healthy');
+    wrap.appendChild(rEl('p', 'recipe-note', r.health_note));
+  }
+  const usable = r.plants.filter(name => VEGGIES_ORIGINAL.some(v => v.name === name));
+  if (usable.length) {
+    recipeSection(wrap, 'From the garden');
+    const chips = rEl('div', 'recipe-chips');
+    usable.forEach(name => {
+      const i = VEGGIES_ORIGINAL.findIndex(v => v.name === name);
+      const b = rEl('button', 'recipe-plant-link', VEGGIES[i].emoji + ' ' + VEGGIES[i].name);
+      b.type = 'button';
+      b.addEventListener('click', () => { closeRecipes(); openModal(VEGGIES[i]); });
+      chips.appendChild(b);
+    });
+    wrap.appendChild(chips);
+  }
+  wrap.appendChild(rEl('p', 'recipe-credit', 'Added by Newberry House staff'));
+  body.appendChild(wrap);
+}
+function openRecipes() {
+  recipeOpenId = null;
+  recipeFromPlant = false;
+  document.getElementById('recipes-overlay').classList.add('open');
+  renderRecipesView();
+  if (!recipesLoaded || recipesFailed) fetchRecipes();
+}
+function openRecipe(id) { recipeOpenId = id; renderRecipesView(); }
+function pauseRecipeMedia() { document.querySelectorAll('#recipes-body video').forEach(v => v.pause()); }
+function closeRecipes() {
+  pauseRecipeMedia();
+  document.getElementById('recipes-overlay').classList.remove('open');
+  document.getElementById('recipes-body').textContent = '';
+  recipeOpenId = null;
+  recipeFromPlant = false;
+}
+function recipesEscape() {
+  if (recipeOpenId && !recipeFromPlant) { pauseRecipeMedia(); recipeOpenId = null; renderRecipesView(); }
+  else if (recipeFromPlant) { closeRecipes(); overlay.classList.add('open'); }
+  else closeRecipes();
+}
+function renderPlantRecipes(v) {
+  const name = originalPlantName(v);
+  const list = recipes.filter(r => r.plants.includes(name));
+  const wrap = document.getElementById('m-recipes-wrap');
+  const box = document.getElementById('m-recipes');
+  box.textContent = '';
+  wrap.hidden = !list.length;
+  list.forEach(r => {
+    const b = rEl('button', 'modal-action-btn');
+    b.type = 'button';
+    b.appendChild(rEl('span', 'ma-icon', '🥗'));
+    b.appendChild(rEl('span', 'ma-label', r.title));
+    b.addEventListener('click', () => {
+      overlay.classList.remove('open');
+      document.getElementById('recipes-overlay').classList.add('open');
+      recipeFromPlant = true;
+      openRecipe(r.id);
+    });
+    box.appendChild(b);
+  });
+}
+
+// ── Photo and clip preparation ──
+function waitForMedia(el, okEvent, ms) {
+  return new Promise((resolve, reject) => {
+    const done = fn => arg => { clearTimeout(timer); el.removeEventListener(okEvent, ok); el.removeEventListener('error', bad); fn(arg); };
+    const ok = done(resolve), bad = done(() => reject(new Error('unreadable')));
+    const timer = setTimeout(() => { el.removeEventListener(okEvent, ok); el.removeEventListener('error', bad); reject(new Error('timeout')); }, ms);
+    el.addEventListener(okEvent, ok);
+    el.addEventListener('error', bad);
+  });
+}
+function canvasBlob(canvas, type, quality) {
+  return new Promise((resolve, reject) => canvas.toBlob(b => b ? resolve(b) : reject(new Error('blob')), type, quality));
+}
+function fitSize(w, h, longEdge) {
+  const scale = Math.min(1, longEdge / Math.max(w, h));
+  // Video encoders need even dimensions
+  return [Math.max(2, Math.round(w * scale / 2) * 2), Math.max(2, Math.round(h * scale / 2) * 2)];
+}
+async function compressPhoto(file) {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    const ready = waitForMedia(img, 'load', 30000);
+    img.src = url;
+    await ready;
+    const [w, h] = fitSize(img.naturalWidth, img.naturalHeight, PHOTO_LONG_EDGE);
+    const canvas = rEl('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    return await canvasBlob(canvas, 'image/jpeg', 0.82);
+  } finally { URL.revokeObjectURL(url); }
+}
+function pickClipFormat() {
+  if (!window.MediaRecorder) return '';
+  return ['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']
+    .find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+// Makes a silent clip of up to 5 seconds at a small size, plus a still image for the preview.
+async function compressClip(file, start) {
+  const url = URL.createObjectURL(file);
+  const v = rEl('video');
+  v.muted = true; v.playsInline = true; v.preload = 'auto'; v.src = url;
+  v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+  document.body.appendChild(v);
+  try {
+    if (v.readyState < 1) await waitForMedia(v, 'loadedmetadata', 30000);
+    const [w, h] = fitSize(v.videoWidth, v.videoHeight, CLIP_LONG_EDGE);
+    const canvas = rEl('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    const seeked = waitForMedia(v, 'seeked', 30000);
+    v.currentTime = Math.max(0.01, start);
+    await seeked;
+    ctx.drawImage(v, 0, 0, w, h);
+    const poster = await canvasBlob(canvas, 'image/jpeg', 0.8);
+
+    const type = pickClipFormat();
+    if (!type || !canvas.captureStream) {
+      // This browser can't make a smaller copy, so only a short, small original is accepted.
+      if (v.duration > CLIP_SECONDS + 0.5) throw new Error('needs-short');
+      if (file.size > MAX_CLIP_UPLOAD) throw new Error('needs-small');
+      const ext = /quicktime/.test(file.type) ? 'mov' : /webm/.test(file.type) ? 'webm' : 'mp4';
+      return { blob:file, ext:ext, contentType:file.type || 'video/mp4', poster:poster };
+    }
+    const stream = canvas.captureStream(30);
+    const rec = new MediaRecorder(stream, { mimeType:type, videoBitsPerSecond:2000000 });
+    const chunks = [];
+    rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    const stopped = new Promise(res => { rec.onstop = res; });
+    const end = Math.min(start + CLIP_SECONDS, v.duration || start + CLIP_SECONDS);
+    await new Promise((resolve, reject) => {
+      let ticker = 0;
+      const giveUp = setTimeout(() => { clearInterval(ticker); reject(new Error('stalled')); }, 30000);
+      rec.start(250);
+      v.play().then(() => {
+        ticker = setInterval(() => {
+          ctx.drawImage(v, 0, 0, w, h);
+          if (v.ended || v.currentTime >= end) { clearInterval(ticker); clearTimeout(giveUp); v.pause(); resolve(); }
+        }, 33);
+      }).catch(reject);
+    });
+    rec.stop();
+    await stopped;
+    stream.getTracks().forEach(t => t.stop());
+    const contentType = type.split(';')[0];
+    const blob = new Blob(chunks, { type:contentType });
+    if (blob.size < 1000) throw new Error('stalled');
+    if (blob.size > MAX_CLIP_UPLOAD) throw new Error('needs-small');
+    return { blob:blob, ext:contentType === 'video/mp4' ? 'mp4' : 'webm', contentType:contentType, poster:poster };
+  } finally {
+    v.pause(); v.remove(); URL.revokeObjectURL(url);
+  }
+}
+
+// One picker for a photo or clip: the main one, and one on each step.
+function createMediaSlot(existing, onChange, videoOnly) {
+  const slot = { existing:existing || null, file:null, type:'', start:0, duration:0, previewUrl:'' };
+  const wrap = rEl('div', 'recipe-media-slot');
+  const preview = rEl('div');
+  const actions = rEl('div', 'recipe-slot-actions');
+  const input = rEl('input');
+  input.type = 'file';
+  input.accept = videoOnly ? 'video/*' : 'image/*,video/*';
+  input.hidden = true;
+  const pick = rEl('button', 'recipe-small-btn');
+  pick.type = 'button';
+  const remove = rEl('button', 'recipe-small-btn', 'Remove');
+  remove.type = 'button';
+  const startWrap = rEl('label', 'recipe-slot-start');
+  const startText = rEl('span');
+  const range = rEl('input');
+  range.type = 'range'; range.min = '0'; range.step = '0.5';
+  startWrap.append(startText, range);
+  const msg = rEl('div', 'recipe-slot-msg');
+  actions.append(pick, remove, input);
+  wrap.append(preview, actions, startWrap, msg);
+  slot.node = wrap;
+
+  function releasePreview() { if (slot.previewUrl) { URL.revokeObjectURL(slot.previewUrl); slot.previewUrl = ''; } }
+  function draw() {
+    preview.textContent = '';
+    const hasNew = !!slot.file, m = slot.existing;
+    let node = null;
+    if (hasNew && slot.type === 'image') {
+      node = rEl('img', 'recipe-slot-preview'); node.src = slot.previewUrl; node.alt = 'Chosen photo';
+    } else if (hasNew) {
+      node = rEl('video', 'recipe-slot-preview');
+      node.src = slot.previewUrl; node.muted = true; node.playsInline = true; node.controls = true; node.preload = 'metadata';
+      node.addEventListener('loadedmetadata', () => { node.currentTime = slot.start + 0.01; });
+      slot.previewNode = node;
+    } else if (m && m.type === 'image') {
+      node = rEl('img', 'recipe-slot-preview'); node.src = mediaUrl(m.path); node.alt = 'Current photo';
+    } else if (m) {
+      node = rEl('video', 'recipe-slot-preview');
+      node.src = mediaUrl(m.path); node.muted = true; node.playsInline = true; node.controls = true; node.preload = 'none';
+      if (m.poster) node.poster = mediaUrl(m.poster);
+    }
+    if (node) preview.appendChild(node);
+    pick.textContent = (hasNew || m) ? '🔁 Replace' : videoOnly ? '🎬 Add a 5-second video' : '📷 Add photo or 5-second video';
+    remove.hidden = !(hasNew || m);
+    const long = hasNew && slot.type === 'video' && slot.duration > CLIP_SECONDS + 0.5;
+    startWrap.hidden = !long;
+    if (long) {
+      range.max = String(Math.max(0, Math.floor((slot.duration - CLIP_SECONDS) * 2) / 2));
+      range.value = String(slot.start);
+      startText.textContent = 'Your video is ' + Math.round(slot.duration) + ' seconds. Keep 5 seconds starting at ' + slot.start + 's:';
+    }
+  }
+  pick.addEventListener('click', () => input.click());
+  remove.addEventListener('click', () => {
+    releasePreview(); slot.file = null; slot.existing = null; slot.type = ''; msg.textContent = ''; draw(); onChange();
+  });
+  range.addEventListener('input', () => {
+    slot.start = parseFloat(range.value) || 0;
+    startText.textContent = 'Your video is ' + Math.round(slot.duration) + ' seconds. Keep 5 seconds starting at ' + slot.start + 's:';
+    if (slot.previewNode) slot.previewNode.currentTime = slot.start + 0.01;
+    onChange();
+  });
+  input.addEventListener('change', async () => {
+    const f = input.files[0];
+    input.value = '';
+    if (!f) return;
+    msg.textContent = '';
+    const isImage = f.type.startsWith('image/'), isVideo = f.type.startsWith('video/');
+    if (videoOnly && !isVideo) { msg.textContent = 'Please choose a video.'; return; }
+    if (!isImage && !isVideo) { msg.textContent = 'Please choose a photo or a video.'; return; }
+    if (f.size > (isImage ? 40 : 400) * 1024 * 1024) { msg.textContent = 'That file is too large. Please choose a smaller one.'; return; }
+    const url = URL.createObjectURL(f);
+    let duration = 0;
+    if (isVideo) {
+      const probe = rEl('video');
+      probe.preload = 'metadata'; probe.muted = true;
+      try {
+        const ready = waitForMedia(probe, 'loadedmetadata', 20000);
+        probe.src = url;
+        await ready;
+        if (!probe.videoWidth) throw new Error('unreadable');
+        // Some recorded videos don't state their length until the browser seeks to the end
+        if (probe.duration === Infinity) {
+          const known = waitForMedia(probe, 'durationchange', 10000);
+          probe.currentTime = 1e7;
+          await known.catch(() => {});
+        }
+        duration = isFinite(probe.duration) ? probe.duration : 0;
+      } catch(e) {
+        URL.revokeObjectURL(url);
+        msg.textContent = 'This browser can’t read that video. Try recording it on this device, or use an MP4 file.';
+        return;
+      }
+    }
+    releasePreview();
+    slot.file = f; slot.type = isImage ? 'image' : 'video'; slot.duration = duration; slot.start = 0; slot.previewUrl = url;
+    draw(); onChange();
+  });
+  slot.dispose = () => { releasePreview(); };
+  slot.hasNewMedia = () => !!slot.file;
+  draw();
+  return slot;
+}
+function clipErrorText(e) {
+  const m = e && e.message;
+  if (m === 'needs-short') return 'This browser can’t shorten videos. Please use a clip of 5 seconds or less.';
+  if (m === 'needs-small') return 'That video is still too large. Please use a shorter or lower-quality clip.';
+  if (m === 'stalled') return 'The video couldn’t be prepared. Keep this page open on screen while saving, and try again.';
+  return 'A photo or video couldn’t be prepared. Please try a different file.';
+}
+async function uploadRecipeFile(sb, recipeId, blob, ext, contentType, uploaded) {
+  const path = recipeId + '/' + crypto.randomUUID() + '.' + ext;
+  const { error } = await sb.storage.from(RECIPE_BUCKET).upload(path, blob, { contentType:contentType, cacheControl:'31536000', upsert:false });
+  if (error) throw Object.assign(new Error('upload'), { upload:error });
+  uploaded.push(path);
+  return path;
+}
+async function saveSlotMedia(sb, recipeId, slot, uploaded) {
+  if (!slot.file) return slot.existing ? cleanMedia(slot.existing) : null;
+  if (slot.type === 'image') {
+    const blob = await compressPhoto(slot.file);
+    return { type:'image', path:await uploadRecipeFile(sb, recipeId, blob, 'jpg', 'image/jpeg', uploaded) };
+  }
+  const clip = await compressClip(slot.file, slot.start);
+  const path = await uploadRecipeFile(sb, recipeId, clip.blob, clip.ext, clip.contentType, uploaded);
+  const poster = await uploadRecipeFile(sb, recipeId, clip.poster, 'jpg', 'image/jpeg', uploaded);
+  return { type:'video', path:path, poster:poster };
+}
+function recipeMediaPaths(r) {
+  const paths = [];
+  const add = m => { if (m) { paths.push(m.path); if (m.poster) paths.push(m.poster); } };
+  add(r.main_media);
+  r.photos.forEach(add);
+  r.steps.forEach(s => add(s.media));
+  return paths;
+}
+
+// ── Staff form ──
+let recipeForm = null;
+function fillCheckGrid(id, options, chosen) {
+  const box = document.getElementById(id);
+  box.textContent = '';
+  options.forEach(([value, text]) => {
+    const label = rEl('label');
+    const input = rEl('input');
+    input.type = 'checkbox'; input.value = value; input.checked = chosen.includes(value);
+    label.append(input, rEl('span', '', text));
+    box.appendChild(label);
+  });
+}
+function readCheckGrid(id) {
+  return [...document.querySelectorAll('#' + id + ' input:checked')].map(i => i.value);
+}
+function addIngredientRow(qty, item, focus) {
+  const row = rEl('div', 'recipe-row');
+  const q = rEl('input', 'recipe-qty-input');
+  q.placeholder = 'Amount'; q.value = qty || ''; q.maxLength = 40; q.setAttribute('aria-label', 'Amount');
+  const n = rEl('input', 'recipe-item-input');
+  n.placeholder = 'Ingredient'; n.value = item || ''; n.maxLength = 200; n.setAttribute('aria-label', 'Ingredient');
+  const del = rEl('button', 'recipe-small-btn', '✕');
+  del.type = 'button'; del.setAttribute('aria-label', 'Remove ingredient');
+  del.addEventListener('click', () => { row.remove(); recipeForm.dirty = true; });
+  row.append(q, n, del);
+  document.getElementById('rf-ingredients').appendChild(row);
+  if (focus) q.focus();
+}
+function drawRecipePhotos() {
+  const list = document.getElementById('rf-photo-list');
+  list.textContent = '';
+  const photos = recipeForm.photos;
+  photos.forEach((p, i) => {
+    const item = rEl('div', 'recipe-photo-item');
+    const img = rEl('img');
+    img.src = p.previewUrl || mediaUrl(p.existing.path);
+    img.alt = 'Photo ' + (i + 1);
+    const tools = rEl('div', 'recipe-photo-tools');
+    const tool = (text, label, disabled, fn) => {
+      const b = rEl('button', 'recipe-small-btn', text);
+      b.type = 'button'; b.disabled = disabled; b.setAttribute('aria-label', label);
+      b.addEventListener('click', () => { fn(); recipeForm.dirty = true; syncConsent(); drawRecipePhotos(); });
+      tools.appendChild(b);
+    };
+    const swap = j => { const t = photos[i]; photos[i] = photos[j]; photos[j] = t; };
+    tool('←', 'Move photo ' + (i + 1) + ' earlier', i === 0, () => swap(i - 1));
+    tool('→', 'Move photo ' + (i + 1) + ' later', i === photos.length - 1, () => swap(i + 1));
+    tool('✕', 'Remove photo ' + (i + 1), false, () => {
+      if (p.previewUrl) URL.revokeObjectURL(p.previewUrl);
+      photos.splice(i, 1);
+      document.getElementById('rf-photo-msg').textContent = '';
+    });
+    item.append(img, tools);
+    if (i === 0) item.appendChild(rEl('span', 'recipe-cover-tag', 'Card photo'));
+    list.appendChild(item);
+  });
+  const add = document.getElementById('rf-add-photos');
+  add.disabled = photos.length >= MAX_RECIPE_PHOTOS;
+  add.textContent = photos.length >= MAX_RECIPE_PHOTOS ? '5 photos added' : '📷 Add photos';
+}
+async function addRecipePhotos(files) {
+  const form = recipeForm;
+  const msg = document.getElementById('rf-photo-msg');
+  msg.textContent = '';
+  const room = MAX_RECIPE_PHOTOS - form.photos.length;
+  const chosen = files.filter(f => f.type.startsWith('image/'));
+  const problems = [];
+  if (chosen.length < files.length) problems.push('Only photos can be added here.');
+  if (chosen.length > room) problems.push('A recipe can have up to 5 photos, so only the first ' + room + ' of these were added.');
+  for (const f of chosen.slice(0, room)) {
+    if (f.size > 40 * 1024 * 1024) { problems.push(f.name + ' is too large.'); continue; }
+    const previewUrl = URL.createObjectURL(f);
+    const probe = new Image();
+    try {
+      const ready = waitForMedia(probe, 'load', 30000);
+      probe.src = previewUrl;
+      await ready;
+    } catch(e) {
+      URL.revokeObjectURL(previewUrl);
+      problems.push('This browser can’t read ' + f.name + '. Try a JPG photo.');
+      continue;
+    }
+    if (recipeForm !== form) { URL.revokeObjectURL(previewUrl); return; }
+    form.photos.push({ file:f, previewUrl:previewUrl });
+    form.dirty = true;
+  }
+  msg.textContent = problems.join(' ');
+  syncConsent();
+  drawRecipePhotos();
+}
+function renumberSteps() {
+  const rows = recipeForm.steps;
+  rows.forEach((s, i) => {
+    s.title.textContent = 'Step ' + (i + 1);
+    s.up.disabled = i === 0;
+    s.down.disabled = i === rows.length - 1;
+  });
+}
+function addStepRow(text, media, focus) {
+  const onChange = () => { recipeForm.dirty = true; syncConsent(); };
+  const row = rEl('div', 'recipe-step-row');
+  const head = rEl('div', 'recipe-step-head');
+  const title = rEl('span');
+  const up = rEl('button', 'recipe-small-btn', '↑'); up.type = 'button'; up.setAttribute('aria-label', 'Move step up');
+  const down = rEl('button', 'recipe-small-btn', '↓'); down.type = 'button'; down.setAttribute('aria-label', 'Move step down');
+  const del = rEl('button', 'recipe-small-btn', '✕'); del.type = 'button'; del.setAttribute('aria-label', 'Remove step');
+  head.append(title, up, down, del);
+  const area = rEl('textarea');
+  area.rows = 2; area.maxLength = 1500; area.value = text || ''; area.placeholder = 'What to do';
+  area.setAttribute('aria-label', 'Step instructions');
+  const slot = createMediaSlot(media, onChange);
+  row.append(head, area, slot.node);
+  const entry = { row, area, slot, title, up, down };
+  const move = dir => {
+    const list = recipeForm.steps, i = list.indexOf(entry), j = i + dir;
+    if (j < 0 || j >= list.length) return;
+    list.splice(i, 1); list.splice(j, 0, entry);
+    const box = document.getElementById('rf-steps');
+    list.forEach(s => box.appendChild(s.row));
+    renumberSteps();
+    recipeForm.dirty = true;
+  };
+  up.addEventListener('click', () => move(-1));
+  down.addEventListener('click', () => move(1));
+  del.addEventListener('click', () => {
+    if ((area.value.trim() || slot.existing || slot.file) && !confirm('Remove this step?')) return;
+    slot.dispose(); row.remove();
+    recipeForm.steps.splice(recipeForm.steps.indexOf(entry), 1);
+    renumberSteps(); onChange();
+  });
+  recipeForm.steps.push(entry);
+  document.getElementById('rf-steps').appendChild(row);
+  renumberSteps();
+  if (focus) area.focus();
+}
+function syncConsent() {
+  const anyNew = recipeForm.main.hasNewMedia() || recipeForm.steps.some(s => s.slot.hasNewMedia()) || recipeForm.photos.some(p => p.file);
+  document.getElementById('rf-consent-wrap').hidden = !anyNew;
+}
+function openRecipeForm(r) {
+  if (!canEditNow()) return;
+  const base = r || cleanRecipe({});
+  recipeForm = { id:r ? r.id : crypto.randomUUID(), isNew:!r, original:r || null, steps:[], main:null, photos:base.photos.map(m => ({ existing:m })), dirty:false, saving:false };
+  document.getElementById('recipe-form-title').textContent = r ? 'Edit recipe' : 'Add a recipe';
+  document.getElementById('rf-title').value = base.title;
+  document.getElementById('rf-summary').value = base.summary;
+  const meal = document.getElementById('rf-meal');
+  meal.textContent = '';
+  ['', ...RECIPE_MEALS].forEach(m => { const o = rEl('option', '', m || 'Choose…'); o.value = m; meal.appendChild(o); });
+  meal.value = base.meal_type;
+  document.getElementById('rf-servings').value = base.servings === null ? '' : base.servings;
+  document.getElementById('rf-prep').value = base.prep_min === null ? '' : base.prep_min;
+  document.getElementById('rf-cook').value = base.cook_min === null ? '' : base.cook_min;
+  document.getElementById('rf-health').value = base.health_note;
+  document.getElementById('rf-adult').value = base.adult_note;
+  document.getElementById('rf-allergens-checked').checked = base.allergens_checked;
+  document.getElementById('rf-consent').checked = false;
+  document.getElementById('recipe-form-msg').textContent = '';
+  document.getElementById('rf-delete').hidden = !r;
+
+  const mainBox = document.getElementById('rf-main-media');
+  mainBox.textContent = '';
+  recipeForm.main = createMediaSlot(base.main_media, () => { recipeForm.dirty = true; syncConsent(); }, true);
+  mainBox.appendChild(recipeForm.main.node);
+  document.getElementById('rf-photo-msg').textContent = '';
+
+  document.getElementById('rf-ingredients').textContent = '';
+  if (base.ingredients.length) base.ingredients.forEach(i => addIngredientRow(i.qty, i.item));
+  else for (let n = 0; n < 3; n++) addIngredientRow();
+  document.getElementById('rf-steps').textContent = '';
+  if (base.steps.length) base.steps.forEach(s => addStepRow(s.text, s.media));
+  else addStepRow();
+
+  fillCheckGrid('rf-allergens', RECIPE_ALLERGENS.map(a => [a, a]), base.allergens);
+  fillCheckGrid('rf-diets', RECIPE_DIETS.map(d => [d, d]), base.diets);
+  fillCheckGrid('rf-seasons', RECIPE_SEASONS, base.seasons);
+  const plantNames = [...new Set(VEGGIES_ORIGINAL.map(v => v.name))];
+  const plantLabel = name => { const i = VEGGIES_ORIGINAL.findIndex(v => v.name === name); return VEGGIES[i].emoji + ' ' + VEGGIES[i].name; };
+  fillCheckGrid('rf-plants', plantNames.map(n => [n, plantLabel(n)]).sort((a, b) => a[1].replace(/^\S+\s/, '').localeCompare(b[1].replace(/^\S+\s/, ''))), base.plants);
+
+  const ages = document.getElementById('rf-ages');
+  ages.textContent = '';
+  AGE_FIELDS.forEach(a => {
+    const field = rEl('div', 'edit-field');
+    const label = rEl('label', '', AGE_LABELS[a]);
+    label.htmlFor = 'rf-age-' + a;
+    const area = rEl('textarea');
+    area.id = 'rf-age-' + a; area.rows = 2; area.maxLength = 500; area.value = base.child_tasks[a] || '';
+    field.append(label, area);
+    ages.appendChild(field);
+  });
+  syncConsent();
+  drawRecipePhotos();
+  const form = document.getElementById('recipe-form');
+  form.scrollTop = 0;
+  document.getElementById('recipe-edit-overlay').classList.add('open');
+  document.getElementById('rf-title').focus();
+}
+function disposeRecipeForm() {
+  if (!recipeForm) return;
+  recipeForm.main.dispose();
+  recipeForm.steps.forEach(s => s.slot.dispose());
+  recipeForm.photos.forEach(p => { if (p.previewUrl) URL.revokeObjectURL(p.previewUrl); });
+  document.getElementById('recipe-edit-overlay').classList.remove('open');
+  recipeForm = null;
+}
+function requestCloseRecipeForm() {
+  if (!recipeForm || recipeForm.saving) return;
+  if (recipeForm.dirty && !confirm('Discard your unsaved changes to this recipe?')) return;
+  disposeRecipeForm();
+}
+function recipeNumber(id) {
+  const v = document.getElementById(id).value.trim();
+  if (v === '') return null;
+  const n = parseInt(v, 10);
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+function recipeFormError(text, focusNode) {
+  document.getElementById('recipe-form-msg').textContent = text;
+  if (focusNode) focusNode.focus();
+  return false;
+}
+function validateRecipeForm() {
+  const titleBox = document.getElementById('rf-title');
+  if (!titleBox.value.trim()) return recipeFormError('Please give the recipe a name.', titleBox);
+  const itemBoxes = [...document.querySelectorAll('#rf-ingredients .recipe-item-input')];
+  if (!itemBoxes.some(i => i.value.trim())) return recipeFormError('Please add at least one ingredient.', itemBoxes[0]);
+  const steps = recipeForm.steps;
+  if (!steps.some(s => s.area.value.trim())) return recipeFormError('Please add at least one step to the method.', steps[0] && steps[0].area);
+  const servings = recipeNumber('rf-servings');
+  if (document.getElementById('rf-servings').value.trim() && (servings === null || servings < 1 || servings > 200)) {
+    return recipeFormError('Servings must be between 1 and 200.', document.getElementById('rf-servings'));
+  }
+  for (const id of ['rf-prep','rf-cook']) {
+    const box = document.getElementById(id), n = recipeNumber(id);
+    if (box.value.trim() && (n === null || n > 1440)) return recipeFormError('Times must be between 0 and 1440 minutes.', box);
+  }
+  const allergenBox = document.getElementById('rf-allergens-checked');
+  if (!allergenBox.checked) return recipeFormError('Please check the ingredients for allergens and tick the box.', allergenBox);
+  const consentWrap = document.getElementById('rf-consent-wrap');
+  const consent = document.getElementById('rf-consent');
+  if (!consentWrap.hidden && !consent.checked) return recipeFormError('Please confirm you have permission to share the new photos and videos.', consent);
+  return true;
+}
+async function saveRecipe(e) {
+  e.preventDefault();
+  if (!recipeForm || recipeForm.saving) return;
+  document.getElementById('recipe-form-msg').textContent = '';
+  if (!validateRecipeForm()) return;
+  if (!canEditNow()) { recipeFormError('This account isn’t approved to edit.'); return; }
+  const form = recipeForm;
+  const btn = document.getElementById('rf-save');
+  const status = t => { btn.textContent = t; };
+  form.saving = true;
+  btn.disabled = true;
+  const uploaded = [];
+  try {
+    const sb = await getSb();
+    const slots = [form.main, ...form.steps.map(s => s.slot)];
+    const toPrepare = slots.filter(s => s.file).length + form.photos.filter(p => p.file).length;
+    let done = 0;
+    const saveOne = async slot => {
+      if (slot.file) { done++; status('Preparing media ' + done + ' of ' + toPrepare + '…'); }
+      return saveSlotMedia(sb, form.id, slot, uploaded);
+    };
+    const photos = [];
+    for (const p of form.photos) {
+      if (!p.file) { photos.push(p.existing); continue; }
+      done++;
+      status('Preparing media ' + done + ' of ' + toPrepare + '…');
+      const blob = await compressPhoto(p.file);
+      photos.push({ type:'image', path:await uploadRecipeFile(sb, form.id, blob, 'jpg', 'image/jpeg', uploaded) });
+    }
+    const main_media = await saveOne(form.main);
+    const steps = [];
+    for (const s of form.steps) {
+      const media = await saveOne(s.slot);
+      const text = s.area.value.trim();
+      if (text || media) steps.push({ text:text, media:media });
+    }
+    status('Saving…');
+    const child_tasks = {};
+    AGE_FIELDS.forEach(a => { child_tasks[a] = document.getElementById('rf-age-' + a).value.trim(); });
+    const ingredients = [...document.querySelectorAll('#rf-ingredients .recipe-row')].map(row => ({
+      qty:row.querySelector('.recipe-qty-input').value.trim(),
+      item:row.querySelector('.recipe-item-input').value.trim()
+    })).filter(i => i.item);
+    const row = {
+      id:form.id,
+      title:document.getElementById('rf-title').value.trim(),
+      summary:document.getElementById('rf-summary').value.trim(),
+      meal_type:document.getElementById('rf-meal').value,
+      servings:recipeNumber('rf-servings'),
+      prep_min:recipeNumber('rf-prep'),
+      cook_min:recipeNumber('rf-cook'),
+      seasons:readCheckGrid('rf-seasons'),
+      allergens:readCheckGrid('rf-allergens'),
+      allergens_checked:true,
+      diets:readCheckGrid('rf-diets'),
+      plants:readCheckGrid('rf-plants'),
+      ingredients:ingredients, steps:steps, child_tasks:child_tasks,
+      adult_note:document.getElementById('rf-adult').value.trim(),
+      health_note:document.getElementById('rf-health').value.trim(),
+      main_media:main_media,
+      photos:photos
+    };
+    const { data, error } = await sb.from('recipes').upsert(row).select('*').single();
+    if (error) throw Object.assign(new Error('save'), { save:error });
+    const saved = cleanRecipe(data);
+    // Files this recipe no longer uses stop taking up storage. Failure here doesn't affect the recipe.
+    if (form.original) {
+      const keep = new Set(recipeMediaPaths(saved));
+      const gone = recipeMediaPaths(form.original).filter(p => !keep.has(p));
+      if (gone.length) sb.storage.from(RECIPE_BUCKET).remove(gone).catch(() => {});
+    }
+    recipes = [saved, ...recipes.filter(x => x.id !== saved.id)];
+    storeRecipes();
+    form.saving = false;
+    btn.disabled = false;
+    status('💾 Save recipe');
+    disposeRecipeForm();
+    showToast('✅ Recipe saved. Everyone can see it now.');
+    recipeOpenId = saved.id;
+    if (document.getElementById('recipes-overlay').classList.contains('open')) renderRecipesView();
+  } catch(err) {
+    if (uploaded.length) { try { const sb = await getSb(); await sb.storage.from(RECIPE_BUCKET).remove(uploaded); } catch(x) {} }
+    form.saving = false;
+    btn.disabled = false;
+    status('💾 Save recipe');
+    const denied = (err.save && err.save.code === '42501') || (err.upload && /security|unauthor|403/i.test((err.upload.message || '') + (err.upload.statusCode || '')));
+    if (denied) { refreshStaff(); recipeFormError('Not saved: this account isn’t approved to edit.'); return; }
+    const full = err.upload && /exceed|too large|413|quota/i.test((err.upload.message || '') + (err.upload.statusCode || ''));
+    if (full) { recipeFormError('Not saved: a file is too large, or storage may be full.'); return; }
+    if (err.upload || err.save) { recipeFormError('Not saved: couldn’t reach the database. Your form is still here, so try again.'); return; }
+    recipeFormError(clipErrorText(err));
+  }
+}
+async function deleteRecipe() {
+  const form = recipeForm;
+  if (!form || !form.original || form.saving) return;
+  if (!confirm('Delete "' + form.original.title + '" for everyone? This can’t be undone.')) return;
+  form.saving = true;
+  try {
+    const sb = await getSb();
+    const { error } = await sb.from('recipes').delete().eq('id', form.id);
+    if (error) throw error;
+    const paths = recipeMediaPaths(form.original);
+    if (paths.length) sb.storage.from(RECIPE_BUCKET).remove(paths).catch(() => {});
+    recipes = recipes.filter(x => x.id !== form.id);
+    storeRecipes();
+    form.saving = false;
+    disposeRecipeForm();
+    recipeOpenId = null;
+    recipeFromPlant = false;
+    renderRecipesView();
+    showToast('Recipe deleted');
+  } catch(err) {
+    form.saving = false;
+    recipeFormError(err && err.code === '42501' ? 'Not deleted: this account isn’t approved to edit.' : 'Not deleted: couldn’t reach the database.');
+  }
+}
+
+document.getElementById('ov-recipes').addEventListener('click', () => { closeOverflow(); openRecipes(); });
+document.getElementById('recipes-close-btn').addEventListener('click', closeRecipes);
+document.getElementById('recipes-back-btn').addEventListener('click', () => { closeRecipes(); overlay.classList.add('open'); });
+document.getElementById('recipe-add-btn').addEventListener('click', () => openRecipeForm(null));
+document.getElementById('recipe-form').addEventListener('submit', saveRecipe);
+document.getElementById('recipe-form').addEventListener('input', () => { if (recipeForm) recipeForm.dirty = true; });
+document.getElementById('recipe-form-close').addEventListener('click', requestCloseRecipeForm);
+document.getElementById('rf-cancel').addEventListener('click', requestCloseRecipeForm);
+document.getElementById('rf-delete').addEventListener('click', deleteRecipe);
+document.getElementById('rf-add-photos').addEventListener('click', () => document.getElementById('rf-photo-input').click());
+document.getElementById('rf-photo-input').addEventListener('change', e => {
+  const files = [...e.target.files];
+  e.target.value = '';
+  if (files.length) addRecipePhotos(files);
+});
+document.getElementById('rf-add-ingredient').addEventListener('click', () => { addIngredientRow('', '', true); recipeForm.dirty = true; });
+document.getElementById('rf-add-step').addEventListener('click', () => { addStepRow('', null, true); recipeForm.dirty = true; });
+window.addEventListener('beforeunload', e => {
+  if (recipeForm && (recipeForm.dirty || recipeForm.saving)) { e.preventDefault(); e.returnValue = ''; }
+});
+fetchRecipes();
+window.addEventListener('online', fetchRecipes);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - lastRecipesFetch > 300000) fetchRecipes();
+});
 </script>
 <div id="print-sheet" aria-hidden="true"></div>
 </body>
