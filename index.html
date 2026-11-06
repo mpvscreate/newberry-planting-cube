@@ -799,6 +799,28 @@ html.dark #m-age option { background:var(--modal-bg); }
 }
 .edit-cancel-btn:hover, .edit-reset-btn:hover { background:rgba(128,128,128,0.2); }
 .edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
+/* Editing is for approved staff only */
+body:not(.can-edit) #btn-edit,
+body:not(.can-edit) #journey-edit-btn,
+body:not(.can-edit) .eco-edit-btn { display:none !important; }
+body:not(.can-edit) .modal-actions { grid-template-columns:1fr; }
+.staff-note { font-size:0.84rem; color:var(--text2); line-height:1.5; margin-bottom:12px; }
+.staff-note:empty { display:none; }
+.staff-msg { color:var(--text); font-weight:600; margin:12px 0 0; }
+.staff-form { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.staff-form input {
+  flex:1 1 190px; min-width:0; padding:10px 12px; border-radius:10px;
+  border:1px solid var(--border); background:var(--card-bg); color:var(--text); font-size:16px;
+}
+.staff-form .edit-save-btn { flex:0 0 auto; }
+.staff-heading { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--text2); margin:14px 0 6px; }
+.staff-list { list-style:none; margin:0 0 12px; padding:0; }
+.staff-list li {
+  display:flex; align-items:center; gap:8px; padding:8px 0;
+  border-bottom:1px solid var(--border); font-size:0.86rem; color:var(--text);
+}
+.staff-list .staff-person { flex:1; min-width:0; overflow-wrap:anywhere; }
+.staff-list .staff-role { font-size:0.72rem; color:var(--text2); }
 .edit-backup-row {
   display:flex; align-items:center; gap:8px; flex-wrap:wrap;
   margin-top:16px; padding-top:14px; border-top:1px dashed var(--border);
@@ -1838,7 +1860,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <button class="edit-reset-btn" id="edit-reset-btn">↩ Reset Default</button>
     </div>
     <div class="edit-backup-row">
-      <span class="edit-backup-label">Backup all plant edits (not just this one), to move between devices:</span>
+      <span class="edit-backup-label">Backup of all shared edits (plants, journey stages and guides):</span>
       <button class="edit-cancel-btn" id="edit-export-btn">⬇ Export All Edits</button>
       <button class="edit-cancel-btn" id="edit-import-btn">⬆ Import Edits</button>
       <input type="file" id="edit-import-file" accept="application/json" style="display:none">
@@ -1868,6 +1890,48 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <button class="edit-cancel-btn" id="eco-edit-cancel-btn">Cancel</button>
       <button class="edit-reset-btn" id="eco-edit-reset-btn">↩ Reset Default</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ STAFF SIGN-IN AND EDITOR LIST ══ -->
+<div id="staff-overlay" class="mini-edit-overlay">
+  <div class="mini-edit-modal" role="dialog" aria-modal="true" aria-labelledby="staff-title">
+    <button class="mini-edit-close-btn" id="staff-close-btn" type="button" aria-label="Close staff sign in">✕</button>
+    <h3 id="staff-title">🔑 Staff sign in</h3>
+    <div id="staff-step-email">
+      <p class="staff-note">Editing is for approved staff. Enter your email and we'll send you a sign-in code.</p>
+      <form class="staff-form" id="staff-email-form">
+        <input id="staff-email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com" aria-label="Your email">
+        <button class="edit-save-btn" type="submit">Send code</button>
+      </form>
+    </div>
+    <div id="staff-step-code" hidden>
+      <p class="staff-note">If this email is approved, a code is on its way. It can take a minute, so check your spam folder too.</p>
+      <form class="staff-form" id="staff-code-form">
+        <input id="staff-code" type="text" inputmode="numeric" autocomplete="one-time-code" required minlength="6" maxlength="10" pattern="[0-9]*" placeholder="Code from the email" aria-label="Sign-in code">
+        <button class="edit-save-btn" type="submit">Sign in</button>
+      </form>
+      <button class="edit-cancel-btn" id="staff-back-btn" type="button">Use a different email</button>
+    </div>
+    <div id="staff-step-account" hidden>
+      <p class="staff-note" id="staff-who"></p>
+      <div id="staff-admin" hidden>
+        <div class="staff-heading">Approved editors</div>
+        <ul class="staff-list" id="staff-list"></ul>
+        <form class="staff-form" id="staff-add-form">
+          <input id="staff-add-email" type="email" required maxlength="254" placeholder="staff@example.com" aria-label="Email to approve">
+          <button class="edit-save-btn" type="submit">Approve</button>
+        </form>
+        <p class="staff-note">The app doesn't notify them. Let them know they can now sign in from the ⋮ menu with that email.</p>
+        <div id="staff-old" hidden>
+          <div class="staff-heading">Old edits on this device</div>
+          <p class="staff-note" id="staff-old-note"></p>
+          <button class="edit-cancel-btn" id="staff-old-btn" type="button">Share them with everyone</button>
+        </div>
+      </div>
+      <button class="edit-cancel-btn" id="staff-signout-btn" type="button">Sign out</button>
+    </div>
+    <p class="staff-note staff-msg" id="staff-msg" role="status" aria-live="polite"></p>
   </div>
 </div>
 
@@ -2005,6 +2069,8 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button class="overflow-item" id="ov-boxes"><span class="ov-icon">🪴</span><span class="ov-label">Planter Boxes</span></button>
   <button class="overflow-item" id="ov-eco"><span class="ov-icon">🌿</span><span class="ov-label">Eco Guide</span></button>
   <button class="overflow-item" id="ov-compost"><span class="ov-icon">♻️</span><span class="ov-label">Eco Composting</span></button>
+  <div class="overflow-section">Staff</div>
+  <button class="overflow-item" id="ov-staff"><span class="ov-icon">🔑</span><span class="ov-label" id="ov-staff-label">Staff sign in</span></button>
 </div>
 
 <div id="toast" role="status" aria-live="polite"></div>
@@ -2669,15 +2735,67 @@ const STORAGE_KEY = 'newberry_edits_v1';
 // true hard-coded originals, captured BEFORE any saved edits are applied —
 // this is what "Reset Default" restores to, even across page reloads
 const VEGGIES_ORIGINAL = JSON.parse(JSON.stringify(VEGGIES));
-(function loadEdits() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(idx => {
-      const i = parseInt(idx);
-      if (VEGGIES[i]) Object.assign(VEGGIES[i], saved[i]);
+
+// ══════════════════════════════════════════════
+//  SHARED EDITS  (saved online, shown to everyone, written only by approved staff)
+//  The key below is meant to be public. The database rules decide who can write.
+// ══════════════════════════════════════════════
+const EC_SB_URL = 'https://gtdhgnrhikgocwsgyxbf.supabase.co';
+const EC_SB_KEY = 'sb_publishable_TW-RkhxUVtTLuVHuEiwAGg_GhqP0NFV';
+const SHARED_CACHE_KEY = 'ec_shared_edits_v1';
+const PLANT_TEXT_FIELDS = ['emoji','name','months','duration','soil','water','companions','pest','harvest','observation'];
+const AGE_FIELDS = ['toddler','preschool','lower','upper','middle','high'];
+const JOURNEY_FIELDS = ['emoji','stage','time','tip'];
+let sharedRows = [];
+try {
+  const cached = JSON.parse(localStorage.getItem(SHARED_CACHE_KEY) || '[]');
+  if (Array.isArray(cached)) sharedRows = cached;
+} catch(e) {}
+
+// Edited text reaches other people's screens, so it must never be able to act as page code.
+function cleanEditText(s) {
+  return String(s == null ? '' : s).replace(/</g, '‹').replace(/>/g, '›').slice(0, 5000);
+}
+// Keys use the original name, not the list position, so adding or removing
+// a plant or entry later can't put an edit on the wrong one.
+function plantKey(i) { const v = VEGGIES_ORIGINAL[i]; return v ? v.season + '::' + v.name : ''; }
+function guideKey(scope, tab, i) {
+  const orig = scope === 'eco' ? ECO_DATA_ORIGINAL : COMPOST_DATA_ORIGINAL;
+  const item = orig[tab] && orig[tab][i];
+  return item ? tab + '::' + item.name : '';
+}
+function mergePlantData(v, d) {
+  PLANT_TEXT_FIELDS.forEach(k => { if (typeof d[k] === 'string') v[k] = cleanEditText(d[k]); });
+  const level = parseInt(d.difficulty);
+  if (level >= 1 && level <= 3) v.difficulty = level;
+  if (d.ages && typeof d.ages === 'object') {
+    AGE_FIELDS.forEach(a => { if (typeof d.ages[a] === 'string') v.ages[a] = cleanEditText(d.ages[a]); });
+  }
+}
+function applySharedRow(scope, key, d) {
+  if (!d || typeof d !== 'object') return;
+  if (scope === 'plant') {
+    const i = VEGGIES_ORIGINAL.findIndex((_, n) => plantKey(n) === key);
+    if (i >= 0) mergePlantData(VEGGIES[i], d);
+  } else if (scope === 'journey') {
+    const i = JOURNEY_STAGES_ORIGINAL.findIndex(s => s.stage === key);
+    if (i >= 0) JOURNEY_FIELDS.forEach(k => { if (typeof d[k] === 'string') JOURNEY_STAGES[i][k] = cleanEditText(d[k]); });
+  } else if (scope === 'eco' || scope === 'compost') {
+    const orig = scope === 'eco' ? ECO_DATA_ORIGINAL : COMPOST_DATA_ORIGINAL;
+    const live = scope === 'eco' ? ECO_DATA : COMPOST_DATA;
+    const cut = String(key).indexOf('::');
+    const tab = String(key).slice(0, cut), name = String(key).slice(cut + 2);
+    if (cut < 0 || !Object.prototype.hasOwnProperty.call(orig, tab)) return;
+    const i = orig[tab].findIndex(x => x.name === name);
+    if (i >= 0) Object.keys(orig[tab][i]).forEach(k => {
+      if (k !== 'type' && typeof d[k] === 'string') live[tab][i][k] = cleanEditText(d[k]);
     });
-  } catch(e) {}
-})();
+  }
+}
+function applySharedRows(scope) {
+  sharedRows.forEach(r => { if (r && r.scope === scope) applySharedRow(scope, r.item_key, r.data); });
+}
+applySharedRows('plant');
 
 // ══════════════════════════════════════════════
 //  CUBE BUILD
@@ -3789,7 +3907,7 @@ window.addEventListener('keydown', e => {
 });
 
 // ── Focus trap: keep Tab inside the open overlay/modal (accessibility) ──
-const TRAP_OVERLAY_IDS = ['intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
+const TRAP_OVERLAY_IDS = ['staff-overlay','intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
   'sfg-pick-overlay','sfg-overlay','rot-overlay','journey-overlay','eco-overlay','compost-overlay',
   'ad-overlay','search-overlay','month-overlay','modal-overlay'];
 function topOpenOverlay() {
@@ -3836,15 +3954,7 @@ const JOURNEY_STAGES = [
 // this is what "Reset Default" restores a stage to, even across page reloads
 const JOURNEY_STAGES_ORIGINAL = JSON.parse(JSON.stringify(JOURNEY_STAGES));
 const JOURNEY_STORAGE_KEY = 'newberry_journey_edits_v1';
-(function loadJourneyEdits() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(JOURNEY_STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(idx => {
-      const i = parseInt(idx);
-      if (JOURNEY_STAGES[i]) Object.assign(JOURNEY_STAGES[i], saved[idx]);
-    });
-  } catch(e) {}
-})();
+applySharedRows('journey');
 
 function getJourneyDesc(veggie, idx) {
   const descs = [
@@ -3929,6 +4039,7 @@ document.getElementById('j-next').addEventListener('click', () => journeyStep(1)
 
 // ── edit the currently-viewed journey stage (applies to every plant's journey) ──
 function openJourneyEdit() {
+  if (!canEditNow()) return;
   const s = JOURNEY_STAGES[journeyIndex];
   document.getElementById('jf-emoji').value = s.emoji;
   document.getElementById('jf-stage').value = s.stage;
@@ -3937,18 +4048,16 @@ function openJourneyEdit() {
   document.getElementById('journey-edit-overlay').classList.add('open');
 }
 
-function saveJourneyEdit() {
-  const s = JOURNEY_STAGES[journeyIndex];
-  s.emoji = document.getElementById('jf-emoji').value.trim();
-  s.stage = document.getElementById('jf-stage').value.trim();
-  s.time  = document.getElementById('jf-time').value.trim();
-  s.tip   = document.getElementById('jf-tip').value.trim();
-
-  try {
-    const saved = JSON.parse(localStorage.getItem(JOURNEY_STORAGE_KEY) || '{}');
-    saved[journeyIndex] = { emoji:s.emoji, stage:s.stage, time:s.time, tip:s.tip };
-    localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify(saved));
-  } catch(e) {}
+async function saveJourneyEdit() {
+  const idx = journeyIndex;
+  const val = id => cleanEditText(document.getElementById(id).value.trim());
+  const data = { emoji:val('jf-emoji'), stage:val('jf-stage'), time:val('jf-time'), tip:val('jf-tip') };
+  const btn = document.getElementById('journey-edit-save-btn');
+  btn.disabled = true;
+  const ok = await saveSharedEdit('journey', JOURNEY_STAGES_ORIGINAL[idx].stage, data);
+  btn.disabled = false;
+  if (!ok) return;
+  Object.assign(JOURNEY_STAGES[idx], data);
 
   rebuildJourneyChips();
   renderJourneyStage();
@@ -3956,16 +4065,12 @@ function saveJourneyEdit() {
   closeJourneyEdit();
 }
 
-function resetJourneyEdit() {
+async function resetJourneyEdit() {
   const original = JOURNEY_STAGES_ORIGINAL[journeyIndex];
   if (!original) return;
-  if (!confirm('Reset the "' + JOURNEY_STAGES[journeyIndex].stage + '" stage to its original defaults?')) return;
+  if (!confirm('Reset the "' + JOURNEY_STAGES[journeyIndex].stage + '" stage to its original defaults for everyone?')) return;
+  if (!await deleteSharedEdit('journey', original.stage)) return;
   Object.assign(JOURNEY_STAGES[journeyIndex], JSON.parse(JSON.stringify(original)));
-  try {
-    const saved = JSON.parse(localStorage.getItem(JOURNEY_STORAGE_KEY) || '{}');
-    delete saved[journeyIndex];
-    localStorage.setItem(JOURNEY_STORAGE_KEY, JSON.stringify(saved));
-  } catch(e) {}
   rebuildJourneyChips();
   renderJourneyStage();
   openJourneyEdit();
@@ -4285,16 +4390,7 @@ let currentCompostTab = 'methods';
 
 const COMPOST_DATA_ORIGINAL = JSON.parse(JSON.stringify(COMPOST_DATA));
 const COMPOST_STORAGE_KEY = 'newberry_compost_edits_v1';
-(function loadCompostEdits() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(COMPOST_STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(key => {
-      const [tab, idxStr] = key.split('::');
-      const idx = parseInt(idxStr);
-      if (COMPOST_DATA[tab] && COMPOST_DATA[tab][idx]) Object.assign(COMPOST_DATA[tab][idx], saved[key]);
-    });
-  } catch(e) {}
-})();
+applySharedRows('compost');
 
 const COMPOST_FIELD_LABELS = {
   name:'Name', emoji:'Emoji', method:'Method / Description', caution:'Caution', wc:'Western Cape Note'
@@ -4310,16 +4406,7 @@ function escHtml(s) {
 // this is what "Reset Default" restores an entry to, even across page reloads
 const ECO_DATA_ORIGINAL = JSON.parse(JSON.stringify(ECO_DATA));
 const ECO_STORAGE_KEY = 'newberry_eco_edits_v1';
-(function loadEcoEdits() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(ECO_STORAGE_KEY) || '{}');
-    Object.keys(saved).forEach(key => {
-      const [tab, idxStr] = key.split('::');
-      const idx = parseInt(idxStr);
-      if (ECO_DATA[tab] && ECO_DATA[tab][idx]) Object.assign(ECO_DATA[tab][idx], saved[key]);
-    });
-  } catch(e) {}
-})();
+applySharedRows('eco');
 
 // friendly labels for the dynamically-built eco item edit form
 const ECO_FIELD_LABELS = {
@@ -4502,6 +4589,7 @@ document.querySelectorAll('.eco-tab').forEach(t => t.addEventListener('click', (
 let ecoEditTab = null, ecoEditIdx = -1, editSource = 'eco';
 
 function openEcoEdit(tab, idx) {
+  if (!canEditNow()) return;
   editSource = 'eco';
   ecoEditTab = tab;
   ecoEditIdx = idx;
@@ -4533,23 +4621,20 @@ function openEcoEdit(tab, idx) {
   document.getElementById('eco-edit-overlay').classList.add('open');
 }
 
-function saveEcoEdit() {
+async function saveEcoEdit() {
   if (!ecoEditTab || ecoEditIdx < 0) return;
   const DATA = editSource === 'compost' ? COMPOST_DATA : ECO_DATA;
-  const SKEY = editSource === 'compost' ? COMPOST_STORAGE_KEY : ECO_STORAGE_KEY;
   const item = DATA[ecoEditTab][ecoEditIdx];
   const changes = {};
   document.querySelectorAll('#eco-edit-fields [data-key]').forEach(el => {
-    const v = el.value.trim();
-    item[el.dataset.key] = v;
-    changes[el.dataset.key] = v;
+    changes[el.dataset.key] = cleanEditText(el.value.trim());
   });
-
-  try {
-    const saved = JSON.parse(localStorage.getItem(SKEY) || '{}');
-    saved[ecoEditTab + '::' + ecoEditIdx] = changes;
-    localStorage.setItem(SKEY, JSON.stringify(saved));
-  } catch(e) {}
+  const btn = document.getElementById('eco-edit-save-btn');
+  btn.disabled = true;
+  const ok = await saveSharedEdit(editSource, guideKey(editSource, ecoEditTab, ecoEditIdx), changes);
+  btn.disabled = false;
+  if (!ok) return;
+  Object.assign(item, changes);
 
   if (editSource === 'compost') renderCompostTab(currentCompostTab);
   else renderEcoTab(currentEcoTab);
@@ -4557,20 +4642,15 @@ function saveEcoEdit() {
   closeEcoEdit();
 }
 
-function resetEcoEdit() {
+async function resetEcoEdit() {
   if (!ecoEditTab || ecoEditIdx < 0) return;
   const DATA = editSource === 'compost' ? COMPOST_DATA : ECO_DATA;
   const ORIG = editSource === 'compost' ? COMPOST_DATA_ORIGINAL : ECO_DATA_ORIGINAL;
-  const SKEY = editSource === 'compost' ? COMPOST_STORAGE_KEY : ECO_STORAGE_KEY;
   const original = ORIG[ecoEditTab] && ORIG[ecoEditTab][ecoEditIdx];
   if (!original) return;
-  if (!confirm('Reset "' + DATA[ecoEditTab][ecoEditIdx].name + '" to its original defaults?')) return;
+  if (!confirm('Reset "' + DATA[ecoEditTab][ecoEditIdx].name + '" to its original defaults for everyone?')) return;
+  if (!await deleteSharedEdit(editSource, guideKey(editSource, ecoEditTab, ecoEditIdx))) return;
   Object.assign(DATA[ecoEditTab][ecoEditIdx], JSON.parse(JSON.stringify(original)));
-  try {
-    const saved = JSON.parse(localStorage.getItem(SKEY) || '{}');
-    delete saved[ecoEditTab + '::' + ecoEditIdx];
-    localStorage.setItem(SKEY, JSON.stringify(saved));
-  } catch(e) {}
   if (editSource === 'compost') { renderCompostTab(currentCompostTab); openCompostEdit(ecoEditTab, ecoEditIdx); }
   else { renderEcoTab(currentEcoTab); openEcoEdit(ecoEditTab, ecoEditIdx); }
 }
@@ -4636,6 +4716,7 @@ document.querySelectorAll('.compost-tab').forEach(t => t.addEventListener('click
 
 // ── per-card compost item editing (reuses eco-edit-overlay) ──
 function openCompostEdit(tab, idx) {
+  if (!canEditNow()) return;
   editSource = 'compost';
   ecoEditTab = tab;
   ecoEditIdx = idx;
@@ -5768,6 +5849,7 @@ document.querySelectorAll('.eco-tab').forEach(t => t.addEventListener('click', (
 let editVeggieIdx = -1;
 
 function openEdit(v) {
+  if (!canEditNow()) return;
   editVeggieIdx = VEGGIES.indexOf(v);
   document.getElementById('ef-emoji').value       = v.emoji;
   document.getElementById('ef-name').value        = v.name;
@@ -5811,34 +5893,25 @@ window.addEventListener('beforeunload', e => {
   if (editIsDirty()) { e.preventDefault(); e.returnValue = ''; }
 });
 
-function saveEdit() {
+async function saveEdit() {
   if (editVeggieIdx < 0) return;
-  const v = VEGGIES[editVeggieIdx];
-  v.emoji       = document.getElementById('ef-emoji').value.trim();
-  v.name        = document.getElementById('ef-name').value.trim();
-  v.months      = document.getElementById('ef-months').value.trim();
-  v.duration    = document.getElementById('ef-duration').value.trim();
-  v.difficulty  = parseInt(document.getElementById('ef-difficulty').value);
-  v.soil        = document.getElementById('ef-soil').value.trim();
-  v.water       = document.getElementById('ef-water').value.trim();
-  v.companions  = document.getElementById('ef-companions').value.trim();
-  v.pest        = document.getElementById('ef-pest').value.trim();
-  v.harvest     = document.getElementById('ef-harvest').value.trim();
-  v.observation = document.getElementById('ef-observation').value.trim();
-  ['toddler','preschool','lower','upper','middle','high'].forEach(a => {
-    v.ages[a] = document.getElementById('ef-' + a).value.trim();
-  });
+  const idx = editVeggieIdx;
+  const v = VEGGIES[idx];
+  const val = id => cleanEditText(document.getElementById(id).value.trim());
+  const data = { emoji:val('ef-emoji'), name:val('ef-name'), months:val('ef-months'), duration:val('ef-duration'),
+    difficulty:parseInt(document.getElementById('ef-difficulty').value),
+    soil:val('ef-soil'), water:val('ef-water'), companions:val('ef-companions'), pest:val('ef-pest'),
+    harvest:val('ef-harvest'), observation:val('ef-observation'), ages:{} };
+  AGE_FIELDS.forEach(a => { data.ages[a] = val('ef-' + a); });
 
-  // persist to localStorage
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    saved[editVeggieIdx] = { emoji:v.emoji, name:v.name, months:v.months, duration:v.duration,
-      difficulty:v.difficulty, soil:v.soil, water:v.water, companions:v.companions,
-      pest:v.pest, harvest:v.harvest, observation:v.observation, ages:v.ages };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  } catch(e) {}
+  const btn = document.getElementById('edit-save-btn');
+  btn.disabled = true;
+  const ok = await saveSharedEdit('plant', plantKey(idx), data);
+  btn.disabled = false;
+  if (!ok) return; // the form stays open, so nothing typed is lost
 
-  refreshVeggiePanel(editVeggieIdx);
+  Object.assign(v, data);
+  refreshVeggiePanel(idx);
 
   showToast('✅ Changes saved!');
   closeEdit();
@@ -5862,16 +5935,11 @@ function refreshVeggiePanel(idx) {
   updateMonthPill();
 }
 
-function resetEdit() {
+async function resetEdit() {
   if (editVeggieIdx < 0 || !VEGGIES_ORIGINAL[editVeggieIdx]) return;
-  if (!confirm('Reset "' + VEGGIES[editVeggieIdx].name + '" to its original defaults?')) return;
+  if (!confirm('Reset "' + VEGGIES[editVeggieIdx].name + '" to its original defaults for everyone?')) return;
+  if (!await deleteSharedEdit('plant', plantKey(editVeggieIdx))) return;
   Object.assign(VEGGIES[editVeggieIdx], JSON.parse(JSON.stringify(VEGGIES_ORIGINAL[editVeggieIdx])));
-  // remove from localStorage
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    delete saved[editVeggieIdx];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
-  } catch(e) {}
   refreshVeggiePanel(editVeggieIdx);
   openEdit(VEGGIES[editVeggieIdx]);
 }
@@ -5885,7 +5953,7 @@ document.getElementById('edit-close-btn').addEventListener('click', requestClose
 
 // ── Export / Import ALL saved edits (backup across devices) ──
 document.getElementById('edit-export-btn').addEventListener('click', () => {
-  const saved = localStorage.getItem(STORAGE_KEY) || '{}';
+  const saved = JSON.stringify(sharedRows, null, 2);
   const blob = new Blob([saved], { type:'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -5903,24 +5971,24 @@ document.getElementById('edit-import-file').addEventListener('change', e => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
+    let rows;
     try {
       const incoming = JSON.parse(reader.result);
-      const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-      const merged = Object.assign({}, existing, incoming);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      Object.keys(incoming).forEach(idx => {
-        const i = parseInt(idx);
-        if (VEGGIES[i]) {
-          Object.assign(VEGGIES[i], incoming[idx]);
-          refreshVeggiePanel(i);
-        }
-      });
-      showToast('⬆ Edits imported');
-      if (editVeggieIdx >= 0) openEdit(VEGGIES[editVeggieIdx]); // refresh open form, if any
+      // a backup from this version is a list; older backups were { plantPosition: fields }
+      rows = Array.isArray(incoming)
+        ? incoming.map(r => ({ scope:r.scope, item_key:r.item_key, data:r.data }))
+        : Object.keys(incoming).map(idx => ({ scope:'plant', item_key:plantKey(parseInt(idx)), data:incoming[idx] }));
+      rows = rows.filter(r => ['plant','journey','eco','compost'].includes(r.scope) && r.item_key && r.data && typeof r.data === 'object');
+      if (!rows.length) throw new Error('empty');
     } catch (err) {
       showToast('⚠ Invalid edits file');
+      return;
     }
+    if (!confirm('Import ' + rows.length + ' edit(s)? This changes what everyone sees.')) return;
+    if (!await saveSharedRows(rows)) return;
+    showToast('⬆ Edits imported');
+    if (editVeggieIdx >= 0) openEdit(VEGGIES[editVeggieIdx]); // refresh open form, if any
   };
   reader.readAsText(file);
   e.target.value = ''; // allow re-importing the same filename later
@@ -6262,6 +6330,336 @@ document.getElementById('compost-back-btn').addEventListener('click', () => {
   closeCompost();
   if (currentModalVeggie) overlay.classList.add('open');
 });
+
+// ══════════════════════════════════════════════
+//  SHARED EDITS: FETCHING AND SAVING
+// ══════════════════════════════════════════════
+function storeSharedRows() {
+  try { localStorage.setItem(SHARED_CACHE_KEY, JSON.stringify(sharedRows)); } catch(e) {}
+}
+// Rebuild everything from the originals plus the shared edits, then redraw what's on screen.
+function reapplySharedEdits() {
+  const copy = o => JSON.parse(JSON.stringify(o));
+  VEGGIES_ORIGINAL.forEach((o, i) => Object.assign(VEGGIES[i], copy(o)));
+  JOURNEY_STAGES_ORIGINAL.forEach((o, i) => Object.assign(JOURNEY_STAGES[i], copy(o)));
+  [[ECO_DATA_ORIGINAL, ECO_DATA], [COMPOST_DATA_ORIGINAL, COMPOST_DATA]].forEach(([orig, live]) => {
+    Object.keys(orig).forEach(t => orig[t].forEach((o, i) => Object.assign(live[t][i], copy(o))));
+  });
+  ['plant','journey','eco','compost'].forEach(applySharedRows);
+  VEGGIES.forEach((_, i) => refreshVeggiePanel(i));
+  const isOpen = id => document.getElementById(id).classList.contains('open');
+  if (isOpen('journey-overlay')) { rebuildJourneyChips(); renderJourneyStage(); }
+  if (isOpen('eco-overlay')) renderEcoTab(currentEcoTab);
+  if (isOpen('compost-overlay')) renderCompostTab(currentCompostTab);
+}
+let lastSharedFetch = 0;
+async function fetchSharedEdits() {
+  lastSharedFetch = Date.now();
+  try {
+    const res = await fetch(EC_SB_URL + '/rest/v1/content_edits?select=scope,item_key,data,updated_at&order=updated_at', {
+      headers: { apikey: EC_SB_KEY }
+    });
+    if (!res.ok) return false;
+    const rows = await res.json();
+    if (!Array.isArray(rows)) return false;
+    const changed = JSON.stringify(rows) !== JSON.stringify(sharedRows);
+    sharedRows = rows;
+    storeSharedRows();
+    if (changed) reapplySharedEdits();
+    return true;
+  } catch(e) {
+    return false; // offline or database asleep: keep showing the last edits we have
+  }
+}
+function canEditNow() { return !!staff.role; }
+function saveFailed(error) {
+  const notAllowed = error && (error.code === '42501' || error.status === 401 || error.status === 403);
+  showToast(notAllowed ? '⚠ Not saved: this account isn’t approved to edit' : '⚠ Not saved: couldn’t reach the database');
+  if (notAllowed) refreshStaff();
+}
+async function saveSharedRows(rows) {
+  if (!canEditNow()) { saveFailed({ code:'42501' }); return false; }
+  try {
+    const sb = await getSb();
+    const { data, error } = await sb.from('content_edits').upsert(rows).select('scope,item_key,data,updated_at');
+    if (error) { saveFailed(error); return false; }
+    (data || []).forEach(row => {
+      sharedRows = sharedRows.filter(r => !(r.scope === row.scope && r.item_key === row.item_key));
+      sharedRows.push(row);
+    });
+    storeSharedRows();
+    if (rows.length > 1) reapplySharedEdits();
+    return true;
+  } catch(e) { saveFailed(e); return false; }
+}
+function saveSharedEdit(scope, key, data) {
+  return saveSharedRows([{ scope:scope, item_key:key, data:data }]);
+}
+async function deleteSharedEdit(scope, key) {
+  if (!canEditNow()) { saveFailed({ code:'42501' }); return false; }
+  try {
+    const sb = await getSb();
+    const { error } = await sb.from('content_edits').delete().eq('scope', scope).eq('item_key', key);
+    if (error) { saveFailed(error); return false; }
+    sharedRows = sharedRows.filter(r => !(r.scope === scope && r.item_key === key));
+    storeSharedRows();
+    return true;
+  } catch(e) { saveFailed(e); return false; }
+}
+
+// ══════════════════════════════════════════════
+//  STAFF SIGN-IN
+//  The sign-in library only loads for staff, so everyone else downloads nothing extra.
+// ══════════════════════════════════════════════
+const STAFF_AUTH_KEY = 'ec_staff_auth';
+const SB_LIBRARY = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js';
+const SB_LIBRARY_SRI = 'sha384-TcHRA3zBbn+Lexh5n+Oil4guNPOS3rjNDpGRAN46u/s/mB2IZ50ceC6TYDU2yvgK';
+const staff = { client:null, loading:null, email:'', role:null, step:'email', pendingEmail:'' };
+
+function getSb() {
+  if (staff.client) return Promise.resolve(staff.client);
+  if (!staff.loading) {
+    staff.loading = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = SB_LIBRARY;
+      s.integrity = SB_LIBRARY_SRI;
+      s.crossOrigin = 'anonymous';
+      s.onload = () => {
+        staff.client = window.supabase.createClient(EC_SB_URL, EC_SB_KEY, {
+          auth: { storageKey:STAFF_AUTH_KEY, persistSession:true, autoRefreshToken:true, detectSessionInUrl:false }
+        });
+        staff.client.auth.onAuthStateChange(event => {
+          // run after the callback finishes, as the library asks
+          if (event === 'SIGNED_OUT') setTimeout(() => clearStaff(), 0);
+        });
+        resolve(staff.client);
+      };
+      s.onerror = () => { staff.loading = null; reject(new Error('library')); };
+      document.head.appendChild(s);
+    });
+  }
+  return staff.loading;
+}
+function setStaffRole(email, role) {
+  staff.email = email;
+  staff.role = role;
+  document.body.classList.toggle('can-edit', !!role);
+  document.getElementById('ov-staff-label').textContent = email ? 'Staff account' : 'Staff sign in';
+}
+function clearStaff() {
+  setStaffRole('', null);
+  staff.step = 'email';
+  if (document.getElementById('staff-overlay').classList.contains('open')) renderStaffPanel();
+}
+async function refreshStaff() {
+  try {
+    const sb = await getSb();
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { clearStaff(); return; }
+    const email = (session.user.email || '').toLowerCase();
+    const { data } = await sb.from('editors').select('role').eq('email', email).maybeSingle();
+    setStaffRole(email, data ? data.role : null);
+  } catch(e) {
+    document.body.classList.remove('can-edit');
+    staff.role = null;
+  }
+}
+function staffMsg(text) { document.getElementById('staff-msg').textContent = text || ''; }
+function renderStaffPanel() {
+  const signedIn = !!staff.email;
+  document.getElementById('staff-title').textContent = signedIn ? '🔑 Staff account' : '🔑 Staff sign in';
+  document.getElementById('staff-step-email').hidden = signedIn || staff.step !== 'email';
+  document.getElementById('staff-step-code').hidden = signedIn || staff.step !== 'code';
+  document.getElementById('staff-step-account').hidden = !signedIn;
+  if (signedIn) {
+    document.getElementById('staff-who').textContent = 'Signed in as ' + staff.email + '. ' +
+      (staff.role === 'admin' ? 'You can edit and choose who else can.'
+        : staff.role ? 'You can edit. Your changes show for everyone.'
+        : 'This email isn’t approved for editing.');
+    document.getElementById('staff-admin').hidden = staff.role !== 'admin';
+    if (staff.role === 'admin') { loadEditorList(); renderOldEdits(); }
+  }
+}
+function openStaff() {
+  staffMsg('');
+  renderStaffPanel();
+  document.getElementById('staff-overlay').classList.add('open');
+  const first = document.querySelector('#staff-overlay input:not([type=hidden])');
+  if (first && !staff.email) { const box = staff.step === 'code' ? document.getElementById('staff-code') : document.getElementById('staff-email'); box.focus(); }
+  getSb().catch(() => staffMsg('Couldn’t reach the sign-in service. Check your connection.'));
+}
+function closeStaff() { document.getElementById('staff-overlay').classList.remove('open'); }
+
+async function sendStaffCode(e) {
+  e.preventDefault();
+  const email = document.getElementById('staff-email').value.trim().toLowerCase();
+  if (!email) return;
+  staffMsg('Sending…');
+  try {
+    const sb = await getSb();
+    const { error } = await sb.auth.signInWithOtp({ email:email, options:{ shouldCreateUser:true } });
+    if (error && error.code === 'over_email_send_rate_limit') { staffMsg('Too many sign-in emails just now. Please try again later.'); return; }
+    if (error && error.code === 'email_address_not_authorized') { staffMsg('Sign-in emails can’t be sent to this address yet. Please tell your administrator.'); return; }
+    if (error && (error.status === 429)) { staffMsg('Too many tries. Please wait a minute and try again.'); return; }
+    // An unapproved email is refused when the database rejects the new account. It gets the
+    // same reply as staff, so nobody can test which emails are approved. Any other failure
+    // means no email went out, so say that instead of promising a code.
+    if (error && !/database error saving new user/i.test(error.message || '')) {
+      staffMsg('The sign-in email couldn’t be sent. Please try again, or tell your administrator.');
+      return;
+    }
+    staff.pendingEmail = email;
+    staff.step = 'code';
+    staffMsg('');
+    renderStaffPanel();
+    document.getElementById('staff-code').value = '';
+    document.getElementById('staff-code').focus();
+  } catch(err) {
+    staffMsg('Couldn’t reach the sign-in service. Check your connection.');
+  }
+}
+async function verifyStaffCode(e) {
+  e.preventDefault();
+  const token = document.getElementById('staff-code').value.trim();
+  if (!token) return;
+  staffMsg('Checking…');
+  try {
+    const sb = await getSb();
+    const { error } = await sb.auth.verifyOtp({ email:staff.pendingEmail, token:token, type:'email' });
+    if (error) { staffMsg('That code didn’t work. Check it, or go back and ask for a new one.'); return; }
+    staff.step = 'email';
+    await refreshStaff();
+    staffMsg('');
+    renderStaffPanel();
+    showToast(staff.role ? '✅ Signed in. You can now edit.' : 'Signed in');
+  } catch(err) {
+    staffMsg('Couldn’t reach the sign-in service. Check your connection.');
+  }
+}
+async function loadEditorList() {
+  const list = document.getElementById('staff-list');
+  try {
+    const sb = await getSb();
+    const { data, error } = await sb.from('editors').select('email,role').order('role').order('email');
+    if (error) throw error;
+    list.textContent = '';
+    data.forEach(row => {
+      const li = document.createElement('li');
+      const who = document.createElement('span');
+      who.className = 'staff-person';
+      who.textContent = row.email;
+      li.appendChild(who);
+      if (row.role === 'admin') {
+        const tag = document.createElement('span');
+        tag.className = 'staff-role';
+        tag.textContent = 'Admin';
+        li.appendChild(tag);
+      } else {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'edit-reset-btn';
+        btn.textContent = 'Remove';
+        btn.setAttribute('aria-label', 'Remove ' + row.email);
+        btn.addEventListener('click', () => removeEditor(row.email));
+        li.appendChild(btn);
+      }
+      list.appendChild(li);
+    });
+  } catch(err) {
+    staffMsg('Couldn’t load the editor list.');
+  }
+}
+async function addEditor(e) {
+  e.preventDefault();
+  const box = document.getElementById('staff-add-email');
+  const email = box.value.trim().toLowerCase();
+  if (!email) return;
+  try {
+    const sb = await getSb();
+    const { error } = await sb.from('editors').insert({ email:email });
+    if (error) {
+      staffMsg(error.code === '23505' ? email + ' is already approved.' : 'Couldn’t approve that email.');
+      return;
+    }
+    box.value = '';
+    staffMsg(email + ' can now edit.');
+    loadEditorList();
+  } catch(err) { staffMsg('Couldn’t reach the database.'); }
+}
+async function removeEditor(email) {
+  if (!confirm('Remove ' + email + '? They won’t be able to edit any more. Their past edits stay.')) return;
+  try {
+    const sb = await getSb();
+    const { error } = await sb.from('editors').delete().eq('email', email);
+    if (error) { staffMsg('Couldn’t remove that email.'); return; }
+    staffMsg(email + ' can no longer edit.');
+    loadEditorList();
+  } catch(err) { staffMsg('Couldn’t reach the database.'); }
+}
+
+// Edits made on this device before sign-in existed. They're no longer shown, and stay
+// stored here until the admin chooses to share them.
+const OLD_EDITS_DONE_KEY = 'ec_old_edits_shared';
+function collectOldEdits() {
+  const rows = [];
+  const read = key => { try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch(e) { return {}; } };
+  const plant = read(STORAGE_KEY);
+  Object.keys(plant).forEach(i => rows.push({ scope:'plant', item_key:plantKey(parseInt(i)), data:plant[i] }));
+  const journey = read(JOURNEY_STORAGE_KEY);
+  Object.keys(journey).forEach(i => {
+    const s = JOURNEY_STAGES_ORIGINAL[parseInt(i)];
+    rows.push({ scope:'journey', item_key:s ? s.stage : '', data:journey[i] });
+  });
+  [['eco', ECO_STORAGE_KEY], ['compost', COMPOST_STORAGE_KEY]].forEach(([scope, key]) => {
+    const saved = read(key);
+    Object.keys(saved).forEach(k => {
+      const [tab, i] = k.split('::');
+      rows.push({ scope:scope, item_key:guideKey(scope, tab, parseInt(i)), data:saved[k] });
+    });
+  });
+  return rows.filter(r => r.item_key);
+}
+function renderOldEdits() {
+  let done = false;
+  try { done = !!localStorage.getItem(OLD_EDITS_DONE_KEY); } catch(e) {}
+  const rows = done ? [] : collectOldEdits();
+  document.getElementById('staff-old').hidden = !rows.length;
+  document.getElementById('staff-old-note').textContent = rows.length + ' edit(s) saved on this device aren’t showing any more. You can share them with everyone. Anything already edited online stays as it is.';
+}
+async function shareOldEdits() {
+  const existing = new Set(sharedRows.map(r => r.scope + '|' + r.item_key));
+  const rows = collectOldEdits().filter(r => !existing.has(r.scope + '|' + r.item_key));
+  if (!confirm('Share ' + rows.length + ' old edit(s) with everyone?')) return;
+  if (rows.length && !await saveSharedRows(rows)) return;
+  if (rows.length === 1) reapplySharedEdits();
+  try { localStorage.setItem(OLD_EDITS_DONE_KEY, '1'); } catch(e) {}
+  renderOldEdits();
+  staffMsg('Old edits shared.');
+}
+
+document.getElementById('ov-staff').addEventListener('click', () => { closeOverflow(); openStaff(); });
+document.getElementById('staff-close-btn').addEventListener('click', closeStaff);
+document.getElementById('staff-email-form').addEventListener('submit', sendStaffCode);
+document.getElementById('staff-code-form').addEventListener('submit', verifyStaffCode);
+document.getElementById('staff-add-form').addEventListener('submit', addEditor);
+document.getElementById('staff-old-btn').addEventListener('click', shareOldEdits);
+document.getElementById('staff-back-btn').addEventListener('click', () => { staff.step = 'email'; staffMsg(''); renderStaffPanel(); });
+document.getElementById('staff-signout-btn').addEventListener('click', async () => {
+  try { const sb = await getSb(); await sb.auth.signOut(); } catch(e) {}
+  clearStaff();
+  showToast('Signed out');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('staff-overlay').classList.contains('open')) closeStaff();
+});
+
+// Get the latest edits now, when coming back online, and when returning to the app after a while.
+fetchSharedEdits();
+window.addEventListener('online', fetchSharedEdits);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && Date.now() - lastSharedFetch > 300000) fetchSharedEdits();
+});
+try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
 </script>
 <div id="print-sheet" aria-hidden="true"></div>
 </body>
