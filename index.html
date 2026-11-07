@@ -7429,7 +7429,8 @@ function renderZoneDetail(zone) {
       row.appendChild(info);
       row.appendChild(rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
         GARDEN_STATUS_SHORT[p.status] || 'Growing'));
-      row.addEventListener('click', () => {
+      row.addEventListener('click', (e) => {
+        e.stopPropagation();
         list.querySelectorAll('.gm-plant-highlight').forEach(r => r.classList.remove('gm-plant-highlight'));
         row.classList.add('gm-plant-highlight');
         const pinEl = document.querySelector('.gm-pin[data-zone="' + zone.id + '"]');
@@ -7442,7 +7443,6 @@ function renderZoneDetail(zone) {
           pinEl.classList.remove('gm-pin-active');
           void pinEl.offsetWidth;
           pinEl.classList.add('gm-pin-active');
-          pinEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
         }
       });
       list.appendChild(row);
