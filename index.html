@@ -836,9 +836,17 @@ html.dark #m-age option { background:var(--modal-bg); }
   position:relative; width:100%; max-width:600px; margin:0 auto 14px;
   border-radius:14px; border:1.5px solid var(--border);
   background:var(--card-bg); touch-action:pan-y;
-  padding:28px 4px 8px;
+  padding:28px 4px 8px; overflow:hidden;
 }
-.gm-map-inner { position:relative; border-radius:10px; }
+.gm-map-wrap.gm-zoomed { touch-action:none; }
+.gm-map-inner { position:relative; border-radius:10px; transform-origin:0 0; }
+.gm-zoom-reset {
+  position:absolute; top:6px; right:6px; z-index:5;
+  background:var(--card-bg); border:1.5px solid var(--border); border-radius:8px;
+  padding:4px 10px; font-size:0.72rem; font-weight:600; color:var(--text2);
+  cursor:pointer; display:none; box-shadow:0 1px 4px rgba(0,0,0,0.12);
+}
+.gm-map-wrap.gm-zoomed .gm-zoom-reset { display:block; }
 .gm-map-inner img { display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; pointer-events:none; }
 html.dark .gm-map-inner img { filter:invert(0.88) hue-rotate(180deg) contrast(0.9); }
 .gm-pin {
@@ -7179,6 +7187,7 @@ try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
 // ══════════════════════════════════════════════
 let gardenZones = [], gardenZonesLoaded = false, gardenActiveZone = null, gardenMapOpener = null;
 let gmPlacingMode = false, gmDragging = null;
+let gmZoom = { scale:1, tx:0, ty:0 };
 
 const GARDEN_STATUS_LABEL = { ready:'Ready to harvest', almost:'Almost ready', growing:'Growing' };
 const GARDEN_STATUS_SHORT = { ready:'Ready', almost:'Almost', growing:'Growing' };
@@ -7281,6 +7290,10 @@ function renderGardenMap() {
   const wrap = rEl('div','gm-map-wrap');
   if (gmPlacingMode) wrap.classList.add('gm-placing');
   const inner = rEl('div','gm-map-inner');
+  if (gmZoom.scale > 1.05) {
+    inner.style.transform = 'translate(' + gmZoom.tx + 'px,' + gmZoom.ty + 'px) scale(' + gmZoom.scale + ')';
+    wrap.classList.add('gm-zoomed');
+  }
   const img = document.createElement('img');
   img.src = 'campus-map.png';
   img.alt = 'Newberry House campus layout';
@@ -7358,6 +7371,61 @@ function renderGardenMap() {
     const c = gmMapCoords(e, inner);
     gmCreateZone(Math.round(c.x*10)/10, Math.round(c.y*10)/10);
   });
+
+  const resetBtn = rEl('button','gm-zoom-reset','Reset zoom');
+  resetBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    gmZoom = { scale:1, tx:0, ty:0 };
+    inner.style.transform = '';
+    wrap.classList.remove('gm-zoomed');
+  });
+  wrap.appendChild(resetBtn);
+
+  let zDist = 0, zMid = null;
+  const clampPan = () => {
+    const s = gmZoom.scale;
+    const maxTx = inner.offsetWidth * (s - 1);
+    const maxTy = inner.offsetHeight * (s - 1);
+    gmZoom.tx = Math.min(0, Math.max(-maxTx, gmZoom.tx));
+    gmZoom.ty = Math.min(0, Math.max(-maxTy, gmZoom.ty));
+  };
+  const applyZoom = () => {
+    inner.style.transform = 'translate(' + gmZoom.tx + 'px,' + gmZoom.ty + 'px) scale(' + gmZoom.scale + ')';
+    wrap.classList.toggle('gm-zoomed', gmZoom.scale > 1.05);
+  };
+  wrap.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const dx = e.touches[1].clientX - e.touches[0].clientX;
+      const dy = e.touches[1].clientY - e.touches[0].clientY;
+      zDist = Math.hypot(dx, dy);
+      zMid = { x:(e.touches[0].clientX+e.touches[1].clientX)/2,
+               y:(e.touches[0].clientY+e.touches[1].clientY)/2 };
+    }
+  }, { passive:false });
+  wrap.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && zDist) {
+      e.preventDefault();
+      const dx = e.touches[1].clientX - e.touches[0].clientX;
+      const dy = e.touches[1].clientY - e.touches[0].clientY;
+      const d = Math.hypot(dx, dy);
+      const ratio = d / zDist;
+      gmZoom.scale = Math.min(4, Math.max(1, gmZoom.scale * ratio));
+      if (gmZoom.scale <= 1.02) { gmZoom.scale = 1; gmZoom.tx = 0; gmZoom.ty = 0; }
+      clampPan(); applyZoom();
+      zDist = d;
+    } else if (e.touches.length === 1 && gmZoom.scale > 1.05) {
+      e.preventDefault();
+      const t = e.touches[0];
+      if (wrap._lastTouch) {
+        gmZoom.tx += t.clientX - wrap._lastTouch.x;
+        gmZoom.ty += t.clientY - wrap._lastTouch.y;
+        clampPan(); applyZoom();
+      }
+      wrap._lastTouch = { x:t.clientX, y:t.clientY };
+    }
+  }, { passive:false });
+  wrap.addEventListener('touchend', () => { zDist = 0; wrap._lastTouch = null; });
 
   body.appendChild(wrap);
 
