@@ -829,51 +829,73 @@ html.dark #m-age option { background:var(--modal-bg); }
 }
 .gm-header h2 { margin:0; font-size:1.25rem; white-space:nowrap; }
 .gm-header p { margin:2px 0 0; font-size:0.82rem; color:var(--text2); }
+.gm-header-actions { display:flex; align-items:center; gap:6px; }
 #gardenmap-close { background:none; border:none; font-size:1.5rem; color:var(--text2); cursor:pointer; padding:4px 8px; }
 #gardenmap-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px 16px 80px; }
 .gm-map-wrap {
-  width:100%; max-width:600px; margin:0 auto 18px; border-radius:14px;
-  border:1.5px solid var(--border); overflow:hidden; background:var(--card-bg);
+  position:relative; width:100%; max-width:600px; margin:0 auto 14px;
+  border-radius:14px; border:1.5px solid var(--border); overflow:hidden;
+  background:var(--card-bg); touch-action:pan-y;
 }
-.gm-map-wrap svg { display:block; width:100%; height:auto; }
-.gm-zone-shape { cursor:pointer; transition:opacity .2s; }
-.gm-zone-shape:hover { opacity:0.8; }
-.gm-zone-label { pointer-events:none; font-size:11px; font-weight:600; fill:var(--text); }
-.gm-zone-icon { pointer-events:none; font-size:16px; }
-.gm-zone-active .gm-zone-shape { stroke:var(--brand-green); stroke-width:2.5; }
+.gm-map-wrap img { display:block; width:100%; height:auto; user-select:none; -webkit-user-drag:none; pointer-events:none; }
+html.dark .gm-map-wrap img { filter:invert(0.88) hue-rotate(180deg) contrast(0.9); }
+.gm-pin {
+  position:absolute; transform:translate(-50%,-100%); cursor:pointer;
+  transition:transform .15s; z-index:2; filter:drop-shadow(0 2px 3px rgba(0,0,0,0.25));
+}
+.gm-pin:hover, .gm-pin.gm-pin-active { transform:translate(-50%,-100%) scale(1.2); z-index:3; }
+.gm-pin svg { display:block; }
+.gm-pin-label {
+  position:absolute; left:50%; top:100%; transform:translateX(-50%);
+  font-size:0.65rem; font-weight:700; white-space:nowrap; color:var(--text);
+  text-shadow:0 1px 3px rgba(255,255,255,0.9); padding-top:1px; pointer-events:none;
+}
+html.dark .gm-pin-label { text-shadow:0 1px 3px rgba(0,0,0,0.7); }
+.gm-pin-badge {
+  position:absolute; top:-4px; right:-6px; min-width:16px; height:16px;
+  border-radius:8px; background:#4caf50; color:#fff; font-size:0.6rem;
+  font-weight:700; display:flex; align-items:center; justify-content:center;
+  padding:0 3px; pointer-events:none; line-height:1;
+}
+.gm-pin-drag { cursor:grabbing !important; }
+.gm-map-wrap.gm-placing { cursor:crosshair; }
 .gm-legend {
   display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:center;
-  margin:0 auto 18px; max-width:600px; font-size:0.78rem; color:var(--text2);
+  margin:0 auto 14px; max-width:600px; font-size:0.78rem; color:var(--text2);
 }
 .gm-legend span { display:flex; align-items:center; gap:4px; }
 .gm-legend-dot {
   width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0;
 }
+.gm-zone-cards { max-width:600px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
 .gm-zone-detail {
-  max-width:600px; margin:0 auto; border-radius:14px; border:1.5px solid var(--border);
+  border-radius:14px; border:1.5px solid var(--border);
   background:var(--card-bg); overflow:hidden; animation:gm-fadein .25s;
 }
+.gm-zone-detail.gm-zone-highlight { border-color:var(--brand-green); box-shadow:0 0 0 2px rgba(76,175,80,0.25); }
 @keyframes gm-fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
 .gm-zone-detail-head {
-  padding:14px 16px 10px; display:flex; align-items:center; gap:10px;
-  border-bottom:1px solid var(--border);
+  padding:12px 14px 8px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--border); cursor:pointer;
 }
-.gm-zone-detail-head .gm-zone-emoji { font-size:1.5rem; }
-.gm-zone-detail-head h3 { margin:0; font-size:1.05rem; }
-.gm-zone-detail-head p { margin:2px 0 0; font-size:0.8rem; color:var(--text2); }
-.gm-plant-list { padding:6px 0; }
+.gm-zone-detail-head .gm-zone-emoji { font-size:1.4rem; }
+.gm-zone-detail-head h3 { margin:0; font-size:0.98rem; flex:1; }
+.gm-zone-detail-head p { margin:2px 0 0; font-size:0.78rem; color:var(--text2); }
+.gm-zone-chevron { font-size:0.8rem; color:var(--text2); transition:transform .2s; }
+.gm-zone-expanded .gm-zone-chevron { transform:rotate(90deg); }
+.gm-plant-list { padding:4px 0; }
 .gm-plant {
-  display:flex; align-items:center; gap:10px; padding:10px 16px;
+  display:flex; align-items:center; gap:10px; padding:8px 14px;
   border-bottom:1px solid var(--border);
 }
 .gm-plant:last-child { border-bottom:none; }
-.gm-plant-emoji { font-size:1.3rem; flex-shrink:0; }
+.gm-plant-emoji { font-size:1.2rem; flex-shrink:0; }
 .gm-plant-info { flex:1; min-width:0; }
-.gm-plant-name { font-weight:600; font-size:0.92rem; }
-.gm-plant-notes { font-size:0.78rem; color:var(--text2); margin-top:1px; }
-.gm-plant-meta { font-size:0.72rem; color:var(--text2); margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; }
+.gm-plant-name { font-weight:600; font-size:0.88rem; }
+.gm-plant-notes { font-size:0.75rem; color:var(--text2); margin-top:1px; }
+.gm-plant-meta { font-size:0.7rem; color:var(--text2); margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; }
 .gm-status-badge {
-  font-size:0.72rem; font-weight:600; padding:2px 8px; border-radius:20px;
+  font-size:0.7rem; font-weight:600; padding:2px 8px; border-radius:20px;
   flex-shrink:0; text-align:center; white-space:nowrap;
 }
 .gm-status-ready  { background:rgba(76,175,80,0.18); color:#388e3c; }
@@ -882,11 +904,17 @@ html.dark #m-age option { background:var(--modal-bg); }
 html.dark .gm-status-ready  { color:#81c784; }
 html.dark .gm-status-almost { color:#ffb74d; }
 html.dark .gm-status-growing { color:#64b5f6; }
-.gm-edit-btn {
-  background:none; border:1px solid var(--border); color:var(--text2);
-  font-size:0.78rem; padding:4px 10px; border-radius:8px; cursor:pointer;
+.gm-place-btn {
+  font-size:0.78rem; padding:5px 12px; border-radius:8px; cursor:pointer;
+  border:1.5px solid var(--brand-green); background:rgba(76,175,80,0.1); color:var(--brand-green);
+  font-weight:600;
 }
-.gm-edit-btn:hover { background:var(--card-bg); }
+.gm-place-btn:hover { background:rgba(76,175,80,0.2); }
+.gm-place-btn.gm-placing-active { background:var(--brand-green); color:#fff; }
+.gm-toolbar {
+  display:flex; gap:6px; align-items:center; padding:8px 0; max-width:600px; margin:0 auto 8px;
+  font-size:0.78rem; color:var(--text2); flex-wrap:wrap;
+}
 .gm-no-zone {
   text-align:center; padding:32px 16px; color:var(--text2); font-size:0.92rem;
 }
@@ -2255,9 +2283,12 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <div class="gm-header">
     <div>
       <h2 id="gardenmap-title" tabindex="-1">🗺️ Campus Garden Map</h2>
-      <p>Tap a zone to see what's growing and when it's ready</p>
+      <p>Tap a pin to see what's growing and when it's ready</p>
     </div>
-    <button id="gardenmap-close" type="button" aria-label="Close garden map">✕</button>
+    <div class="gm-header-actions">
+      <button class="gm-place-btn recipe-staff-only" id="gm-add-zone-btn" type="button">+ Add pin</button>
+      <button id="gardenmap-close" type="button" aria-label="Close garden map">✕</button>
+    </div>
   </div>
   <div id="gardenmap-body"></div>
 </div>
@@ -7135,9 +7166,11 @@ try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
 //  CAMPUS GARDEN MAP
 // ══════════════════════════════════════════════
 let gardenZones = [], gardenZonesLoaded = false, gardenActiveZone = null, gardenMapOpener = null;
+let gmPlacingMode = false, gmDragging = null;
 
 const GARDEN_STATUS_LABEL = { ready:'Ready to harvest', almost:'Almost ready', growing:'Growing' };
 const GARDEN_STATUS_COLOR = { ready:'#4caf50', almost:'#ff9800', growing:'#42a5f5' };
+const GM_PIN_COLORS = ['#4caf50','#ff9800','#42a5f5','#ab47bc','#ef5350','#26a69a','#8d6e63','#5c6bc0','#ec407a','#66bb6a'];
 
 async function fetchGardenZones() {
   try {
@@ -7155,6 +7188,7 @@ async function fetchGardenZones() {
 
 function openGardenMap() {
   gardenActiveZone = null;
+  gmPlacingMode = false;
   gardenMapOpener = document.getElementById('overflow-toggle');
   document.getElementById('gardenmap-overlay').classList.add('open');
   renderGardenMap();
@@ -7165,116 +7199,152 @@ function openGardenMap() {
 function closeGardenMap() {
   document.getElementById('gardenmap-overlay').classList.remove('open');
   gardenActiveZone = null;
+  gmPlacingMode = false;
   focusQuietly(gardenMapOpener);
   gardenMapOpener = null;
 }
 
 document.getElementById('gardenmap-close').addEventListener('click', closeGardenMap);
 document.getElementById('ov-gardenmap').addEventListener('click', () => { closeOverflow(); openGardenMap(); });
+document.getElementById('gm-add-zone-btn').addEventListener('click', () => {
+  gmPlacingMode = !gmPlacingMode;
+  renderGardenMap();
+});
 
-const GM_ZONE_POSITIONS = {
-  'veggie-beds':   { x:80,  y:60,  w:160, h:90,  color:'#66bb6a' },
-  'herb-spiral':   { x:300, y:50,  w:120, h:80,  color:'#81c784' },
-  'fruit-trees':   { x:460, y:40,  w:130, h:100, color:'#a5d6a7' },
-  'planter-boxes': { x:100, y:200, w:140, h:80,  color:'#c5e1a5' },
-  'food-forest':   { x:310, y:190, w:150, h:100, color:'#dcedc8' },
-  'compost-bay':   { x:500, y:190, w:100, h:80,  color:'#bcaaa4' }
-};
+function gmPinSvg(color, size) {
+  size = size || 32;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">'
+    + '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 24 12 24s12-15 12-24C24 5.4 18.6 0 12 0z" fill="'+color+'"/>'
+    + '<circle cx="12" cy="11" r="5" fill="#fff" opacity="0.9"/></svg>';
+}
+
+function gmMapCoords(e, wrap) {
+  const rect = wrap.getBoundingClientRect();
+  const x = ((e.clientX - rect.left) / rect.width) * 100;
+  const y = ((e.clientY - rect.top) / rect.height) * 100;
+  return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+}
+
+async function gmSaveZonePos(zone, x, y) {
+  if (!staff.client || !canEditNow()) return;
+  zone.map_x = x; zone.map_y = y;
+  try {
+    await staff.client.from('garden_zones').update({ map_x:x, map_y:y, updated_by:staff.email, updated_at:new Date().toISOString() }).eq('id', zone.id);
+    showToast('📍 Pin moved');
+  } catch(e) { showToast('Could not save pin position'); }
+}
+
+async function gmCreateZone(x, y) {
+  if (!staff.client || !canEditNow()) return;
+  const name = prompt('Zone name (e.g. "Herb Garden"):');
+  if (!name || !name.trim()) return;
+  const icon = prompt('Emoji icon for this zone:', '🌱') || '🌱';
+  const id = name.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
+  const maxSort = gardenZones.reduce((m,z) => Math.max(m, z.sort_order||0), 0);
+  const newZone = { id, name:name.trim(), icon, description:'', plants:[], sort_order:maxSort+1, map_x:x, map_y:y, updated_by:staff.email, updated_at:new Date().toISOString() };
+  try {
+    const { error } = await staff.client.from('garden_zones').insert(newZone);
+    if (error) throw error;
+    gardenZones.push(newZone);
+    gardenActiveZone = id;
+    gmPlacingMode = false;
+    renderGardenMap();
+    showToast('📍 ' + name.trim() + ' added');
+  } catch(e) { showToast('Could not create zone'); }
+}
 
 function renderGardenMap() {
   const body = document.getElementById('gardenmap-body');
   body.textContent = '';
+  const addBtn = document.getElementById('gm-add-zone-btn');
+  addBtn.classList.toggle('gm-placing-active', gmPlacingMode);
+  addBtn.textContent = gmPlacingMode ? '✕ Cancel' : '+ Add pin';
 
   if (!gardenZonesLoaded) {
-    const ld = rEl('div','gm-no-zone','Loading garden map…');
-    body.appendChild(ld);
-    return;
-  }
-  if (!gardenZones.length) {
-    body.appendChild(rEl('div','gm-no-zone','No garden zones yet.'));
+    body.appendChild(rEl('div','gm-no-zone','Loading garden map…'));
     return;
   }
 
   const wrap = rEl('div','gm-map-wrap');
-  const svgNS = 'http://www.w3.org/2000/svg';
-  const svg = document.createElementNS(svgNS, 'svg');
-  svg.setAttribute('viewBox', '0 0 640 320');
-  svg.setAttribute('aria-label', 'Campus garden map');
+  if (gmPlacingMode) wrap.classList.add('gm-placing');
+  const img = document.createElement('img');
+  img.src = 'campus-map.png';
+  img.alt = 'Newberry House campus layout';
+  img.draggable = false;
+  wrap.appendChild(img);
 
-  const bgRect = document.createElementNS(svgNS, 'rect');
-  bgRect.setAttribute('width','640'); bgRect.setAttribute('height','320');
-  bgRect.setAttribute('fill', darkMode ? '#2a2520' : '#f5f0e8');
-  bgRect.setAttribute('rx','0');
-  svg.appendChild(bgRect);
+  gardenZones.forEach((zone, i) => {
+    const x = zone.map_x != null ? zone.map_x : 50;
+    const y = zone.map_y != null ? zone.map_y : 50;
+    const color = GM_PIN_COLORS[i % GM_PIN_COLORS.length];
 
-  const pathGrass = document.createElementNS(svgNS, 'path');
-  pathGrass.setAttribute('d','M0 280 Q160 260 320 270 Q480 280 640 260 L640 320 L0 320Z');
-  pathGrass.setAttribute('fill', darkMode ? '#1e3a1e' : '#c8e6c9');
-  pathGrass.setAttribute('opacity','0.4');
-  svg.appendChild(pathGrass);
+    const pin = rEl('div','gm-pin');
+    if (gardenActiveZone === zone.id) pin.classList.add('gm-pin-active');
+    pin.style.left = x + '%';
+    pin.style.top = y + '%';
+    pin.innerHTML = gmPinSvg(color, 30);
+    pin.setAttribute('role','button');
+    pin.setAttribute('tabindex','0');
+    pin.setAttribute('aria-label', zone.name);
 
-  const pathWalk = document.createElementNS(svgNS, 'path');
-  pathWalk.setAttribute('d','M260 0 L260 140 Q260 160 280 160 L640 160');
-  pathWalk.setAttribute('fill','none');
-  pathWalk.setAttribute('stroke', darkMode ? '#5d4e3c' : '#d7ccc8');
-  pathWalk.setAttribute('stroke-width','8');
-  pathWalk.setAttribute('stroke-dasharray','12 6');
-  svg.appendChild(pathWalk);
-
-  gardenZones.forEach(zone => {
-    const pos = GM_ZONE_POSITIONS[zone.id];
-    if (!pos) return;
-    const g = document.createElementNS(svgNS, 'g');
-    g.classList.add('gm-zone-group');
-    if (gardenActiveZone === zone.id) g.classList.add('gm-zone-active');
-
-    const rect = document.createElementNS(svgNS, 'rect');
-    rect.setAttribute('x', pos.x); rect.setAttribute('y', pos.y);
-    rect.setAttribute('width', pos.w); rect.setAttribute('height', pos.h);
-    rect.setAttribute('rx','10');
-    rect.setAttribute('fill', pos.color + (darkMode ? '55' : '88'));
-    rect.setAttribute('stroke', gardenActiveZone === zone.id ? 'var(--brand-green)' : (darkMode ? '#5d4e3c' : '#a5d6a7'));
-    rect.setAttribute('stroke-width', gardenActiveZone === zone.id ? '2.5' : '1.5');
-    rect.classList.add('gm-zone-shape');
-    rect.setAttribute('role','button');
-    rect.setAttribute('tabindex','0');
-    rect.setAttribute('aria-label', zone.name);
-    rect.addEventListener('click', () => selectGardenZone(zone.id));
-    rect.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id); } });
-    g.appendChild(rect);
-
-    const icon = document.createElementNS(svgNS, 'text');
-    icon.classList.add('gm-zone-icon');
-    icon.setAttribute('x', pos.x + pos.w/2); icon.setAttribute('y', pos.y + pos.h/2 - 4);
-    icon.setAttribute('text-anchor','middle'); icon.setAttribute('dominant-baseline','middle');
-    icon.textContent = zone.icon;
-    g.appendChild(icon);
-
-    const label = document.createElementNS(svgNS, 'text');
-    label.classList.add('gm-zone-label');
-    label.setAttribute('x', pos.x + pos.w/2); label.setAttribute('y', pos.y + pos.h/2 + 14);
-    label.setAttribute('text-anchor','middle');
-    label.textContent = zone.name;
-    g.appendChild(label);
+    const label = rEl('span','gm-pin-label', zone.name);
+    pin.appendChild(label);
 
     const readyCount = (zone.plants || []).filter(p => p.status === 'ready').length;
     if (readyCount) {
-      const badge = document.createElementNS(svgNS, 'circle');
-      badge.setAttribute('cx', pos.x + pos.w - 8); badge.setAttribute('cy', pos.y + 10);
-      badge.setAttribute('r','8'); badge.setAttribute('fill','#4caf50');
-      g.appendChild(badge);
-      const bTxt = document.createElementNS(svgNS, 'text');
-      bTxt.setAttribute('x', pos.x + pos.w - 8); bTxt.setAttribute('y', pos.y + 10);
-      bTxt.setAttribute('text-anchor','middle'); bTxt.setAttribute('dominant-baseline','central');
-      bTxt.setAttribute('fill','#fff'); bTxt.setAttribute('font-size','9'); bTxt.setAttribute('font-weight','700');
-      bTxt.textContent = readyCount;
-      g.appendChild(bTxt);
+      const badge = rEl('span','gm-pin-badge', String(readyCount));
+      pin.appendChild(badge);
     }
-    svg.appendChild(g);
+
+    pin.addEventListener('click', (e) => { e.stopPropagation(); selectGardenZone(zone.id); });
+    pin.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id); } });
+
+    if (canEditNow()) {
+      let dragStarted = false, startX, startY;
+      pin.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0) return;
+        dragStarted = false;
+        startX = e.clientX; startY = e.clientY;
+        gmDragging = { zone, pin, wrap };
+        pin.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      pin.addEventListener('pointermove', (e) => {
+        if (!gmDragging || gmDragging.zone !== zone) return;
+        if (!dragStarted && Math.hypot(e.clientX - startX, e.clientY - startY) < 6) return;
+        dragStarted = true;
+        pin.classList.add('gm-pin-drag');
+        const c = gmMapCoords(e, wrap);
+        pin.style.left = c.x + '%';
+        pin.style.top = c.y + '%';
+      });
+      const endDrag = (e) => {
+        if (!gmDragging || gmDragging.zone !== zone) return;
+        pin.classList.remove('gm-pin-drag');
+        if (dragStarted) {
+          const c = gmMapCoords(e, wrap);
+          gmSaveZonePos(zone, Math.round(c.x*10)/10, Math.round(c.y*10)/10);
+        }
+        gmDragging = null;
+      };
+      pin.addEventListener('pointerup', endDrag);
+      pin.addEventListener('pointercancel', endDrag);
+    }
+    wrap.appendChild(pin);
   });
 
-  wrap.appendChild(svg);
+  wrap.addEventListener('click', (e) => {
+    if (!gmPlacingMode || !canEditNow()) return;
+    const c = gmMapCoords(e, wrap);
+    gmCreateZone(Math.round(c.x*10)/10, Math.round(c.y*10)/10);
+  });
+
   body.appendChild(wrap);
+
+  if (gmPlacingMode) {
+    const hint = rEl('div','gm-toolbar','Tap the map where you want to add a new zone pin');
+    body.appendChild(hint);
+  }
 
   const legend = rEl('div','gm-legend');
   ['ready','almost','growing'].forEach(s => {
@@ -7287,58 +7357,66 @@ function renderGardenMap() {
   });
   body.appendChild(legend);
 
-  if (gardenActiveZone) {
-    const zone = gardenZones.find(z => z.id === gardenActiveZone);
-    if (zone) body.appendChild(renderZoneDetail(zone));
+  const cards = rEl('div','gm-zone-cards');
+  if (!gardenZones.length) {
+    cards.appendChild(rEl('div','gm-no-zone','No garden zones yet. Staff can add pins on the map.'));
   } else {
-    body.appendChild(rEl('div','gm-no-zone','Tap a zone on the map above to see details'));
+    gardenZones.forEach(zone => cards.appendChild(renderZoneDetail(zone)));
   }
+  body.appendChild(cards);
 }
 
 function selectGardenZone(id) {
   gardenActiveZone = gardenActiveZone === id ? null : id;
   renderGardenMap();
   if (gardenActiveZone) {
-    const detail = document.querySelector('.gm-zone-detail');
+    const detail = document.querySelector('.gm-zone-highlight');
     if (detail) detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
   }
 }
 
 function renderZoneDetail(zone) {
-  const wrap = rEl('div','gm-zone-detail');
+  const isActive = gardenActiveZone === zone.id;
+  const wrap = rEl('div','gm-zone-detail' + (isActive ? ' gm-zone-highlight gm-zone-expanded' : ''));
 
   const head = rEl('div','gm-zone-detail-head');
-  const emojiSpan = rEl('span','gm-zone-emoji', zone.icon);
+  head.appendChild(rEl('span','gm-zone-emoji', zone.icon));
   const headInfo = rEl('div','');
   headInfo.style.flex = '1';
-  const h3 = rEl('h3','', zone.name);
-  const desc = rEl('p','', zone.description || '');
-  headInfo.appendChild(h3);
-  headInfo.appendChild(desc);
-  head.appendChild(emojiSpan);
+  headInfo.appendChild(rEl('h3','', zone.name));
+  if (zone.description) headInfo.appendChild(rEl('p','', zone.description));
   head.appendChild(headInfo);
+
+  const readyCount = (zone.plants || []).filter(p => p.status === 'ready').length;
+  if (readyCount && !isActive) {
+    head.appendChild(rEl('span','gm-status-badge gm-status-ready', readyCount + ' ready'));
+  }
+  head.appendChild(rEl('span','gm-zone-chevron', '▸'));
+  head.addEventListener('click', () => selectGardenZone(zone.id));
   wrap.appendChild(head);
 
-  const list = rEl('div','gm-plant-list');
-  (zone.plants || []).forEach(p => {
-    const row = rEl('div','gm-plant');
-    row.appendChild(rEl('span','gm-plant-emoji', p.emoji || '🌱'));
-
-    const info = rEl('div','gm-plant-info');
-    info.appendChild(rEl('div','gm-plant-name', p.name));
-    if (p.notes) info.appendChild(rEl('div','gm-plant-notes', p.notes));
-    const meta = rEl('div','gm-plant-meta');
-    if (p.planted) meta.appendChild(rEl('span','', '🌱 Planted: ' + p.planted));
-    if (p.harvest) meta.appendChild(rEl('span','', '📅 Harvest: ' + p.harvest));
-    if (meta.children.length) info.appendChild(meta);
-    row.appendChild(info);
-
-    const badge = rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
-      GARDEN_STATUS_LABEL[p.status] || 'Growing');
-    row.appendChild(badge);
-    list.appendChild(row);
-  });
-  wrap.appendChild(list);
+  if (isActive) {
+    const list = rEl('div','gm-plant-list');
+    (zone.plants || []).forEach(p => {
+      const row = rEl('div','gm-plant');
+      row.appendChild(rEl('span','gm-plant-emoji', p.emoji || '🌱'));
+      const info = rEl('div','gm-plant-info');
+      info.appendChild(rEl('div','gm-plant-name', p.name));
+      if (p.notes) info.appendChild(rEl('div','gm-plant-notes', p.notes));
+      const meta = rEl('div','gm-plant-meta');
+      if (p.planted) meta.appendChild(rEl('span','', '🌱 Planted: ' + p.planted));
+      if (p.harvest) meta.appendChild(rEl('span','', '📅 Harvest: ' + p.harvest));
+      if (meta.children.length) info.appendChild(meta);
+      row.appendChild(info);
+      row.appendChild(rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
+        GARDEN_STATUS_LABEL[p.status] || 'Growing'));
+      list.appendChild(row);
+    });
+    if (!(zone.plants || []).length) {
+      list.appendChild(rEl('div','gm-no-zone','No plants added yet'));
+    }
+    wrap.appendChild(list);
+  }
   return wrap;
 }
 
