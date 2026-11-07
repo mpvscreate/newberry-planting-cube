@@ -449,6 +449,17 @@ body.is-dragging-cube .panel:active {
   background:transparent; color:#fff; font-size:0.85rem;
 }
 #update-later:hover { background:rgba(255,255,255,.18); }
+.update-bee {
+  position:fixed; z-index:10000; font-size:2rem; pointer-events:none;
+  animation:beefly 1.6s ease-in-out forwards;
+}
+@keyframes beefly {
+  0%   { top:60%; left:-40px; transform:rotate(15deg) scaleX(-1); opacity:1; }
+  30%  { top:30%; left:40%; transform:rotate(-10deg) scaleX(-1); }
+  60%  { top:8%;  left:65%; transform:rotate(5deg) scaleX(-1); }
+  80%  { top:4%;  left:50%; transform:rotate(-5deg) scaleX(-1); opacity:1; }
+  100% { top:max(10px, env(safe-area-inset-top)); left:50%; transform:rotate(0deg) scaleX(-1) scale(0.6); opacity:0; }
+}
 
 /* ── PULL TO REFRESH ── */
 #ptr {
@@ -924,6 +935,35 @@ html.dark .gm-plant.gm-plant-highlight { background:rgba(76,175,80,0.18); }
 html.dark .gm-status-ready  { color:#81c784; }
 html.dark .gm-status-almost { color:#ffb74d; }
 html.dark .gm-status-growing { color:#64b5f6; }
+.gm-status-picker {
+  display:flex; gap:6px; margin-top:6px; flex-wrap:wrap;
+}
+.gm-status-pill {
+  font-size:0.68rem; font-weight:600; padding:4px 12px; border-radius:20px;
+  border:1.5px solid transparent; cursor:pointer; transition:all .15s;
+}
+.gm-status-pill[data-st="ready"]  { background:rgba(76,175,80,0.18); color:#388e3c; border-color:transparent; }
+.gm-status-pill[data-st="almost"] { background:rgba(255,183,77,0.22); color:#e65100; border-color:transparent; }
+.gm-status-pill[data-st="growing"]{ background:rgba(100,181,246,0.18); color:#1565c0; border-color:transparent; }
+.gm-status-pill.gm-pill-active { border-color:currentColor; box-shadow:0 0 0 2px rgba(0,0,0,0.08); }
+html.dark .gm-status-pill[data-st="ready"]  { color:#81c784; }
+html.dark .gm-status-pill[data-st="almost"] { color:#ffb74d; }
+html.dark .gm-status-pill[data-st="growing"]{ color:#64b5f6; }
+.gm-toast {
+  position:fixed; left:50%; bottom:80px; transform:translateX(-50%);
+  background:var(--card-bg); color:var(--text); border:1.5px solid var(--border);
+  border-radius:14px; padding:8px 18px; font-size:0.78rem; font-weight:600;
+  box-shadow:0 4px 18px rgba(0,0,0,0.15); z-index:400;
+  display:flex; align-items:center; gap:8px; white-space:nowrap;
+  animation:gmToastIn .35s ease-out;
+  pointer-events:none;
+}
+.gm-toast-bee {
+  display:inline-block; font-size:1.2rem;
+  animation:gmBuzz .4s ease-in-out 2;
+}
+@keyframes gmToastIn { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes gmBuzz { 0%,100% { transform:rotate(0deg); } 25% { transform:rotate(-8deg) translateX(-2px); } 75% { transform:rotate(8deg) translateX(2px); } }
 .gm-place-btn {
   font-size:0.78rem; padding:5px 12px; border-radius:8px; cursor:pointer;
   border:1.5px solid var(--brand-green); background:rgba(76,175,80,0.1); color:var(--brand-green);
@@ -6702,7 +6742,39 @@ searchInput.addEventListener('input', () => renderSearch(searchInput.value));
 })();
 
 // ── Service worker with auto-update prompt ──
-function showUpdateBanner() { document.getElementById('update-banner').hidden = false; }
+function playBeeBuzz() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const osc1 = ctx.createOscillator();
+    const osc2 = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc1.type = 'triangle'; osc1.frequency.setValueAtTime(180, now);
+    osc2.type = 'sawtooth'; osc2.frequency.setValueAtTime(185, now);
+    osc1.frequency.linearRampToValueAtTime(220, now + 0.3);
+    osc2.frequency.linearRampToValueAtTime(225, now + 0.3);
+    osc1.frequency.linearRampToValueAtTime(160, now + 0.6);
+    osc2.frequency.linearRampToValueAtTime(165, now + 0.6);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.linearRampToValueAtTime(0.09, now + 0.2);
+    gain.gain.linearRampToValueAtTime(0, now + 0.7);
+    osc1.connect(gain); osc2.connect(gain); gain.connect(ctx.destination);
+    osc1.start(now); osc2.start(now);
+    osc1.stop(now + 0.7); osc2.stop(now + 0.7);
+    setTimeout(() => ctx.close().catch(() => {}), 1000);
+  } catch (e) {}
+}
+function showUpdateBanner() {
+  const bee = document.createElement('div');
+  bee.className = 'update-bee';
+  bee.textContent = '\u{1F41D}';
+  document.body.appendChild(bee);
+  playBeeBuzz();
+  bee.addEventListener('animationend', () => {
+    bee.remove();
+    document.getElementById('update-banner').hidden = false;
+  });
+}
 // Install the waiting version; the controllerchange listener below then reloads the page
 function applyUpdate(reg) {
   if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -7454,6 +7526,16 @@ function renderGardenMap() {
   body.appendChild(cards);
 }
 
+function gmShowToast(msg) {
+  document.querySelectorAll('.gm-toast').forEach(t => t.remove());
+  const t = rEl('div','gm-toast');
+  const bee = rEl('span','gm-toast-bee','🐝');
+  t.appendChild(bee);
+  t.appendChild(document.createTextNode(msg));
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.transition = 'opacity .3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2200);
+}
+
 function selectGardenZone(id) {
   gardenActiveZone = gardenActiveZone === id ? null : id;
   renderGardenMap();
@@ -7496,8 +7578,9 @@ function renderZoneDetail(zone) {
       if (p.harvest) meta.appendChild(rEl('span','', '📅 Harvest: ' + p.harvest));
       if (meta.children.length) info.appendChild(meta);
       row.appendChild(info);
-      row.appendChild(rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
-        GARDEN_STATUS_SHORT[p.status] || 'Growing'));
+      const badge = rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
+        GARDEN_STATUS_SHORT[p.status] || 'Growing');
+      row.appendChild(badge);
       row.addEventListener('click', (e) => {
         e.stopPropagation();
         list.querySelectorAll('.gm-plant-highlight').forEach(r => r.classList.remove('gm-plant-highlight'));
@@ -7512,6 +7595,46 @@ function renderZoneDetail(zone) {
           pinEl.classList.remove('gm-pin-active');
           void pinEl.offsetWidth;
           pinEl.classList.add('gm-pin-active');
+        }
+        if (canEditNow()) {
+          const existing = row.querySelector('.gm-status-picker');
+          if (existing) { existing.remove(); return; }
+          list.querySelectorAll('.gm-status-picker').forEach(x => x.remove());
+          const picker = rEl('div','gm-status-picker');
+          ['ready','almost','growing'].forEach(st => {
+            const pill = rEl('span','gm-status-pill' + ((p.status || 'growing') === st ? ' gm-pill-active' : ''), GARDEN_STATUS_LABEL[st]);
+            pill.dataset.st = st;
+            pill.addEventListener('click', async (ev) => {
+              ev.stopPropagation();
+              if ((p.status || 'growing') === st) return;
+              pill.textContent = '...';
+              const plants = (zone.plants || []).map(pl =>
+                pl.name === p.name ? Object.assign({}, pl, { status:st }) : pl
+              );
+              const { error } = await staff.client.from('garden_zones')
+                .update({ plants:plants, updated_by:staff.email, updated_at:new Date().toISOString() })
+                .eq('id', zone.id);
+              if (error) { pill.textContent = 'Error'; return; }
+              zone.plants = plants;
+              p.status = st;
+              badge.className = 'gm-status-badge gm-status-' + st;
+              badge.textContent = GARDEN_STATUS_SHORT[st];
+              picker.querySelectorAll('.gm-pill-active').forEach(x => x.classList.remove('gm-pill-active'));
+              pill.classList.add('gm-pill-active');
+              pill.textContent = GARDEN_STATUS_LABEL[st];
+              gmShowToast(p.name + ' → ' + GARDEN_STATUS_SHORT[st]);
+              const pinUp = document.querySelector('.gm-pin[data-zone="' + zone.id + '"]');
+              if (pinUp) {
+                const nc = GARDEN_STATUS_COLOR[st];
+                const os = pinUp.querySelector('svg');
+                const t2 = document.createElement('div');
+                t2.innerHTML = gmPinSvg(nc, 30);
+                if (os) os.replaceWith(t2.firstChild);
+              }
+            });
+            picker.appendChild(pill);
+          });
+          info.appendChild(picker);
         }
       });
       list.appendChild(row);
