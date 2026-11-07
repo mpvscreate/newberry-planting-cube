@@ -1156,6 +1156,46 @@ img.recipe-media {
 }
 .recipe-plant-link:hover { border-color:var(--spring); }
 .recipe-credit { margin-top:18px; font-size:0.7rem; color:var(--text2); }
+.recipe-fav-btn{position:absolute;top:6px;right:6px;z-index:2;width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.85);cursor:pointer;font-size:1rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+html.dark .recipe-fav-btn{background:rgba(40,36,30,0.85)}
+.recipe-fav-btn:hover{transform:scale(1.15)}
+.recipe-fav-btn.is-fav{color:#e53935}
+.recipe-card{position:relative}
+.recipe-detail-fav{min-height:44px;padding:6px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.recipe-detail-fav.is-fav{border-color:#e53935;color:#e53935}
+.recipe-fav-filter{display:flex;align-items:center;gap:6px}
+.recipe-fav-toggle{min-height:44px;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-family:inherit;font-size:0.78rem;font-weight:600;white-space:nowrap}
+.recipe-fav-toggle[aria-pressed="true"]{border-color:#e53935;color:#e53935;background:rgba(229,57,53,0.08)}
+.recipe-diff{display:inline-flex;align-items:center;gap:3px;margin-left:4px;vertical-align:middle}
+.recipe-diff-leaf{display:inline-block;font-size:0.7rem;opacity:0.25;transition:opacity .15s}
+.recipe-diff-leaf.filled{opacity:1}
+.recipes-season-banner{max-width:1040px;margin:0 auto 14px;padding:12px 16px;border-radius:12px;background:rgba(106,170,94,0.12);border:1px solid rgba(106,170,94,0.25)}
+html.dark .recipes-season-banner{background:rgba(106,170,94,0.08);border-color:rgba(106,170,94,0.18)}
+.recipes-season-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--brand-green);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.recipes-season-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.recipes-season-chip{flex:0 0 auto;min-width:120px;padding:8px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);cursor:pointer;font-family:inherit;text-align:left}
+.recipes-season-chip:hover{border-color:var(--brand-green)}
+.recipes-season-chip-title{font-size:0.82rem;font-weight:700;color:var(--text);display:block}
+.recipes-season-chip-meta{font-size:0.68rem;color:var(--text2);display:block;margin-top:2px}
+.recipe-print-btn{min-height:44px;padding:6px 14px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:6px}
+@media print{body>*:not(#recipes-overlay){display:none!important}#recipes-overlay{position:static!important;display:block!important}.recipes-header,.recipe-detail-actions,.recipe-staff-only,.recipe-print-btn,.recipe-detail-fav,.recipe-plant-link{display:none!important}#recipes-body{padding:0!important;overflow:visible!important}.recipe-detail{max-width:100%}.recipe-detail h2{font-size:1.6rem}.recipe-ingredients li{break-inside:avoid}.recipe-steps>li{break-inside:avoid}.recipe-allergens{border:1px solid #ccc}}
+.recipe-tried-section{margin-top:18px;padding:14px 16px;border-radius:12px;background:rgba(200,169,122,0.1);border:1px solid var(--border)}
+.recipe-tried-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.recipe-tried-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text2)}
+.recipe-tried-count{font-size:0.72rem;color:var(--text2)}
+.recipe-tried-btn{min-height:44px;padding:8px 16px;border-radius:10px;border:1.5px solid var(--brand-green);background:rgba(106,170,94,0.1);color:var(--brand-green);cursor:pointer;font-family:inherit;font-size:0.85rem;font-weight:700;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s}
+.recipe-tried-btn:hover{background:rgba(106,170,94,0.2)}
+.recipe-tried-stars{display:flex;gap:2px}
+.recipe-tried-star{width:32px;height:32px;border:none;background:transparent;cursor:pointer;font-size:1.2rem;opacity:0.3;transition:opacity .15s}
+.recipe-tried-star.filled{opacity:1}
+.recipe-tried-star:hover{opacity:0.8}
+.recipe-tried-note{width:100%;margin-top:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);font-family:inherit;font-size:0.82rem;resize:vertical;min-height:44px}
+.recipe-tried-save{margin-top:6px;min-height:36px;padding:4px 14px;border-radius:8px;border:none;background:var(--brand-green);color:#fff;cursor:pointer;font-family:inherit;font-size:0.78rem;font-weight:700}
+.recipe-tried-entry{padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem;color:var(--text)}
+.recipe-tried-entry:last-child{border-bottom:none}
+.recipe-tried-entry-stars{color:#f9a825;font-size:0.9rem}
+.recipe-tried-entry-note{margin-top:2px;color:var(--text2);font-size:0.78rem}
+.recipe-tried-entry-meta{margin-top:2px;font-size:0.68rem;color:var(--text2)}
 #recipe-edit-overlay [hidden] { display:none !important; }
 #recipe-edit-overlay .mini-edit-close-btn { width:44px; height:44px; top:6px; right:6px; }
 #recipe-form .edit-field input, #recipe-form .edit-field select { min-height:44px; }
@@ -2384,6 +2424,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <div class="edit-field"><label for="rf-servings">Servings</label><input id="rf-servings" type="number" min="1" max="200" inputmode="numeric"></div>
       <div class="edit-field"><label for="rf-prep">Preparation (minutes)</label><input id="rf-prep" type="number" min="0" max="1440" inputmode="numeric"></div>
       <div class="edit-field"><label for="rf-cook">Cooking (minutes)</label><input id="rf-cook" type="number" min="0" max="1440" inputmode="numeric"></div>
+      <div class="edit-field"><label for="rf-difficulty">Difficulty</label><select id="rf-difficulty"><option value="">Not set</option><option value="1">🌿 Easy</option><option value="2">🌿🌿 Medium</option><option value="3">🌿🌿🌿 Involved</option></select></div>
     </div>
 
     <div class="recipe-form-section">Photos (up to 5)</div>
@@ -7664,11 +7705,22 @@ const CLIP_LONG_EDGE = 960;
 const PHOTO_LONG_EDGE = 1400;
 const THUMB_LONG_EDGE = 360;
 const MAX_CLIP_UPLOAD = 15 * 1024 * 1024;
+const RECIPE_DIFFICULTY = [['1','Easy'],['2','Medium'],['3','Involved']];
+const RECIPE_FAV_KEY = 'ec_recipe_favs';
+const RECIPE_TRIED_KEY = 'ec_recipe_tried';
+let recipeFavs = new Set();
+try { const f = JSON.parse(localStorage.getItem(RECIPE_FAV_KEY) || '[]'); if (Array.isArray(f)) recipeFavs = new Set(f); } catch(e) {}
+function saveRecipeFavs() { try { localStorage.setItem(RECIPE_FAV_KEY, JSON.stringify([...recipeFavs])); } catch(e) {} }
+function toggleRecipeFav(id) { if (recipeFavs.has(id)) recipeFavs.delete(id); else recipeFavs.add(id); saveRecipeFavs(); }
+let recipeTried = {};
+try { const t = JSON.parse(localStorage.getItem(RECIPE_TRIED_KEY) || '{}'); if (t && typeof t === 'object') recipeTried = t; } catch(e) {}
+function saveRecipeTried() { try { localStorage.setItem(RECIPE_TRIED_KEY, JSON.stringify(recipeTried)); } catch(e) {} }
+function currentRecipeSeason() { return SH_SEASON_BY_MONTH[new Date().getMonth()]; }
 
 let recipes = [];
 let recipesLoaded = false;
 let recipesFailed = false;
-let recipeFilters = { q:'', plane:'', season:'', meal:'', diet:'', free:'' };
+let recipeFilters = { q:'', plane:'', season:'', meal:'', diet:'', free:'', fav:false };
 let recipeOpenId = null;
 let recipeFromPlant = false;
 let recipeListScroll = 0;
@@ -7716,6 +7768,7 @@ function cleanRecipe(r) {
     child_tasks:tasks, adult_note:str(r.adult_note), health_note:str(r.health_note),
     main_media:cleanMedia(r.main_media),
     photos:(Array.isArray(r.photos) ? r.photos : []).map(cleanMedia).filter(m => m && m.type === 'image').slice(0, MAX_RECIPE_PHOTOS),
+    difficulty:Number.isInteger(r.difficulty) && r.difficulty >= 1 && r.difficulty <= 3 ? r.difficulty : null,
     created_by:str(r.created_by), created_at:str(r.created_at),
     updated_by:str(r.updated_by), updated_at:str(r.updated_at)
   };
@@ -7774,6 +7827,7 @@ function recipeThumbPath(r) {
 }
 function recipeMatches(r) {
   const f = recipeFilters;
+  if (f.fav && !recipeFavs.has(r.id)) return false;
   if (f.q) {
     const hay = [r.title, r.summary, r.health_note, r.plants.join(' '), r.ingredients.map(i => i.item).join(' '), r.planes.map(a => AGE_LABELS[a]).join(' ')].join(' ').toLowerCase();
     if (!f.q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w))) return false;
@@ -8118,6 +8172,24 @@ function renderRecipeList() {
     body.appendChild(empty);
     return;
   }
+  var season = currentRecipeSeason();
+  var seasonLabel = (RECIPE_SEASONS.find(function(s){return s[0]===season;})||[])[1]||'';
+  var seasonal = recipes.filter(function(r){return r.seasons.includes(season)||r.seasons.includes('all');});
+  if (seasonal.length) {
+    var banner = rEl('div','recipes-season-banner');
+    banner.appendChild(rEl('div','recipes-season-title','\u{1F33F} In season now \u2014 '+seasonLabel));
+    var sscroll = rEl('div','recipes-season-scroll');
+    seasonal.slice(0,6).forEach(function(r){
+      var chip = rEl('button','recipes-season-chip');
+      chip.type='button';
+      chip.appendChild(rEl('span','recipes-season-chip-title',r.title));
+      chip.appendChild(rEl('span','recipes-season-chip-meta',recipeTimeText(r)));
+      chip.addEventListener('click',function(){openRecipe(r.id);});
+      sscroll.appendChild(chip);
+    });
+    banner.appendChild(sscroll);
+    body.appendChild(banner);
+  }
   const tools = rEl('div', 'recipes-tools');
   const search = rEl('input');
   search.type = 'search';
@@ -8132,6 +8204,13 @@ function renderRecipeList() {
   tools.appendChild(recipeSelect('Any diet', 'diet', RECIPE_DIETS.map(d => [d, d])));
   tools.appendChild(recipeSelect('Allergen to avoid', 'free', RECIPE_ALLERGENS.map(a => [a, a + ' not listed'])));
   body.appendChild(tools);
+  var favRow = rEl("div","recipe-fav-filter");
+  var favBtn = rEl("button","recipe-fav-toggle","\u2665 My Favourites");
+  favBtn.type="button";
+  favBtn.setAttribute("aria-pressed",recipeFilters.fav?"true":"false");
+  favBtn.addEventListener("click",function(){ recipeFilters.fav=!recipeFilters.fav; favBtn.setAttribute("aria-pressed",recipeFilters.fav?"true":"false"); renderRecipeGrid(); });
+  favRow.appendChild(favBtn);
+  body.appendChild(favRow);
   const freeNote = rEl('p', 'recipes-count recipes-free-note', 'This only shows what staff listed. Always check product labels, and check with parents about each child’s allergies.');
   freeNote.id = 'recipes-free-note';
   body.appendChild(freeNote);
@@ -8178,8 +8257,20 @@ function renderRecipeGrid() {
     }
     if (r.main_media || t.video) thumb.appendChild(rEl('span', 'recipe-thumb-badge', '▶ Video'));
     card.appendChild(thumb);
+    var fav = rEl("button","recipe-fav-btn"+(recipeFavs.has(r.id)?" is-fav":""));
+    fav.type="button";
+    fav.setAttribute("aria-label","Favourite");
+    fav.textContent = recipeFavs.has(r.id) ? "\u2665" : "\u2661";
+    fav.addEventListener("click",function(e){ e.stopPropagation(); toggleRecipeFav(r.id); renderRecipeGrid(); });
+    card.appendChild(fav);
     const info = rEl('span', 'recipe-card-body');
-    info.appendChild(rEl('span', 'recipe-card-title', r.title));
+    var titleRow = rEl("span","recipe-card-title",r.title);
+    if (r.difficulty >= 1 && r.difficulty <= 3) {
+      var diff = rEl("span","recipe-diff");
+      for (var di = 1; di <= 3; di++) diff.appendChild(rEl("span","recipe-diff-leaf"+(di<=r.difficulty?" filled":""),"\u{1F33F}"));
+      titleRow.appendChild(diff);
+    }
+    info.appendChild(titleRow);
     info.appendChild(rEl('span', 'recipe-card-meta', recipeTimeText(r)));
     if (r.planes.length || r.diets.length) {
       const chips = rEl('span', 'recipe-chips');
@@ -8226,6 +8317,15 @@ function renderRecipeDetail(r) {
   back.type = 'button';
   back.addEventListener('click', backToRecipeList);
   actions.appendChild(back);
+  var detailFav = rEl('button','recipe-detail-fav'+(recipeFavs.has(r.id)?' is-fav':''));
+  detailFav.type='button';
+  detailFav.textContent = recipeFavs.has(r.id) ? '\u2665 Saved' : '\u2661 Save';
+  detailFav.addEventListener('click',function(){ toggleRecipeFav(r.id); detailFav.classList.toggle('is-fav'); detailFav.textContent = recipeFavs.has(r.id) ? '\u2665 Saved' : '\u2661 Save'; });
+  actions.appendChild(detailFav);
+  var printBtn = rEl('button','recipe-print-btn','\u{1F5A8} Print');
+  printBtn.type='button';
+  printBtn.addEventListener('click',function(){ window.print(); });
+  actions.appendChild(printBtn);
   const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', '✏️ Edit recipe');
   edit.type = 'button';
   edit.addEventListener('click', () => openRecipeForm(r));
@@ -8243,7 +8343,17 @@ function renderRecipeDetail(r) {
   if (r.meal_type) meta.push(r.meal_type);
   const seasonText = r.seasons.map(s => (RECIPE_SEASONS.find(x => x[0] === s) || [])[1]).filter(Boolean).join(', ');
   if (seasonText) meta.push(seasonText);
-  if (meta.length) wrap.appendChild(rEl('div', 'recipe-card-meta', meta.join(' · ')));
+  if (r.difficulty >= 1 && r.difficulty <= 3) meta.push(RECIPE_DIFFICULTY[r.difficulty-1][1]);
+  if (meta.length) {
+    var metaDiv = rEl("div","recipe-card-meta",meta.join(" · "));
+    if (r.difficulty >= 1 && r.difficulty <= 3) {
+      var ddiff = rEl("span","recipe-diff");
+      ddiff.style.marginLeft="6px";
+      for (var ddi = 1; ddi <= 3; ddi++) ddiff.appendChild(rEl("span","recipe-diff-leaf"+(ddi<=r.difficulty?" filled":""),"🌿"));
+      metaDiv.appendChild(ddiff);
+    }
+    wrap.appendChild(metaDiv);
+  }
   if (r.planes.length || r.diets.length) {
     const chips = rEl('div', 'recipe-chips');
     recipePlaneNames(r).forEach(p => chips.appendChild(rEl('span', 'recipe-chip recipe-plane-chip', p)));
@@ -8342,6 +8452,58 @@ function renderRecipeDetail(r) {
     });
     wrap.appendChild(chips);
   }
+  var tried = rEl("div","recipe-tried-section");
+  var triedHeader = rEl("div","recipe-tried-header");
+  triedHeader.appendChild(rEl("span","recipe-tried-title","\u{1F469}\u200D\u{1F373} Tried it?"));
+  var entries = recipeTried[r.id] || [];
+  if (entries.length) triedHeader.appendChild(rEl("span","recipe-tried-count",entries.length+" time"+(entries.length===1?"":"s")));
+  tried.appendChild(triedHeader);
+  if (canEditNow()) {
+    var triedBtn = rEl("button","recipe-tried-btn","\u{1F31F} We made this!");
+    triedBtn.type="button";
+    var triedForm = rEl("div");
+    triedForm.hidden = true;
+    var starsDiv = rEl("div","recipe-tried-stars");
+    var rating = 0;
+    for (var si = 1; si <= 5; si++) {
+      (function(val){
+        var star = rEl("button","recipe-tried-star","\u2B50");
+        star.type="button";
+        star.dataset.val=val;
+        star.addEventListener("click",function(){
+          rating=val;
+          starsDiv.querySelectorAll(".recipe-tried-star").forEach(function(s,n){s.classList.toggle("filled",n<val);});
+        });
+        starsDiv.appendChild(star);
+      })(si);
+    }
+    triedForm.appendChild(starsDiv);
+    var tnote = rEl("textarea","recipe-tried-note");
+    tnote.placeholder="How did it go? Any tips? (optional)";
+    tnote.rows=2;
+    tnote.maxLength=300;
+    triedForm.appendChild(tnote);
+    var tsave = rEl("button","recipe-tried-save","Save");
+    tsave.type="button";
+    tsave.addEventListener("click",function(){
+      if (!recipeTried[r.id]) recipeTried[r.id]=[];
+      recipeTried[r.id].unshift({stars:rating,note:tnote.value.trim(),date:new Date().toLocaleDateString("en-ZA"),by:(staff&&staff.email)||"Staff"});
+      saveRecipeTried();
+      renderRecipeDetail(r);
+    });
+    triedForm.appendChild(tsave);
+    triedBtn.addEventListener("click",function(){ triedBtn.hidden=true; triedForm.hidden=false; });
+    tried.appendChild(triedBtn);
+    tried.appendChild(triedForm);
+  }
+  entries.forEach(function(e){
+    var entry = rEl("div","recipe-tried-entry");
+    if (e.stars) entry.appendChild(rEl("span","recipe-tried-entry-stars","\u2B50".repeat(e.stars)));
+    if (e.note) entry.appendChild(rEl("div","recipe-tried-entry-note",e.note));
+    entry.appendChild(rEl("div","recipe-tried-entry-meta",(e.by||"Staff")+" \u00b7 "+(e.date||"")));
+    tried.appendChild(entry);
+  });
+  wrap.appendChild(tried);
   wrap.appendChild(rEl('p', 'recipe-credit', 'Added by Newberry House staff'));
   body.appendChild(wrap);
 }
@@ -8830,6 +8992,7 @@ function openRecipeForm(r, startPlane) {
   document.getElementById('rf-prep').value = base.prep_min === null ? '' : base.prep_min;
   document.getElementById('rf-cook').value = base.cook_min === null ? '' : base.cook_min;
   document.getElementById('rf-health').value = base.health_note;
+  document.getElementById("rf-difficulty").value = base.difficulty || "";
   document.getElementById('rf-adult').value = base.adult_note;
   document.getElementById('rf-allergens-checked').checked = base.allergens_checked;
   document.getElementById('rf-consent').checked = false;
@@ -9020,6 +9183,7 @@ async function saveRecipe(e) {
       allergens_checked:true,
       diets:readCheckGrid('rf-diets'),
       plants:readCheckGrid('rf-plants'),
+      difficulty:document.getElementById("rf-difficulty").value ? parseInt(document.getElementById("rf-difficulty").value) : null,
       ingredients:ingredients, steps:steps, child_tasks:child_tasks,
       adult_note:document.getElementById('rf-adult').value.trim(),
       health_note:document.getElementById('rf-health').value.trim(),
