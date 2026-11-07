@@ -7294,7 +7294,8 @@ function renderGardenMap() {
     const plants = zone.plants || [];
     const hasReady = plants.some(p => p.status === 'ready');
     const hasAlmost = plants.some(p => p.status === 'almost');
-    const color = hasReady ? '#4caf50' : hasAlmost ? '#ff9800' : '#42a5f5';
+    const statusColor = hasReady ? '#4caf50' : hasAlmost ? '#ff9800' : '#42a5f5';
+    const color = gardenActiveZone === zone.id ? '#ef6c00' : statusColor;
 
     const pin = rEl('div','gm-pin');
     if (gardenActiveZone === zone.id) pin.classList.add('gm-pin-active');
@@ -7389,8 +7390,8 @@ function selectGardenZone(id) {
   gardenActiveZone = gardenActiveZone === id ? null : id;
   renderGardenMap();
   if (gardenActiveZone) {
-    const detail = document.querySelector('.gm-zone-highlight');
-    if (detail) detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    const pin = document.querySelector('.gm-pin[data-zone="' + id + '"]');
+    if (pin) pin.scrollIntoView({ behavior:'smooth', block:'center' });
   }
 }
 
