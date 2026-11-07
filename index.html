@@ -7435,7 +7435,10 @@ function renderZoneDetail(zone) {
         const pinEl = document.querySelector('.gm-pin[data-zone="' + zone.id + '"]');
         if (pinEl) {
           const c = GARDEN_STATUS_COLOR[p.status] || GARDEN_STATUS_COLOR.growing;
-          pinEl.innerHTML = gmPinSvg(c, 30);
+          const oldSvg = pinEl.querySelector('svg');
+          const tmp = document.createElement('div');
+          tmp.innerHTML = gmPinSvg(c, 30);
+          if (oldSvg) oldSvg.replaceWith(tmp.firstChild);
           pinEl.classList.remove('gm-pin-active');
           void pinEl.offsetWidth;
           pinEl.classList.add('gm-pin-active');
