@@ -817,6 +817,79 @@ html.dark #m-age option { background:var(--modal-bg); }
 }
 .edit-cancel-btn:hover, .edit-reset-btn:hover { background:rgba(128,128,128,0.2); }
 .edit-reset-btn { color:var(--autumn); border-color:var(--autumn); }
+/* ── Campus Garden Map ── */
+#gardenmap-overlay {
+  position:fixed; inset:0; z-index:300; background:var(--bg);
+  display:none; flex-direction:column;
+}
+#gardenmap-overlay.open { display:flex; }
+.gm-header {
+  display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px;
+  border-bottom:1px solid var(--border); flex-shrink:0; gap:10px;
+}
+.gm-header h2 { margin:0; font-size:1.25rem; white-space:nowrap; }
+.gm-header p { margin:2px 0 0; font-size:0.82rem; color:var(--text2); }
+#gardenmap-close { background:none; border:none; font-size:1.5rem; color:var(--text2); cursor:pointer; padding:4px 8px; }
+#gardenmap-body { flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px 16px 80px; }
+.gm-map-wrap {
+  width:100%; max-width:600px; margin:0 auto 18px; border-radius:14px;
+  border:1.5px solid var(--border); overflow:hidden; background:var(--card-bg);
+}
+.gm-map-wrap svg { display:block; width:100%; height:auto; }
+.gm-zone-shape { cursor:pointer; transition:opacity .2s; }
+.gm-zone-shape:hover { opacity:0.8; }
+.gm-zone-label { pointer-events:none; font-size:11px; font-weight:600; fill:var(--text); }
+.gm-zone-icon { pointer-events:none; font-size:16px; }
+.gm-zone-active .gm-zone-shape { stroke:var(--brand-green); stroke-width:2.5; }
+.gm-legend {
+  display:flex; flex-wrap:wrap; gap:8px 16px; justify-content:center;
+  margin:0 auto 18px; max-width:600px; font-size:0.78rem; color:var(--text2);
+}
+.gm-legend span { display:flex; align-items:center; gap:4px; }
+.gm-legend-dot {
+  width:10px; height:10px; border-radius:50%; display:inline-block; flex-shrink:0;
+}
+.gm-zone-detail {
+  max-width:600px; margin:0 auto; border-radius:14px; border:1.5px solid var(--border);
+  background:var(--card-bg); overflow:hidden; animation:gm-fadein .25s;
+}
+@keyframes gm-fadein { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.gm-zone-detail-head {
+  padding:14px 16px 10px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.gm-zone-detail-head .gm-zone-emoji { font-size:1.5rem; }
+.gm-zone-detail-head h3 { margin:0; font-size:1.05rem; }
+.gm-zone-detail-head p { margin:2px 0 0; font-size:0.8rem; color:var(--text2); }
+.gm-plant-list { padding:6px 0; }
+.gm-plant {
+  display:flex; align-items:center; gap:10px; padding:10px 16px;
+  border-bottom:1px solid var(--border);
+}
+.gm-plant:last-child { border-bottom:none; }
+.gm-plant-emoji { font-size:1.3rem; flex-shrink:0; }
+.gm-plant-info { flex:1; min-width:0; }
+.gm-plant-name { font-weight:600; font-size:0.92rem; }
+.gm-plant-notes { font-size:0.78rem; color:var(--text2); margin-top:1px; }
+.gm-plant-meta { font-size:0.72rem; color:var(--text2); margin-top:2px; display:flex; gap:10px; flex-wrap:wrap; }
+.gm-status-badge {
+  font-size:0.72rem; font-weight:600; padding:2px 8px; border-radius:20px;
+  flex-shrink:0; text-align:center; white-space:nowrap;
+}
+.gm-status-ready  { background:rgba(76,175,80,0.18); color:#388e3c; }
+.gm-status-almost { background:rgba(255,183,77,0.22); color:#e65100; }
+.gm-status-growing { background:rgba(100,181,246,0.18); color:#1565c0; }
+html.dark .gm-status-ready  { color:#81c784; }
+html.dark .gm-status-almost { color:#ffb74d; }
+html.dark .gm-status-growing { color:#64b5f6; }
+.gm-edit-btn {
+  background:none; border:1px solid var(--border); color:var(--text2);
+  font-size:0.78rem; padding:4px 10px; border-radius:8px; cursor:pointer;
+}
+.gm-edit-btn:hover { background:var(--card-bg); }
+.gm-no-zone {
+  text-align:center; padding:32px 16px; color:var(--text2); font-size:0.92rem;
+}
 /* ── Healthy Recipes ── */
 #recipes-overlay {
   position:fixed; inset:0; z-index:300; background:var(--bg);
@@ -2178,6 +2251,17 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
 </div>
 
 <!-- ══ HEALTHY RECIPES ══ -->
+<div id="gardenmap-overlay" role="dialog" aria-modal="true" aria-labelledby="gardenmap-title">
+  <div class="gm-header">
+    <div>
+      <h2 id="gardenmap-title" tabindex="-1">🗺️ Campus Garden Map</h2>
+      <p>Tap a zone to see what's growing and when it's ready</p>
+    </div>
+    <button id="gardenmap-close" type="button" aria-label="Close garden map">✕</button>
+  </div>
+  <div id="gardenmap-body"></div>
+</div>
+
 <div id="recipes-overlay" role="dialog" aria-modal="true" aria-labelledby="recipes-title">
   <div class="recipes-header">
     <div>
@@ -2439,6 +2523,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button class="overflow-item" id="ov-boxes"><span class="ov-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 13h14l-1.5 8h-11zM12 13V8M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 9c0-2-1.5-4-4-4 0 2.5 1.5 4 4 4z"/></svg></span><span class="ov-label">Planter Boxes</span></button>
   <button class="overflow-item" id="ov-eco"><span class="ov-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 4c-9 0-15 4-15 11 0 1.5.4 3 1 4 1 .6 2.5 1 4 1 7 0 10-7 10-16z"/><path d="M4 21c2-5 6-9 11-11"/></svg></span><span class="ov-label">Eco Guide</span></button>
   <button class="overflow-item" id="ov-compost"><span class="ov-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16l-1.5 13h-13zM2.5 8h19M9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8M12 18v-5M12 13l-2 2M12 13l2 2"/></svg></span><span class="ov-label">Eco Composting</span></button>
+  <button class="overflow-item" id="ov-gardenmap"><span class="ov-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><path d="M8 2v16M16 6v16"/></svg></span><span class="ov-label">Campus Garden Map</span></button>
   <div class="overflow-section">Kitchen</div>
   <button class="overflow-item" id="ov-recipes"><span class="ov-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11h18a9 9 0 0 1-18 0zM8 21h8"/><path d="M8 11c0-4 2-6 4-7 1 3 3 4 4 7"/></svg></span><span class="ov-label">Healthy Recipes</span></button>
   <div class="overflow-section">Staff</div>
@@ -4266,6 +4351,8 @@ window.addEventListener('keydown', e => {
       e.preventDefault();
       stepRecipeCube(e.key === 'ArrowRight' ? 1 : -1);
     }
+  } else if (document.getElementById('gardenmap-overlay').classList.contains('open')) {
+    if (e.key === 'Escape') closeGardenMap();
   } else if (document.getElementById('eco-overlay').classList.contains('open')) {
     if (e.key === 'Escape') closeEco();
   } else if (document.getElementById('compost-overlay').classList.contains('open')) {
@@ -4290,7 +4377,7 @@ window.addEventListener('keydown', e => {
 });
 
 // ── Focus trap: keep Tab inside the open overlay/modal (accessibility) ──
-const TRAP_OVERLAY_IDS = ['staff-overlay','recipe-edit-overlay','recipes-overlay','intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
+const TRAP_OVERLAY_IDS = ['staff-overlay','recipe-edit-overlay','recipes-overlay','gardenmap-overlay','intro-overlay','edit-overlay','journey-edit-overlay','eco-edit-overlay',
   'sfg-pick-overlay','sfg-overlay','rot-overlay','journey-overlay','eco-overlay','compost-overlay',
   'ad-overlay','search-overlay','month-overlay','modal-overlay'];
 function topOpenOverlay() {
@@ -7043,6 +7130,217 @@ document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible' && Date.now() - lastSharedFetch > 300000) fetchSharedEdits();
 });
 try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
+
+// ══════════════════════════════════════════════
+//  CAMPUS GARDEN MAP
+// ══════════════════════════════════════════════
+let gardenZones = [], gardenZonesLoaded = false, gardenActiveZone = null, gardenMapOpener = null;
+
+const GARDEN_STATUS_LABEL = { ready:'Ready to harvest', almost:'Almost ready', growing:'Growing' };
+const GARDEN_STATUS_COLOR = { ready:'#4caf50', almost:'#ff9800', growing:'#42a5f5' };
+
+async function fetchGardenZones() {
+  try {
+    const res = await fetch(EC_SB_URL + '/rest/v1/garden_zones?select=*&order=sort_order', { headers:{ apikey:EC_SB_KEY } });
+    if (!res.ok) throw new Error('status');
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error('shape');
+    gardenZones = rows;
+    gardenZonesLoaded = true;
+  } catch(e) {
+    if (!gardenZonesLoaded) gardenZones = [];
+  }
+  if (document.getElementById('gardenmap-overlay').classList.contains('open')) renderGardenMap();
+}
+
+function openGardenMap() {
+  gardenActiveZone = null;
+  gardenMapOpener = document.getElementById('overflow-toggle');
+  document.getElementById('gardenmap-overlay').classList.add('open');
+  renderGardenMap();
+  document.getElementById('gardenmap-body').scrollTop = 0;
+  focusQuietly(document.getElementById('gardenmap-title'));
+  if (!gardenZonesLoaded) fetchGardenZones();
+}
+function closeGardenMap() {
+  document.getElementById('gardenmap-overlay').classList.remove('open');
+  gardenActiveZone = null;
+  focusQuietly(gardenMapOpener);
+  gardenMapOpener = null;
+}
+
+document.getElementById('gardenmap-close').addEventListener('click', closeGardenMap);
+document.getElementById('ov-gardenmap').addEventListener('click', () => { closeOverflow(); openGardenMap(); });
+
+const GM_ZONE_POSITIONS = {
+  'veggie-beds':   { x:80,  y:60,  w:160, h:90,  color:'#66bb6a' },
+  'herb-spiral':   { x:300, y:50,  w:120, h:80,  color:'#81c784' },
+  'fruit-trees':   { x:460, y:40,  w:130, h:100, color:'#a5d6a7' },
+  'planter-boxes': { x:100, y:200, w:140, h:80,  color:'#c5e1a5' },
+  'food-forest':   { x:310, y:190, w:150, h:100, color:'#dcedc8' },
+  'compost-bay':   { x:500, y:190, w:100, h:80,  color:'#bcaaa4' }
+};
+
+function renderGardenMap() {
+  const body = document.getElementById('gardenmap-body');
+  body.textContent = '';
+
+  if (!gardenZonesLoaded) {
+    const ld = rEl('div','gm-no-zone','Loading garden map…');
+    body.appendChild(ld);
+    return;
+  }
+  if (!gardenZones.length) {
+    body.appendChild(rEl('div','gm-no-zone','No garden zones yet.'));
+    return;
+  }
+
+  const wrap = rEl('div','gm-map-wrap');
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 640 320');
+  svg.setAttribute('aria-label', 'Campus garden map');
+
+  const bgRect = document.createElementNS(svgNS, 'rect');
+  bgRect.setAttribute('width','640'); bgRect.setAttribute('height','320');
+  bgRect.setAttribute('fill', darkMode ? '#2a2520' : '#f5f0e8');
+  bgRect.setAttribute('rx','0');
+  svg.appendChild(bgRect);
+
+  const pathGrass = document.createElementNS(svgNS, 'path');
+  pathGrass.setAttribute('d','M0 280 Q160 260 320 270 Q480 280 640 260 L640 320 L0 320Z');
+  pathGrass.setAttribute('fill', darkMode ? '#1e3a1e' : '#c8e6c9');
+  pathGrass.setAttribute('opacity','0.4');
+  svg.appendChild(pathGrass);
+
+  const pathWalk = document.createElementNS(svgNS, 'path');
+  pathWalk.setAttribute('d','M260 0 L260 140 Q260 160 280 160 L640 160');
+  pathWalk.setAttribute('fill','none');
+  pathWalk.setAttribute('stroke', darkMode ? '#5d4e3c' : '#d7ccc8');
+  pathWalk.setAttribute('stroke-width','8');
+  pathWalk.setAttribute('stroke-dasharray','12 6');
+  svg.appendChild(pathWalk);
+
+  gardenZones.forEach(zone => {
+    const pos = GM_ZONE_POSITIONS[zone.id];
+    if (!pos) return;
+    const g = document.createElementNS(svgNS, 'g');
+    g.classList.add('gm-zone-group');
+    if (gardenActiveZone === zone.id) g.classList.add('gm-zone-active');
+
+    const rect = document.createElementNS(svgNS, 'rect');
+    rect.setAttribute('x', pos.x); rect.setAttribute('y', pos.y);
+    rect.setAttribute('width', pos.w); rect.setAttribute('height', pos.h);
+    rect.setAttribute('rx','10');
+    rect.setAttribute('fill', pos.color + (darkMode ? '55' : '88'));
+    rect.setAttribute('stroke', gardenActiveZone === zone.id ? 'var(--brand-green)' : (darkMode ? '#5d4e3c' : '#a5d6a7'));
+    rect.setAttribute('stroke-width', gardenActiveZone === zone.id ? '2.5' : '1.5');
+    rect.classList.add('gm-zone-shape');
+    rect.setAttribute('role','button');
+    rect.setAttribute('tabindex','0');
+    rect.setAttribute('aria-label', zone.name);
+    rect.addEventListener('click', () => selectGardenZone(zone.id));
+    rect.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id); } });
+    g.appendChild(rect);
+
+    const icon = document.createElementNS(svgNS, 'text');
+    icon.classList.add('gm-zone-icon');
+    icon.setAttribute('x', pos.x + pos.w/2); icon.setAttribute('y', pos.y + pos.h/2 - 4);
+    icon.setAttribute('text-anchor','middle'); icon.setAttribute('dominant-baseline','middle');
+    icon.textContent = zone.icon;
+    g.appendChild(icon);
+
+    const label = document.createElementNS(svgNS, 'text');
+    label.classList.add('gm-zone-label');
+    label.setAttribute('x', pos.x + pos.w/2); label.setAttribute('y', pos.y + pos.h/2 + 14);
+    label.setAttribute('text-anchor','middle');
+    label.textContent = zone.name;
+    g.appendChild(label);
+
+    const readyCount = (zone.plants || []).filter(p => p.status === 'ready').length;
+    if (readyCount) {
+      const badge = document.createElementNS(svgNS, 'circle');
+      badge.setAttribute('cx', pos.x + pos.w - 8); badge.setAttribute('cy', pos.y + 10);
+      badge.setAttribute('r','8'); badge.setAttribute('fill','#4caf50');
+      g.appendChild(badge);
+      const bTxt = document.createElementNS(svgNS, 'text');
+      bTxt.setAttribute('x', pos.x + pos.w - 8); bTxt.setAttribute('y', pos.y + 10);
+      bTxt.setAttribute('text-anchor','middle'); bTxt.setAttribute('dominant-baseline','central');
+      bTxt.setAttribute('fill','#fff'); bTxt.setAttribute('font-size','9'); bTxt.setAttribute('font-weight','700');
+      bTxt.textContent = readyCount;
+      g.appendChild(bTxt);
+    }
+    svg.appendChild(g);
+  });
+
+  wrap.appendChild(svg);
+  body.appendChild(wrap);
+
+  const legend = rEl('div','gm-legend');
+  ['ready','almost','growing'].forEach(s => {
+    const sp = rEl('span','');
+    const dot = rEl('span','gm-legend-dot');
+    dot.style.background = GARDEN_STATUS_COLOR[s];
+    sp.appendChild(dot);
+    sp.appendChild(document.createTextNode(GARDEN_STATUS_LABEL[s]));
+    legend.appendChild(sp);
+  });
+  body.appendChild(legend);
+
+  if (gardenActiveZone) {
+    const zone = gardenZones.find(z => z.id === gardenActiveZone);
+    if (zone) body.appendChild(renderZoneDetail(zone));
+  } else {
+    body.appendChild(rEl('div','gm-no-zone','Tap a zone on the map above to see details'));
+  }
+}
+
+function selectGardenZone(id) {
+  gardenActiveZone = gardenActiveZone === id ? null : id;
+  renderGardenMap();
+  if (gardenActiveZone) {
+    const detail = document.querySelector('.gm-zone-detail');
+    if (detail) detail.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
+
+function renderZoneDetail(zone) {
+  const wrap = rEl('div','gm-zone-detail');
+
+  const head = rEl('div','gm-zone-detail-head');
+  const emojiSpan = rEl('span','gm-zone-emoji', zone.icon);
+  const headInfo = rEl('div','');
+  headInfo.style.flex = '1';
+  const h3 = rEl('h3','', zone.name);
+  const desc = rEl('p','', zone.description || '');
+  headInfo.appendChild(h3);
+  headInfo.appendChild(desc);
+  head.appendChild(emojiSpan);
+  head.appendChild(headInfo);
+  wrap.appendChild(head);
+
+  const list = rEl('div','gm-plant-list');
+  (zone.plants || []).forEach(p => {
+    const row = rEl('div','gm-plant');
+    row.appendChild(rEl('span','gm-plant-emoji', p.emoji || '🌱'));
+
+    const info = rEl('div','gm-plant-info');
+    info.appendChild(rEl('div','gm-plant-name', p.name));
+    if (p.notes) info.appendChild(rEl('div','gm-plant-notes', p.notes));
+    const meta = rEl('div','gm-plant-meta');
+    if (p.planted) meta.appendChild(rEl('span','', '🌱 Planted: ' + p.planted));
+    if (p.harvest) meta.appendChild(rEl('span','', '📅 Harvest: ' + p.harvest));
+    if (meta.children.length) info.appendChild(meta);
+    row.appendChild(info);
+
+    const badge = rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
+      GARDEN_STATUS_LABEL[p.status] || 'Growing');
+    row.appendChild(badge);
+    list.appendChild(row);
+  });
+  wrap.appendChild(list);
+  return wrap;
+}
 
 // ══════════════════════════════════════════════
 //  HEALTHY RECIPES
