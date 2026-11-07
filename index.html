@@ -893,8 +893,13 @@ html.dark .gm-zone-detail-head:active { background:rgba(255,255,255,0.04); }
 .gm-plant-list { padding:4px 0; }
 .gm-plant {
   display:flex; align-items:center; gap:10px; padding:8px 14px;
-  border-bottom:1px solid var(--border);
+  border-bottom:1px solid var(--border); cursor:pointer;
+  border-radius:8px; transition:background .15s;
 }
+.gm-plant:active { background:rgba(0,0,0,0.04); }
+html.dark .gm-plant:active { background:rgba(255,255,255,0.06); }
+.gm-plant.gm-plant-highlight { background:rgba(76,175,80,0.1); }
+html.dark .gm-plant.gm-plant-highlight { background:rgba(76,175,80,0.18); }
 .gm-plant:last-child { border-bottom:none; }
 .gm-plant-emoji { font-size:1.2rem; flex-shrink:0; }
 .gm-plant-info { flex:1; min-width:0; }
@@ -7296,6 +7301,7 @@ function renderGardenMap() {
     pin.style.left = x + '%';
     pin.style.top = y + '%';
     pin.innerHTML = gmPinSvg(color, 30);
+    pin.dataset.zone = zone.id;
     pin.setAttribute('role','button');
     pin.setAttribute('tabindex','0');
     pin.setAttribute('aria-label', zone.name);
@@ -7423,6 +7429,19 @@ function renderZoneDetail(zone) {
       row.appendChild(info);
       row.appendChild(rEl('span', 'gm-status-badge gm-status-' + (p.status || 'growing'),
         GARDEN_STATUS_SHORT[p.status] || 'Growing'));
+      row.addEventListener('click', () => {
+        list.querySelectorAll('.gm-plant-highlight').forEach(r => r.classList.remove('gm-plant-highlight'));
+        row.classList.add('gm-plant-highlight');
+        const pinEl = document.querySelector('.gm-pin[data-zone="' + zone.id + '"]');
+        if (pinEl) {
+          const c = GARDEN_STATUS_COLOR[p.status] || GARDEN_STATUS_COLOR.growing;
+          pinEl.innerHTML = gmPinSvg(c, 30);
+          pinEl.classList.remove('gm-pin-active');
+          void pinEl.offsetWidth;
+          pinEl.classList.add('gm-pin-active');
+          pinEl.scrollIntoView({ behavior:'smooth', block:'nearest' });
+        }
+      });
       list.appendChild(row);
     });
     if (!(zone.plants || []).length) {
