@@ -975,7 +975,7 @@ img.recipe-media {
   display:flex; gap:10px; padding:7px 0; border-bottom:1px solid var(--border);
   font-size:0.92rem; color:var(--text); overflow-wrap:anywhere;
 }
-.recipe-qty { flex:0 0 32%; font-weight:700; }
+.recipe-qty { flex:0 0 auto; min-width:48px; font-weight:700; }
 .recipe-steps { margin:0; padding:0; list-style:none; counter-reset:rstep; }
 .recipe-steps > li { counter-increment:rstep; display:flex; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
 .recipe-steps > li::before {
@@ -7635,7 +7635,7 @@ function renderRecipeDetail(r) {
   if (r.summary) wrap.appendChild(rEl('p', 'recipe-summary', r.summary));
   const meta = [];
   if (r.prep_min !== null) meta.push('Prep ' + r.prep_min + ' min');
-  if (r.cook_min !== null) meta.push('Cook ' + r.cook_min + ' min');
+  if (r.cook_min) meta.push('Cook ' + r.cook_min + ' min');
   if (r.servings) meta.push('Serves ' + r.servings);
   if (r.meal_type) meta.push(r.meal_type);
   const seasonText = r.seasons.map(s => (RECIPE_SEASONS.find(x => x[0] === s) || [])[1]).filter(Boolean).join(', ');
