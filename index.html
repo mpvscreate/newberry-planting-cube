@@ -300,14 +300,14 @@ html.dark .panel::before {
 #face-label.show { opacity:1; transform:translateX(-50%) translateY(0); }
 #face-label.show ~ #hint { opacity:0; }
 
-/* Only the side facing the viewer shows its labels; the peeking top face would show them sideways */
+/* Only the side facing the viewer shows names; the others keep just their emojis, as names would read sideways */
 #cube-wrapper .cube-face .panel > * { transition:opacity .25s; }
-#cube-wrapper[data-front="0"] .cube-face:not(:nth-child(1)) .panel > *,
-#cube-wrapper[data-front="1"] .cube-face:not(:nth-child(2)) .panel > *,
-#cube-wrapper[data-front="2"] .cube-face:not(:nth-child(3)) .panel > *,
-#cube-wrapper[data-front="3"] .cube-face:not(:nth-child(4)) .panel > *,
-#cube-wrapper[data-front="4"] .cube-face:not(:nth-child(5)) .panel > *,
-#cube-wrapper[data-front="5"] .cube-face:not(:nth-child(6)) .panel > * { opacity:0; }
+#cube-wrapper[data-front="0"] .cube-face:not(:nth-child(1)) .panel > *:not(.p-emoji),
+#cube-wrapper[data-front="1"] .cube-face:not(:nth-child(2)) .panel > *:not(.p-emoji),
+#cube-wrapper[data-front="2"] .cube-face:not(:nth-child(3)) .panel > *:not(.p-emoji),
+#cube-wrapper[data-front="3"] .cube-face:not(:nth-child(4)) .panel > *:not(.p-emoji),
+#cube-wrapper[data-front="4"] .cube-face:not(:nth-child(5)) .panel > *:not(.p-emoji),
+#cube-wrapper[data-front="5"] .cube-face:not(:nth-child(6)) .panel > *:not(.p-emoji) { opacity:0; }
 .overflow-copyright { margin:10px 0 0; padding:12px 16px 4px; font-size:0.68rem; color:var(--text2); text-align:center; }
 #modal-close { width:40px; height:40px; top:8px; right:8px; font-size:1rem; }
 .modal-head { padding-right:40px; }
