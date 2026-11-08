@@ -6901,15 +6901,14 @@ document.getElementById('update-later').addEventListener('click', () => {
     ptr.style.transform = 'translate(-50%, 16px)';
     let reg = null;
     try {
-      reg = 'serviceWorker' in navigator ? await navigator.serviceWorker.getRegistration() : null;
+      reg = "serviceWorker" in navigator ? await navigator.serviceWorker.getRegistration() : null;
       if (reg) {
-        await reg.update();
-        // A newer version found just now needs a moment to finish installing
+        await Promise.race([reg.update(), new Promise(r => setTimeout(r, 8000))]);
         const installing = reg.installing;
         if (installing) {
           await new Promise(resolve => {
-            installing.addEventListener('statechange', () => {
-              if (installing.state === 'installed' || installing.state === 'redundant') resolve();
+            installing.addEventListener("statechange", () => {
+              if (installing.state === "installed" || installing.state === "redundant") resolve();
             });
             setTimeout(resolve, 5000);
           });
