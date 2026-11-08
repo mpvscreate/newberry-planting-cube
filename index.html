@@ -485,9 +485,9 @@ body.is-dragging-cube .panel:active {
 }
 #ptr.settling { transition:transform .2s ease, opacity .2s ease; }
 #ptr-icon { display:inline-block; font-size:1rem; line-height:1; transition:transform .2s ease; }
-#ptr.ready #ptr-icon { transform:rotate(180deg); }
-#ptr.busy #ptr-icon { animation:ptrSpin .9s linear infinite; }
-@keyframes ptrSpin { to { transform:rotate(360deg); } }
+#ptr.ready #ptr-icon { transform:scale(1.25) rotate(-12deg); }
+#ptr.busy #ptr-icon { animation:ptrBuzz .25s ease-in-out infinite alternate; }
+@keyframes ptrBuzz { from { transform:translate(-1px,-1px) rotate(-10deg); } to { transform:translate(1px,1px) rotate(10deg); } }
 @media (prefers-reduced-motion: reduce) { #ptr.busy #ptr-icon { animation:none; } }
 @media (hover:hover) { .touch-only { display:none; } }
 
@@ -2757,7 +2757,7 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button id="update-now" type="button">Update</button>
   <button id="update-later" type="button" aria-label="Remind me later">✕</button>
 </div>
-<div id="ptr" aria-live="polite"><span id="ptr-icon" aria-hidden="true">⬇️</span><span id="ptr-label">Pull to refresh</span></div>
+<div id="ptr" aria-live="polite"><span id="ptr-icon" aria-hidden="true">🐝</span><span id="ptr-label">Pull to refresh</span></div>
 
 <div id="intro-overlay" aria-hidden="true">
   <div id="intro-card" role="dialog" aria-modal="true" aria-labelledby="intro-title">
@@ -6930,16 +6930,29 @@ function playBeeBuzz() {
     setTimeout(() => ctx.close().catch(() => {}), 1000);
   } catch (e) {}
 }
+// A bee flies in, then the update banner shows. While an update is waiting it comes back
+// every time the app returns to the screen, even after "Later".
+let updateBeeFlying = false;
 function showUpdateBanner() {
+  const banner = document.getElementById('update-banner');
+  if (!banner.hidden || updateBeeFlying) return;
+  updateBeeFlying = true;
   const bee = document.createElement('div');
   bee.className = 'update-bee';
   bee.textContent = '\u{1F41D}';
   document.body.appendChild(bee);
   playBeeBuzz();
-  bee.addEventListener('animationend', () => {
+  let shown = false;
+  const reveal = () => {
+    if (shown) return;
+    shown = true;
     bee.remove();
-    document.getElementById('update-banner').hidden = false;
-  });
+    updateBeeFlying = false;
+    banner.hidden = false;
+  };
+  bee.addEventListener('animationend', reveal);
+  // Animations don't run while the app is in the background, so don't wait on them forever
+  setTimeout(reveal, 2000);
 }
 // Install the waiting version; the controllerchange listener below then reloads the page
 function applyUpdate(reg) {
@@ -6955,21 +6968,23 @@ if ('serviceWorker' in navigator) {
       if (hadController) location.reload();
     });
     navigator.serviceWorker.register('sw.js').then(reg => {
-      if (reg.waiting && navigator.serviceWorker.controller) showUpdateBanner();
-      reg.addEventListener('updatefound', () => {
-        const newSW = reg.installing;
-        if (!newSW) return;
-        newSW.addEventListener('statechange', () => {
-          if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
-            showUpdateBanner();
-          }
+      const updateWaiting = () => !!(reg.waiting && navigator.serviceWorker.controller);
+      // Also catches a version the browser started installing while the page was loading
+      const watch = sw => {
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) showUpdateBanner();
         });
-      });
+      };
+      if (updateWaiting()) showUpdateBanner();
+      watch(reg.installing);
+      reg.addEventListener('updatefound', () => watch(reg.installing));
       // Check hourly while open, and whenever the app comes back to the screen, since
-      // phones freeze timers in the background. At most once every 5 minutes.
+      // phones freeze timers in the background. At most once a minute.
       let lastCheck = Date.now();
       const checkForUpdate = () => {
-        if (Date.now() - lastCheck < 5 * 60 * 1000 || !navigator.onLine) return;
+        if (updateWaiting()) { showUpdateBanner(); return; }
+        if (Date.now() - lastCheck < 60 * 1000 || !navigator.onLine) return;
         lastCheck = Date.now();
         reg.update().catch(() => {});
       };
@@ -6982,7 +6997,7 @@ if ('serviceWorker' in navigator) {
 document.getElementById('update-now').addEventListener('click', () => {
   navigator.serviceWorker.getRegistration().then(applyUpdate);
 });
-// "Later" hides it for now; it comes back the next time the app opens
+// "Later" hides it until the app next comes back to the screen
 document.getElementById('update-later').addEventListener('click', () => {
   document.getElementById('update-banner').hidden = true;
 });
@@ -7020,7 +7035,6 @@ document.getElementById('update-later').addEventListener('click', () => {
     busy = true;
     ptr.classList.add('settling', 'busy');
     ptr.classList.remove('ready');
-    document.getElementById('ptr-icon').textContent = '🔄';
     label.textContent = 'Checking for updates…';
     ptr.style.opacity = 1;
     ptr.style.transform = 'translate(-50%, 16px)';
