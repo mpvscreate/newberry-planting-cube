@@ -1,4 +1,4 @@
-const CACHE = 'master-cube-v18';
+const CACHE = 'master-cube-v19';
 
 self.addEventListener('message', e => {
   if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();

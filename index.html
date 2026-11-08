@@ -481,6 +481,24 @@ body.is-dragging-cube .panel:active {
 /* ── COPYRIGHT ── */
 #copyright { position:fixed; bottom:6px; right:10px; font-size:0.5rem; line-height:1.4; color:var(--text2); opacity:.45; pointer-events:none; text-align:right; z-index:40; }
 
+/* -- SHORTCUT BUTTONS -- */
+#shortcut-strip {
+  position:fixed; bottom:max(72px, calc(env(safe-area-inset-bottom) + 58px)); left:50%; transform:translateX(-50%);
+  display:flex; gap:8px; z-index:49;
+}
+.shortcut-btn {
+  display:flex; align-items:center; gap:6px;
+  padding:7px 14px; border-radius:20px; border:1px solid var(--border);
+  background:var(--nav-bg); backdrop-filter:blur(10px);
+  box-shadow:0 2px 10px rgba(0,0,0,0.12);
+  color:var(--text); font-size:0.72rem; font-weight:600;
+  cursor:pointer; white-space:nowrap;
+  transition:transform .15s, box-shadow .15s;
+}
+.shortcut-btn:hover { transform:scale(1.06); box-shadow:0 4px 14px rgba(0,0,0,0.2); }
+.shortcut-btn:active { transform:scale(0.95); }
+.shortcut-ico { font-size:1rem; line-height:1; }
+
 /* ── MODAL ACTION BUTTONS ── */
 .modal-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0 4px; }
 .modal-action-btn {
@@ -1984,6 +2002,9 @@ html.dark .edit-field select { background:rgba(200,169,122,0.08); color:#ede8e0;
 
   /* Face nav closer to bottom safe area */
   #face-nav { bottom:max(12px, env(safe-area-inset-bottom)); padding:6px 14px; gap:8px; }
+  #shortcut-strip { bottom:max(62px, calc(env(safe-area-inset-bottom) + 52px)); gap:6px; }
+  .shortcut-btn { padding:6px 12px; font-size:0.68rem; }
+  #copyright { bottom:max(96px, calc(env(safe-area-inset-bottom) + 88px)); }
   .face-btn  { width:34px; height:34px; font-size:1.05rem; }
   .face-btn::before { inset:-4px; }
   #hint      { display:none; }
@@ -2146,6 +2167,11 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
   <button class="face-btn" data-face="3" title="Summer Planting" aria-label="Summer Planting">☀️</button>
   <button class="face-btn" data-face="4" title="Companion Planting" aria-label="Companion Planting">🌿</button>
   <button class="face-btn" data-face="5" title="Indigenous &amp; Pollinator" aria-label="Indigenous and Pollinator Planting">🐝</button>
+</div>
+
+<div id="shortcut-strip">
+  <button class="shortcut-btn" id="sc-recipes" type="button"><span class="shortcut-ico">🥗</span>Recipes</button>
+  <button class="shortcut-btn" id="sc-map" type="button"><span class="shortcut-ico">🗺️</span>Garden Map</button>
 </div>
 
 <div id="face-label"></div>
@@ -7340,6 +7366,8 @@ function closeGardenMap() {
 
 document.getElementById('gardenmap-close').addEventListener('click', closeGardenMap);
 document.getElementById('ov-gardenmap').addEventListener('click', () => { closeOverflow(); openGardenMap(); });
+document.getElementById("sc-recipes").addEventListener("click", function() { openRecipes(); });
+document.getElementById("sc-map").addEventListener("click", function() { openGardenMap(); });
 document.getElementById('gm-add-zone-btn').addEventListener('click', () => {
   gmPlacingMode = !gmPlacingMode;
   renderGardenMap();
