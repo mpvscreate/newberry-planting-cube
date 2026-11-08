@@ -982,21 +982,6 @@ html.dark .gm-status-growing { color:#64b5f6; }
 html.dark .gm-status-pill[data-st="ready"]  { color:#81c784; }
 html.dark .gm-status-pill[data-st="almost"] { color:#ffb74d; }
 html.dark .gm-status-pill[data-st="growing"]{ color:#64b5f6; }
-.gm-toast {
-  position:fixed; left:50%; bottom:80px; transform:translateX(-50%);
-  background:var(--card-bg); color:var(--text); border:1.5px solid var(--border);
-  border-radius:14px; padding:8px 18px; font-size:0.78rem; font-weight:600;
-  box-shadow:0 4px 18px rgba(0,0,0,0.15); z-index:400;
-  display:flex; align-items:center; gap:8px; white-space:nowrap;
-  animation:gmToastIn .35s ease-out;
-  pointer-events:none;
-}
-.gm-toast-bee {
-  display:inline-block; font-size:1.2rem;
-  animation:gmBuzz .4s ease-in-out 2;
-}
-@keyframes gmToastIn { from { opacity:0; transform:translateX(-50%) translateY(16px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
-@keyframes gmBuzz { 0%,100% { transform:rotate(0deg); } 25% { transform:rotate(-8deg) translateX(-2px); } 75% { transform:rotate(8deg) translateX(2px); } }
 .gm-place-btn {
   font-size:0.78rem; padding:5px 12px; border-radius:8px; cursor:pointer;
   border:1.5px solid var(--brand-green); background:rgba(76,175,80,0.1); color:var(--brand-green);
@@ -7717,16 +7702,6 @@ function renderGardenMap() {
   body.scrollTop = prevScroll;
 }
 
-function gmShowToast(msg) {
-  document.querySelectorAll('.gm-toast').forEach(t => t.remove());
-  const t = rEl('div','gm-toast');
-  const bee = rEl('span','gm-toast-bee','🐝');
-  t.appendChild(bee);
-  t.appendChild(document.createTextNode(msg));
-  document.body.appendChild(t);
-  setTimeout(() => { t.style.transition = 'opacity .3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2200);
-}
-
 function selectGardenZone(id, fromPin) {
   gardenActiveZone = gardenActiveZone === id ? null : id;
   renderGardenMap();
@@ -7820,7 +7795,6 @@ function renderZoneDetail(zone) {
               picker.querySelectorAll('.gm-pill-active').forEach(x => x.classList.remove('gm-pill-active'));
               pill.classList.add('gm-pill-active');
               pill.textContent = GARDEN_STATUS_LABEL[st];
-              gmShowToast(p.name + ' → ' + GARDEN_STATUS_SHORT[st]);
               const pinUp = document.querySelector('.gm-pin[data-zone="' + zone.id + '"]');
               if (pinUp) {
                 const nc = GARDEN_STATUS_COLOR[st];
@@ -7937,7 +7911,6 @@ function gmShowZoneEditForm(zone, wrap) {
     gardenZones.splice(gardenZones.indexOf(zone), 1);
     gardenActiveZone = null;
     renderGardenMap();
-    gmShowToast(zone.name + " deleted");
   });
   actions.appendChild(delBtn);
   const spacer = rEl("div", "");
@@ -7963,7 +7936,6 @@ function gmShowZoneEditForm(zone, wrap) {
     if (res.error) { saveBtn.disabled = false; saveBtn.textContent = "Couldn’t save – try again"; return; }
     Object.assign(zone, updates);
     renderGardenMap();
-    gmShowToast(zone.name + " updated");
   });
   actions.appendChild(saveBtn);
   form.appendChild(actions);
@@ -8644,7 +8616,7 @@ function renderRecipeDetail(r) {
   printBtn.type='button';
   printBtn.addEventListener('click',function(){ window.print(); });
   actions.appendChild(printBtn);
-  const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', 'Edit recipe');
+  const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', 'Edit');
   edit.type = 'button';
   edit.addEventListener('click', () => openRecipeForm(r));
   actions.appendChild(edit);
