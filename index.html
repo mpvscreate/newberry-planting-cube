@@ -1030,6 +1030,9 @@ html.dark .gm-edit-btn:hover { background:rgba(255,255,255,0.08); }
 .gm-plant-edit-row { flex-direction:column; align-items:stretch; gap:6px; padding:10px 0; }
 .gm-pe-line { display:flex; gap:6px; align-items:center; }
 .gm-pe-line .gm-pe-emoji { flex:0 0 44px; width:44px; }
+.gm-pe-field { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; margin:0; }
+.gm-pe-field > span { font-size:0.66rem; font-weight:600; color:var(--text2); }
+.gm-plant-edit-row .gm-pe-field input, .gm-plant-edit-row .gm-pe-field select { flex:none; width:100%; box-sizing:border-box; }
 .gm-plant-edit-row > input { flex:none; width:100%; box-sizing:border-box; }
 .gm-plant-edit-row select { flex:1; min-width:0; padding:5px 8px; font-size:0.78rem; border-radius:6px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); font-family:inherit; }
 @media (max-width:760px) {
@@ -7831,14 +7834,19 @@ function gmShowZoneEditForm(zone, wrap) {
       row.appendChild(top);
       row.appendChild(textBox(pr.notes, "Notes (optional)", v => { pr.notes = v; }));
       const bottom = rEl("div", "gm-pe-line");
-      bottom.appendChild(textBox(pr.planted, "Planted e.g. Sep", v => { pr.planted = v; }));
-      bottom.appendChild(textBox(pr.harvest, "Harvest e.g. Dec–Jan", v => { pr.harvest = v; }));
+      const labelled = (text, control) => { const f = rEl("label", "gm-pe-field"); f.appendChild(rEl("span", "", text)); f.appendChild(control); return f; };
+      const plantedBox = textBox(pr.planted, "Planted", v => { pr.planted = v; });
+      plantedBox.placeholder = "e.g. Sep";
+      bottom.appendChild(labelled("Planted", plantedBox));
+      const harvestBox = textBox(pr.harvest, "Harvest", v => { pr.harvest = v; });
+      harvestBox.placeholder = "e.g. Dec\u2013Jan";
+      bottom.appendChild(labelled("Harvest", harvestBox));
       const st = rEl("select");
       st.setAttribute("aria-label", "Status");
       ["growing", "almost", "ready"].forEach(s => { const o = rEl("option", "", GARDEN_STATUS_SHORT[s]); o.value = s; st.appendChild(o); });
       st.value = pr.status;
       st.addEventListener("change", () => { pr.status = st.value; });
-      bottom.appendChild(st);
+      bottom.appendChild(labelled("Status", st));
       row.appendChild(bottom);
       plantsList.appendChild(row);
     });
