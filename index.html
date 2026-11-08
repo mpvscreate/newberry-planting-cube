@@ -8644,7 +8644,7 @@ function renderRecipeDetail(r) {
   printBtn.type='button';
   printBtn.addEventListener('click',function(){ window.print(); });
   actions.appendChild(printBtn);
-  const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', '✏️ Edit recipe');
+  const edit = rEl('button', 'edit-cancel-btn recipe-staff-only', 'Edit recipe');
   edit.type = 'button';
   edit.addEventListener('click', () => openRecipeForm(r));
   actions.appendChild(edit);
