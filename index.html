@@ -1022,6 +1022,19 @@ html.dark .gm-edit-btn:hover { background:rgba(255,255,255,0.08); }
 .gm-pe-add:hover { border-color:var(--brand-green); color:var(--brand-green); }
 .gm-zone-delete { font-size:0.72rem; padding:5px 12px; border-radius:8px; cursor:pointer; border:1.5px solid rgba(211,47,47,0.3); background:transparent; color:#d32f2f; font-weight:600; }
 .gm-zone-delete:hover { background:rgba(211,47,47,0.08); }
+.gm-pin::before { content:""; position:absolute; left:50%; top:50%; width:44px; height:44px; transform:translate(-50%,-50%); }
+.gm-staff-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; max-width:600px; margin:0 auto 10px; font-size:0.76rem; color:var(--text2); }
+.gm-staff-bar .gm-place-btn { white-space:nowrap; flex-shrink:0; min-height:36px; }
+.gm-zoom-hint { text-align:center; font-size:0.74rem; color:var(--text2); margin:-6px auto 8px; }
+.gm-staff-tip { font-size:0.72rem; color:var(--text2); padding:6px 14px 2px; }
+.gm-plant-edit-row { flex-direction:column; align-items:stretch; gap:6px; padding:10px 0; }
+.gm-pe-line { display:flex; gap:6px; align-items:center; }
+.gm-pe-line .gm-pe-emoji { flex:0 0 44px; width:44px; }
+.gm-plant-edit-row > input { flex:none; width:100%; box-sizing:border-box; }
+.gm-plant-edit-row select { flex:1; min-width:0; padding:5px 8px; font-size:0.78rem; border-radius:6px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); font-family:inherit; }
+@media (max-width:760px) {
+  .gm-zone-form input, .gm-zone-form textarea, .gm-zone-form select { font-size:16px; }
+}
 .gm-toolbar {
   display:flex; gap:6px; align-items:center; padding:8px 0; max-width:600px; margin:0 auto 8px;
   font-size:0.78rem; color:var(--text2); flex-wrap:wrap;
@@ -1107,7 +1120,7 @@ button.rc-tile:hover { border-color:#3f7a35; }
 }
 @media (prefers-reduced-motion:reduce) { .rc-cube, .rc-tile { transition:none; } }
 .recipes-tools {
-  display:grid; grid-template-columns:minmax(180px,2fr) repeat(5,minmax(105px,1fr));
+  display:grid; grid-template-columns:repeat(5,minmax(105px,1fr));
   gap:8px; max-width:1040px; margin:0 auto 8px;
 }
 .recipes-tools input, .recipes-tools select {
@@ -1218,8 +1231,13 @@ html.dark .recipe-fav-btn{background:rgba(40,36,30,0.85)}
 .recipe-fav-toggle{min-height:44px;padding:6px 12px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);cursor:pointer;font-family:inherit;font-size:0.78rem;font-weight:600;white-space:nowrap}
 .recipe-fav-toggle[aria-pressed="true"]{border-color:#e53935;color:#e53935;background:rgba(229,57,53,0.08)}
 .recipe-diff{display:inline-flex;align-items:center;gap:3px;margin-left:4px;vertical-align:middle}
-.recipe-diff-leaf{display:inline-block;font-size:0.7rem;opacity:0.25;transition:opacity .15s}
-.recipe-diff-leaf.filled{opacity:1}
+.recipe-diff-leaf{display:inline-block;font-size:0.7rem;opacity:0.45;filter:grayscale(1);transition:opacity .15s}
+.recipe-diff-leaf.filled{opacity:1;filter:none}
+.recipes-search{max-width:1040px;margin:0 auto 8px}
+.recipes-search input{width:100%;min-height:44px;padding:9px 10px;border-radius:10px;border:1px solid var(--border);background:var(--card-bg);color:var(--text);font-size:0.82rem;font-family:inherit;box-sizing:border-box}
+.recipe-fav-filter{max-width:1040px;margin:0 auto 8px}
+.recipe-filter-toggle.is-active{border-color:var(--spring);background:rgba(106,170,94,0.14)}
+.recipes-tools[hidden]{display:none}
 .recipes-season-banner{max-width:1040px;margin:0 auto 14px;padding:12px 16px;border-radius:12px;background:rgba(106,170,94,0.12);border:1px solid rgba(106,170,94,0.25)}
 html.dark .recipes-season-banner{background:rgba(106,170,94,0.08);border-color:rgba(106,170,94,0.18)}
 .recipes-season-title{font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--brand-green);margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -1305,7 +1323,7 @@ html.dark .recipes-season-banner{background:rgba(106,170,94,0.08);border-color:r
 body:not(.can-edit) .recipe-staff-only { display:none !important; }
 @media (max-width:760px) {
   .recipes-tools { grid-template-columns:1fr 1fr; }
-  .recipes-tools input { grid-column:1 / -1; font-size:16px; }
+  .recipes-search input { font-size:16px; }
   .recipes-tools select:first-of-type { grid-column:1 / -1; }
   .recipes-tools select { font-size:16px; }
   #recipes-body { padding:12px 14px 36px; }
@@ -2445,7 +2463,6 @@ html.dark #intro-overlay { background:rgba(0,0,0,0.62); }
       <p>Tap a pin to see what's growing and when it's ready</p>
     </div>
     <div class="gm-header-actions">
-      <button class="gm-place-btn recipe-staff-only" id="gm-add-zone-btn" type="button">+ Add pin</button>
       <button id="gardenmap-close" type="button" aria-label="Close garden map">✕</button>
     </div>
   </div>
@@ -7401,7 +7418,10 @@ document.getElementById('gardenmap-close').addEventListener('click', closeGarden
 document.getElementById('ov-gardenmap').addEventListener('click', () => { closeOverflow(); openGardenMap(); });
 document.getElementById("sc-recipes").addEventListener("click", function() { openRecipes(); });
 document.getElementById("sc-map").addEventListener("click", function() { openGardenMap(); });
-document.getElementById('gm-add-zone-btn').addEventListener('click', () => {
+const gmAddBtn = rEl("button", "gm-place-btn", "+ Add pin");
+gmAddBtn.id = "gm-add-zone-btn";
+gmAddBtn.type = "button";
+gmAddBtn.addEventListener("click", () => {
   gmPlacingMode = !gmPlacingMode;
   renderGardenMap();
 });
@@ -7431,27 +7451,29 @@ async function gmSaveZonePos(zone, x, y) {
 
 async function gmCreateZone(x, y) {
   if (!staff.client || !canEditNow()) return;
-  const name = prompt('Zone name (e.g. "Herb Garden"):');
-  if (!name || !name.trim()) return;
-  const icon = prompt('Emoji icon for this zone:', '🌱') || '🌱';
-  const id = name.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/-+$/,'');
-  const maxSort = gardenZones.reduce((m,z) => Math.max(m, z.sort_order||0), 0);
-  const newZone = { id, name:name.trim(), icon, description:'', plants:[], sort_order:maxSort+1, map_x:x, map_y:y, updated_by:staff.email, updated_at:new Date().toISOString() };
+  const id = "zone-" + Date.now().toString(36);
+  const maxSort = gardenZones.reduce((m, z) => Math.max(m, z.sort_order || 0), 0);
+  const newZone = { id:id, name:"New zone", icon:"\u{1F331}", description:"", plants:[], sort_order:maxSort + 1, map_x:x, map_y:y, updated_by:staff.email, updated_at:new Date().toISOString() };
   try {
-    const { error } = await staff.client.from('garden_zones').insert(newZone);
+    const { error } = await staff.client.from("garden_zones").insert(newZone);
     if (error) throw error;
-    gardenZones.push(newZone);
-    gardenActiveZone = id;
-    gmPlacingMode = false;
-    renderGardenMap();
-    showToast('📍 ' + name.trim() + ' added');
-  } catch(e) { showToast('Could not create zone'); }
+  } catch(e) { showToast("Could not add the pin"); return; }
+  gardenZones.push(newZone);
+  gardenActiveZone = id;
+  gmPlacingMode = false;
+  renderGardenMap();
+  const card = document.querySelector(`.gm-zone-detail[data-zone="${id}"]`);
+  if (!card) return;
+  const nameInput = gmShowZoneEditForm(newZone, card);
+  card.scrollIntoView({ behavior:"smooth", block:"start" });
+  if (nameInput) { nameInput.focus({ preventScroll:true }); nameInput.select(); }
 }
 
 function renderGardenMap() {
   const body = document.getElementById('gardenmap-body');
+  const prevScroll = body.scrollTop;
   body.textContent = '';
-  const addBtn = document.getElementById('gm-add-zone-btn');
+  const addBtn = gmAddBtn;
   addBtn.classList.toggle('gm-placing-active', gmPlacingMode);
   addBtn.textContent = gmPlacingMode ? '✕ Cancel' : '+ Add pin';
 
@@ -7460,6 +7482,12 @@ function renderGardenMap() {
     return;
   }
 
+  if (canEditNow()) {
+    const bar = rEl("div", "gm-staff-bar");
+    bar.appendChild(rEl("span", "", gmPlacingMode ? "Tap the map where the new pin should go" : "Drag a pin to move it"));
+    bar.appendChild(addBtn);
+    body.appendChild(bar);
+  }
   const wrap = rEl('div','gm-map-wrap');
   if (gmPlacingMode) wrap.classList.add('gm-placing');
   const inner = rEl('div','gm-map-inner');
@@ -7502,8 +7530,8 @@ function renderGardenMap() {
       pin.appendChild(badge);
     }
 
-    pin.addEventListener('click', (e) => { e.stopPropagation(); selectGardenZone(zone.id); });
-    pin.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id); } });
+    pin.addEventListener('click', (e) => { e.stopPropagation(); selectGardenZone(zone.id, true); });
+    pin.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id, true); } });
 
     if (canEditNow()) {
       let dragStarted = false, startX, startY;
@@ -7602,10 +7630,7 @@ function renderGardenMap() {
 
   body.appendChild(wrap);
 
-  if (gmPlacingMode) {
-    const hint = rEl('div','gm-toolbar','Tap the map where you want to add a new zone pin');
-    body.appendChild(hint);
-  }
+  body.appendChild(rEl("p", "gm-zoom-hint touch-only", "Pinch the map to zoom in"));
 
   const legend = rEl('div','gm-legend');
   ['ready','almost','growing'].forEach(s => {
@@ -7625,6 +7650,7 @@ function renderGardenMap() {
     gardenZones.forEach(zone => cards.appendChild(renderZoneDetail(zone)));
   }
   body.appendChild(cards);
+  body.scrollTop = prevScroll;
 }
 
 function gmShowToast(msg) {
@@ -7637,18 +7663,18 @@ function gmShowToast(msg) {
   setTimeout(() => { t.style.transition = 'opacity .3s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2200);
 }
 
-function selectGardenZone(id) {
+function selectGardenZone(id, fromPin) {
   gardenActiveZone = gardenActiveZone === id ? null : id;
   renderGardenMap();
-  if (gardenActiveZone) {
-    const pin = document.querySelector('.gm-pin[data-zone="' + id + '"]');
-    if (pin) pin.scrollIntoView({ behavior:'smooth', block:'center' });
-  }
+  if (!gardenActiveZone) return;
+  const card = document.querySelector(`.gm-zone-detail[data-zone="${id}"]`);
+  if (card) card.scrollIntoView({ behavior:"smooth", block: fromPin ? "start" : "nearest" });
 }
 
 function renderZoneDetail(zone) {
   const isActive = gardenActiveZone === zone.id;
   const wrap = rEl('div','gm-zone-detail' + (isActive ? ' gm-zone-highlight gm-zone-expanded' : ''));
+  wrap.dataset.zone = zone.id;
 
   const head = rEl('div','gm-zone-detail-head');
   head.appendChild(rEl('span','gm-zone-emoji', zone.icon));
@@ -7662,18 +7688,19 @@ function renderZoneDetail(zone) {
   if (readyCount && !isActive) {
     head.appendChild(rEl('span','gm-status-badge gm-status-ready', readyCount + ' ready'));
   }
-  head.appendChild(rEl('span','gm-zone-chevron', '▸'));
   if (canEditNow() && isActive) {
     var editBtn = rEl("button","gm-edit-btn recipe-staff-only","Edit");
     editBtn.type = "button";
     editBtn.addEventListener("click", function(ev) { ev.stopPropagation(); gmShowZoneEditForm(zone, wrap); });
     head.appendChild(editBtn);
   }
+  head.appendChild(rEl("span", "gm-zone-chevron", "\u25b8"));
   head.addEventListener('click', () => selectGardenZone(zone.id));
   wrap.appendChild(head);
 
   if (isActive) {
     const list = rEl('div','gm-plant-list');
+    if (canEditNow() && (zone.plants || []).length) list.appendChild(rEl("div", "gm-staff-tip", "Tap a plant to change its status"));
     (zone.plants || []).forEach(p => {
       const row = rEl('div','gm-plant');
       row.appendChild(rEl('span','gm-plant-emoji', p.emoji || '🌱'));
@@ -7755,96 +7782,116 @@ function renderZoneDetail(zone) {
 }
 
 function gmShowZoneEditForm(zone, wrap) {
-  var existing = wrap.querySelector(".gm-zone-form");
-  if (existing) { existing.remove(); return; }
-  var form = rEl("div","gm-zone-form");
+  const existing = wrap.querySelector(".gm-zone-form");
+  if (existing) { existing.remove(); return null; }
+  const form = rEl("div", "gm-zone-form");
+  const textBox = (value, label, onInput, cls) => {
+    const i = rEl("input", cls || "");
+    i.type = "text";
+    i.value = value;
+    i.placeholder = label;
+    i.setAttribute("aria-label", label);
+    i.addEventListener("input", () => onInput(i.value));
+    return i;
+  };
+  const field = (label, input) => { form.appendChild(rEl("label", "", label)); form.appendChild(input); };
 
-  var nameLabel = rEl("label","","Zone name");
-  var nameInput = document.createElement("input");
-  nameInput.type = "text"; nameInput.value = zone.name || "";
-  nameInput.placeholder = "Zone name";
-  form.appendChild(nameLabel); form.appendChild(nameInput);
-
-  var descLabel = rEl("label","","Description");
-  var descInput = document.createElement("textarea");
+  const nameInput = textBox(zone.name || "", "Zone name", () => {});
+  field("Zone name", nameInput);
+  const descInput = rEl("textarea");
+  descInput.rows = 2;
   descInput.value = zone.description || "";
   descInput.placeholder = "Optional description";
-  descInput.rows = 2;
-  form.appendChild(descLabel); form.appendChild(descInput);
+  descInput.setAttribute("aria-label", "Description");
+  field("Description", descInput);
+  const emojiInput = textBox(zone.icon || "\u{1F331}", "Icon emoji", () => {});
+  emojiInput.style.width = "64px";
+  field("Icon emoji", emojiInput);
 
-  var emojiLabel = rEl("label","","Icon emoji");
-  var emojiInput = document.createElement("input");
-  emojiInput.type = "text"; emojiInput.value = zone.icon || "\u{1F331}";
-  emojiInput.style.width = "60px";
-  form.appendChild(emojiLabel); form.appendChild(emojiInput);
-
-  var plantsLabel = rEl("label","","Plants");
-  form.appendChild(plantsLabel);
-  var plantsList = rEl("div","gm-plants-edit-list");
-  var plantRows = (zone.plants || []).map(function(p) { return { emoji: p.emoji || "\u{1F331}", name: p.name || "", notes: p.notes || "", planted: p.planted || "", harvest: p.harvest || "", status: p.status || "growing" }; });
-
+  form.appendChild(rEl("label", "", "Plants"));
+  const plantsList = rEl("div", "gm-plants-edit-list");
+  const plantRows = (zone.plants || []).map(p => ({
+    emoji:p.emoji || "\u{1F331}", name:p.name || "", notes:p.notes || "",
+    planted:p.planted || "", harvest:p.harvest || "", status:p.status || "growing"
+  }));
   function renderPlantRows() {
     plantsList.textContent = "";
-    plantRows.forEach(function(pr, idx) {
-      var row = rEl("div","gm-plant-edit-row");
-      var emojiIn = document.createElement("input");
-      emojiIn.className = "gm-pe-emoji"; emojiIn.value = pr.emoji; emojiIn.maxLength = 4;
-      emojiIn.addEventListener("input", function() { pr.emoji = this.value; });
-      row.appendChild(emojiIn);
-      var nameIn = document.createElement("input");
-      nameIn.value = pr.name; nameIn.placeholder = "Plant name";
-      nameIn.addEventListener("input", function() { pr.name = this.value; });
-      row.appendChild(nameIn);
-      var notesIn = document.createElement("input");
-      notesIn.value = pr.notes; notesIn.placeholder = "Notes"; notesIn.style.flex = "0.7";
-      notesIn.addEventListener("input", function() { pr.notes = this.value; });
-      row.appendChild(notesIn);
-      var rmBtn = rEl("button","gm-pe-remove","\u00d7");
-      rmBtn.type = "button";
-      rmBtn.addEventListener("click", function() { plantRows.splice(idx, 1); renderPlantRows(); });
-      row.appendChild(rmBtn);
+    plantRows.forEach((pr, idx) => {
+      const row = rEl("div", "gm-plant-edit-row");
+      const top = rEl("div", "gm-pe-line");
+      const em = textBox(pr.emoji, "Emoji", v => { pr.emoji = v; }, "gm-pe-emoji");
+      em.maxLength = 4;
+      top.appendChild(em);
+      top.appendChild(textBox(pr.name, "Plant name", v => { pr.name = v; }));
+      const rm = rEl("button", "gm-pe-remove", "×");
+      rm.type = "button";
+      rm.setAttribute("aria-label", "Remove " + (pr.name || "plant"));
+      rm.addEventListener("click", () => { plantRows.splice(idx, 1); renderPlantRows(); });
+      top.appendChild(rm);
+      row.appendChild(top);
+      row.appendChild(textBox(pr.notes, "Notes (optional)", v => { pr.notes = v; }));
+      const bottom = rEl("div", "gm-pe-line");
+      bottom.appendChild(textBox(pr.planted, "Planted e.g. Sep", v => { pr.planted = v; }));
+      bottom.appendChild(textBox(pr.harvest, "Harvest e.g. Dec–Jan", v => { pr.harvest = v; }));
+      const st = rEl("select");
+      st.setAttribute("aria-label", "Status");
+      ["growing", "almost", "ready"].forEach(s => { const o = rEl("option", "", GARDEN_STATUS_SHORT[s]); o.value = s; st.appendChild(o); });
+      st.value = pr.status;
+      st.addEventListener("change", () => { pr.status = st.value; });
+      bottom.appendChild(st);
+      row.appendChild(bottom);
       plantsList.appendChild(row);
     });
   }
   renderPlantRows();
   form.appendChild(plantsList);
 
-  var addPlantBtn = rEl("button","gm-pe-add","+ Add plant");
+  const addPlantBtn = rEl("button", "gm-pe-add", "+ Add plant");
   addPlantBtn.type = "button";
-  addPlantBtn.addEventListener("click", function() { plantRows.push({ emoji: "\u{1F331}", name: "", notes: "", planted: "", harvest: "", status: "growing" }); renderPlantRows(); });
+  addPlantBtn.addEventListener("click", () => {
+    plantRows.push({ emoji:"\u{1F331}", name:"", notes:"", planted:"", harvest:"", status:"growing" });
+    renderPlantRows();
+    const inputs = plantsList.lastChild.querySelectorAll("input");
+    if (inputs[1]) inputs[1].focus();
+  });
   form.appendChild(addPlantBtn);
 
-  var actions = rEl("div","gm-zone-form-actions");
-  var delBtn = rEl("button","gm-zone-delete","Delete zone");
+  const actions = rEl("div", "gm-zone-form-actions");
+  const delBtn = rEl("button", "gm-zone-delete", "Delete zone");
   delBtn.type = "button";
-  delBtn.addEventListener("click", async function() {
+  delBtn.addEventListener("click", async () => {
     if (!confirm("Delete " + zone.name + "? This cannot be undone.")) return;
-    delBtn.textContent = "...";
-    var err = await staff.client.from("garden_zones").delete().eq("id", zone.id);
-    if (err.error) { delBtn.textContent = "Error"; return; }
+    delBtn.disabled = true;
+    delBtn.textContent = "Deleting…";
+    const res = await staff.client.from("garden_zones").delete().eq("id", zone.id);
+    if (res.error) { delBtn.disabled = false; delBtn.textContent = "Couldn’t delete"; return; }
     gardenZones.splice(gardenZones.indexOf(zone), 1);
     gardenActiveZone = null;
     renderGardenMap();
     gmShowToast(zone.name + " deleted");
   });
   actions.appendChild(delBtn);
-
-  var spacer = rEl("div",""); spacer.style.flex = "1";
+  const spacer = rEl("div", "");
+  spacer.style.flex = "1";
   actions.appendChild(spacer);
-
-  var cancelBtn = rEl("button","gm-form-cancel","Cancel");
+  const cancelBtn = rEl("button", "gm-form-cancel", "Cancel");
   cancelBtn.type = "button";
-  cancelBtn.addEventListener("click", function() { form.remove(); });
+  cancelBtn.addEventListener("click", () => form.remove());
   actions.appendChild(cancelBtn);
-
-  var saveBtn = rEl("button","gm-form-save","Save");
+  const saveBtn = rEl("button", "gm-form-save", "Save");
   saveBtn.type = "button";
-  saveBtn.addEventListener("click", async function() {
-    saveBtn.textContent = "Saving...";
-    var cleanPlants = plantRows.filter(function(p) { return p.name.trim(); }).map(function(p) { return { emoji: p.emoji, name: p.name.trim(), notes: p.notes.trim(), planted: p.planted, harvest: p.harvest, status: p.status }; });
-    var updates = { name: nameInput.value.trim() || zone.name, description: descInput.value.trim(), icon: emojiInput.value || "\u{1F331}", plants: cleanPlants, updated_by: staff.email, updated_at: new Date().toISOString() };
-    var res = await staff.client.from("garden_zones").update(updates).eq("id", zone.id);
-    if (res.error) { saveBtn.textContent = "Error"; return; }
+  saveBtn.addEventListener("click", async () => {
+    const name = nameInput.value.trim();
+    if (!name) { nameInput.focus(); nameInput.setAttribute("aria-invalid", "true"); return; }
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving…";
+    const plants = plantRows.filter(p => p.name.trim()).map(p => ({
+      emoji:p.emoji || "\u{1F331}", name:p.name.trim(), notes:p.notes.trim(),
+      planted:p.planted.trim(), harvest:p.harvest.trim(), status:p.status
+    }));
+    const updates = { name:name, description:descInput.value.trim(), icon:emojiInput.value.trim() || "\u{1F331}", plants:plants, updated_by:staff.email, updated_at:new Date().toISOString() };
+    const res = await staff.client.from("garden_zones").update(updates).eq("id", zone.id);
+    if (res.error) { saveBtn.disabled = false; saveBtn.textContent = "Couldn’t save – try again"; return; }
     Object.assign(zone, updates);
     renderGardenMap();
     gmShowToast(zone.name + " updated");
@@ -7852,8 +7899,10 @@ function gmShowZoneEditForm(zone, wrap) {
   actions.appendChild(saveBtn);
   form.appendChild(actions);
 
-  var plantList = wrap.querySelector(".gm-plant-list");
+  const plantList = wrap.querySelector(".gm-plant-list");
   if (plantList) plantList.after(form); else wrap.appendChild(form);
+  form.scrollIntoView({ behavior:"smooth", block:"nearest" });
+  return nameInput;
 }
 
 // ══════════════════════════════════════════════
@@ -7889,6 +7938,7 @@ let recipes = [];
 let recipesLoaded = false;
 let recipesFailed = false;
 let recipeFilters = { q:'', plane:'', season:'', meal:'', diet:'', free:'', fav:false };
+let recipeFiltersOpen = false;
 let recipeOpenId = null;
 let recipeFromPlant = false;
 let recipeListScroll = 0;
@@ -8023,8 +8073,8 @@ const RC_FACE_ANGLES = [[-20, 0], [-20, -90], [-20, 180], [-20, 90], [-70, 0], [
 const RC_BLOCKS = 9;
 const RC_SWAP_MS = 8000;
 const RC_VIEW_KEY = 'ec_recipe_view';
-let recipeView = 'cube';
-try { if (localStorage.getItem(RC_VIEW_KEY) === 'list') recipeView = 'list'; } catch(e) {}
+let recipeView = 'list';
+try { if (localStorage.getItem(RC_VIEW_KEY) === 'cube') recipeView = 'cube'; } catch(e) {}
 const recipeCubeSlots = AGE_FIELDS.map(() => []);
 let recipeCubeFront = -1;
 let recipeCubeX = -20, recipeCubeY = 0;
@@ -8358,27 +8408,46 @@ function renderRecipeList() {
     banner.appendChild(sscroll);
     body.appendChild(banner);
   }
-  const tools = rEl('div', 'recipes-tools');
-  const search = rEl('input');
-  search.type = 'search';
-  search.placeholder = 'Search recipes, ingredients or plants';
-  search.setAttribute('aria-label', 'Search recipes');
+  const searchRow = rEl("div", "recipes-search");
+  const search = rEl("input");
+  search.type = "search";
+  search.id = "recipes-search";
+  search.placeholder = "Search recipes, ingredients or plants";
+  search.setAttribute("aria-label", "Search recipes");
   search.value = recipeFilters.q;
-  search.addEventListener('input', () => { recipeFilters.q = search.value.trim(); renderRecipeGrid(); });
-  tools.appendChild(search);
-  tools.appendChild(recipeSelect('Any plane', 'plane', AGE_FIELDS.map(a => [a, AGE_LABELS[a]])));
-  tools.appendChild(recipeSelect('Any season', 'season', RECIPE_SEASONS.filter(s => s[0] !== 'all')));
-  tools.appendChild(recipeSelect('Any meal', 'meal', RECIPE_MEALS.map(m => [m, m])));
-  tools.appendChild(recipeSelect('Any diet', 'diet', RECIPE_DIETS.map(d => [d, d])));
-  tools.appendChild(recipeSelect('Allergen to avoid', 'free', RECIPE_ALLERGENS.map(a => [a, a + ' not listed'])));
-  body.appendChild(tools);
-  var favRow = rEl("div","recipe-fav-filter");
-  var favBtn = rEl("button","recipe-fav-toggle","\u2665 My Favourites");
-  favBtn.type="button";
-  favBtn.setAttribute("aria-pressed",recipeFilters.fav?"true":"false");
-  favBtn.addEventListener("click",function(){ recipeFilters.fav=!recipeFilters.fav; favBtn.setAttribute("aria-pressed",recipeFilters.fav?"true":"false"); renderRecipeGrid(); });
+  search.addEventListener("input", () => { recipeFilters.q = search.value.trim(); renderRecipeGrid(); });
+  searchRow.appendChild(search);
+  body.appendChild(searchRow);
+  const favRow = rEl("div", "recipe-fav-filter");
+  const filterBtn = rEl("button", "recipe-fav-toggle recipe-filter-toggle");
+  filterBtn.type = "button";
+  filterBtn.id = "recipes-filter-btn";
+  filterBtn.setAttribute("aria-controls", "recipes-filter-panel");
+  favRow.appendChild(filterBtn);
+  const favBtn = rEl("button", "recipe-fav-toggle", "♥ My Favourites");
+  favBtn.type = "button";
+  favBtn.setAttribute("aria-pressed", recipeFilters.fav ? "true" : "false");
+  favBtn.addEventListener("click", () => {
+    recipeFilters.fav = !recipeFilters.fav;
+    favBtn.setAttribute("aria-pressed", recipeFilters.fav ? "true" : "false");
+    renderRecipeGrid();
+  });
   favRow.appendChild(favBtn);
   body.appendChild(favRow);
+  const tools = rEl("div", "recipes-tools");
+  tools.id = "recipes-filter-panel";
+  tools.hidden = !recipeFiltersOpen;
+  tools.appendChild(recipeSelect("Any plane", "plane", AGE_FIELDS.map(a => [a, AGE_LABELS[a]])));
+  tools.appendChild(recipeSelect("Any season", "season", RECIPE_SEASONS.filter(s => s[0] !== "all")));
+  tools.appendChild(recipeSelect("Any meal", "meal", RECIPE_MEALS.map(m => [m, m])));
+  tools.appendChild(recipeSelect("Any diet", "diet", RECIPE_DIETS.map(d => [d, d])));
+  tools.appendChild(recipeSelect("Allergen to avoid", "free", RECIPE_ALLERGENS.map(a => [a, a + " not listed"])));
+  body.appendChild(tools);
+  filterBtn.addEventListener("click", () => {
+    recipeFiltersOpen = !recipeFiltersOpen;
+    tools.hidden = !recipeFiltersOpen;
+    updateRecipeFilterBtn();
+  });
   const freeNote = rEl('p', 'recipes-count recipes-free-note', 'This only shows what staff listed. Always check product labels, and check with parents about each child’s allergies.');
   freeNote.id = 'recipes-free-note';
   body.appendChild(freeNote);
@@ -8394,15 +8463,24 @@ function renderRecipeList() {
   body.appendChild(grid);
   renderRecipeGrid();
 }
+function updateRecipeFilterBtn() {
+  const btn = document.getElementById("recipes-filter-btn");
+  if (!btn) return;
+  const n = ["plane", "season", "meal", "diet", "free"].filter(k => recipeFilters[k]).length;
+  btn.textContent = (recipeFiltersOpen ? "▴ " : "▾ ") + "Filters" + (n ? " (" + n + ")" : "");
+  btn.classList.toggle("is-active", n > 0);
+  btn.setAttribute("aria-expanded", recipeFiltersOpen ? "true" : "false");
+}
 function clearRecipeFilters() {
   recipeFilters = { q:'', plane:'', season:'', meal:'', diet:'', free:'' };
   renderRecipeList();
-  const search = document.querySelector('.recipes-tools input');
+  const search = document.getElementById("recipes-search");
   if (search) search.focus({ preventScroll:true });
 }
 function renderRecipeGrid() {
   const grid = document.getElementById('recipe-grid');
   if (!grid) return;
+  updateRecipeFilterBtn();
   document.getElementById('recipes-clear-btn').hidden = !Object.values(recipeFilters).some(Boolean);
   grid.textContent = '';
   const list = recipes.filter(recipeMatches);
@@ -8435,6 +8513,9 @@ function renderRecipeGrid() {
     var titleRow = rEl("span","recipe-card-title",r.title);
     if (r.difficulty >= 1 && r.difficulty <= 3) {
       var diff = rEl("span","recipe-diff");
+      diff.title = "Difficulty: " + RECIPE_DIFFICULTY[r.difficulty-1][1];
+      diff.setAttribute("role","img");
+      diff.setAttribute("aria-label", diff.title);
       for (var di = 1; di <= 3; di++) diff.appendChild(rEl("span","recipe-diff-leaf"+(di<=r.difficulty?" filled":""),"\u{1F33F}"));
       titleRow.appendChild(diff);
     }
@@ -8499,39 +8580,6 @@ function renderRecipeDetail(r) {
   edit.addEventListener('click', () => openRecipeForm(r));
   actions.appendChild(edit);
   wrap.appendChild(actions);
-
-  const title = rEl('h2', '', r.title);
-  title.tabIndex = -1;
-  wrap.appendChild(title);
-  if (r.summary) wrap.appendChild(rEl('p', 'recipe-summary', r.summary));
-  const meta = [];
-  if (r.prep_min !== null) meta.push('Prep ' + r.prep_min + ' min');
-  if (r.cook_min) meta.push('Cook ' + r.cook_min + ' min');
-  if (r.servings) meta.push('Serves ' + r.servings);
-  if (r.meal_type) meta.push(r.meal_type);
-  const seasonText = r.seasons.map(s => (RECIPE_SEASONS.find(x => x[0] === s) || [])[1]).filter(Boolean).join(', ');
-  if (seasonText) meta.push(seasonText);
-  if (r.difficulty >= 1 && r.difficulty <= 3) meta.push(RECIPE_DIFFICULTY[r.difficulty-1][1]);
-  if (meta.length) {
-    var metaDiv = rEl("div","recipe-card-meta",meta.join(" · "));
-    if (r.difficulty >= 1 && r.difficulty <= 3) {
-      var ddiff = rEl("span","recipe-diff");
-      ddiff.style.marginLeft="6px";
-      for (var ddi = 1; ddi <= 3; ddi++) ddiff.appendChild(rEl("span","recipe-diff-leaf"+(ddi<=r.difficulty?" filled":""),"🌿"));
-      metaDiv.appendChild(ddiff);
-    }
-    wrap.appendChild(metaDiv);
-  }
-  if (r.planes.length || r.diets.length) {
-    const chips = rEl('div', 'recipe-chips');
-    recipePlaneNames(r).forEach(p => chips.appendChild(rEl('span', 'recipe-chip recipe-plane-chip', p)));
-    r.diets.forEach(d => chips.appendChild(rEl('span', 'recipe-chip', d)));
-    wrap.appendChild(chips);
-  }
-  wrap.appendChild(rEl('div', 'recipe-allergens',
-    (r.allergens.length ? '⚠️ Contains: ' + r.allergens.join(', ') + '. ' : '⚠️ No allergens listed by staff. ') +
-    'Always check product labels, and check with parents about each child’s allergies.'));
-
   // A set of photos shares one fixed frame, so the small photos don't jump when one is tapped
   if (r.photos.length || r.main_media) {
     const media = rEl('div', 'recipe-detail-media');
@@ -8568,6 +8616,30 @@ function renderRecipeDetail(r) {
     if (heroVideo) { heroVideo.classList.add('recipe-hero-video'); media.appendChild(heroVideo); }
     wrap.appendChild(media);
   }
+
+  const title = rEl('h2', '', r.title);
+  title.tabIndex = -1;
+  wrap.appendChild(title);
+  if (r.summary) wrap.appendChild(rEl('p', 'recipe-summary', r.summary));
+  const meta = [];
+  if (r.prep_min !== null) meta.push('Prep ' + r.prep_min + ' min');
+  if (r.cook_min) meta.push('Cook ' + r.cook_min + ' min');
+  if (r.servings) meta.push('Serves ' + r.servings);
+  if (r.meal_type) meta.push(r.meal_type);
+  const seasonText = r.seasons.map(s => (RECIPE_SEASONS.find(x => x[0] === s) || [])[1]).filter(Boolean).join(', ');
+  if (seasonText) meta.push(seasonText);
+  if (r.difficulty >= 1 && r.difficulty <= 3) meta.push("Difficulty: " + RECIPE_DIFFICULTY[r.difficulty-1][1]);
+  if (meta.length) wrap.appendChild(rEl("div", "recipe-card-meta", meta.join(" \u00b7 ")));
+  if (r.planes.length || r.diets.length) {
+    const chips = rEl('div', 'recipe-chips');
+    recipePlaneNames(r).forEach(p => chips.appendChild(rEl('span', 'recipe-chip recipe-plane-chip', p)));
+    r.diets.forEach(d => chips.appendChild(rEl('span', 'recipe-chip', d)));
+    wrap.appendChild(chips);
+  }
+  wrap.appendChild(rEl('div', 'recipe-allergens',
+    (r.allergens.length ? '⚠️ Contains: ' + r.allergens.join(', ') + '. ' : '⚠️ No allergens listed by staff. ') +
+    'Always check product labels, and check with parents about each child’s allergies.'));
+
   if (r.ingredients.length) {
     recipeSection(wrap, 'Ingredients');
     const ul = rEl('ul', 'recipe-ingredients');
@@ -8671,7 +8743,7 @@ function renderRecipeDetail(r) {
     entry.appendChild(rEl("div","recipe-tried-entry-meta",(e.by||"Staff")+" \u00b7 "+(e.date||"")));
     tried.appendChild(entry);
   });
-  wrap.appendChild(tried);
+  if (canEditNow() || entries.length) wrap.appendChild(tried);
   wrap.appendChild(rEl('p', 'recipe-credit', 'Added by Newberry House staff'));
   body.appendChild(wrap);
 }
@@ -9289,12 +9361,47 @@ function validateRecipeForm() {
   if (!consentWrap.hidden && !consent.checked) return recipeFormError('Please confirm you have permission to share the new photos and videos.', consent);
   return true;
 }
+// Plain word checks only, so it warns rather than blocks: staff can press Save again.
+const RECIPE_ALLERGEN_WORDS = {
+  "Gluten": /\b(flour|wheat|bread|breadcrumbs?|pasta|penne|spaghetti|macaroni|noodles?|couscous|tortillas?|wraps?|pita|oats|barley|rye|semolina|bulgur)\b/i,
+  "Dairy": /\b(milk|cheese|parmesan|cheddar|feta|mozzarella|ricotta|butter|cream|yoghurt|yogurt|ghee)\b/i,
+  "Egg": /\beggs?\b/i,
+  "Peanuts": /\bpeanuts?\b/i,
+  "Tree nuts": /\b(almonds?|cashews?|walnuts?|pecans?|hazelnuts?|pistachios?|pine nuts?|macadamias?)\b/i,
+  "Soy": /\b(soy|soya|tofu|edamame|tamari)\b/i,
+  "Fish": /\b(fish|tuna|salmon|sardines?|anchov\w*|hake)\b/i,
+  "Shellfish": /\b(prawns?|shrimps?|crabs?|lobsters?|mussels?|oysters?|calamari|squid)\b/i,
+  "Sesame": /\b(sesame|tahini|hummus|houmous)\b/i
+};
+function recipeAllergenHints() {
+  const ticked = readCheckGrid("rf-allergens");
+  const text = [...document.querySelectorAll("#rf-ingredients .recipe-item-input")].map(i => i.value).join(" \n ")
+    .replace(/\b(peanut|nut|almond|cashew)\s+butter\b/gi, "$1")
+    .replace(/\b(coconut|almond|oat|soy|soya|rice)\s+(milk|cream|yoghurt|yogurt)\b/gi, "$1")
+    .replace(/\bcream of tartar\b/gi, "")
+    .replace(/\bgluten[- ]free\s+\w+/gi, "");
+  const hints = [];
+  Object.keys(RECIPE_ALLERGEN_WORDS).forEach(a => {
+    if (ticked.includes(a)) return;
+    const m = text.match(RECIPE_ALLERGEN_WORDS[a]);
+    if (m) hints.push({ word:m[0].toLowerCase(), allergen:a });
+  });
+  return hints;
+}
 async function saveRecipe(e) {
   e.preventDefault();
   if (!recipeForm || recipeForm.saving) return;
   document.getElementById('recipe-form-msg').textContent = '';
   clearRecipeFieldError();
   if (!validateRecipeForm()) return;
+  const allergenHints = recipeAllergenHints();
+  if (allergenHints.length && !recipeForm.allergenWarned) {
+    recipeForm.allergenWarned = true;
+    const words = allergenHints.map(h => h.word + " (" + h.allergen + ")").join(", ");
+    const many = allergenHints.length > 1;
+    recipeFormError("Please check allergens: the ingredients mention " + words + ", but " + (many ? "those aren’t" : "that isn’t") + " ticked. Tick " + (many ? "them" : "it") + ", or press Save again if the recipe is right as it is.", document.querySelector("#rf-allergens input"));
+    return;
+  }
   if (!canEditNow()) { recipeFormError('This account isn’t approved to edit.'); return; }
   const form = recipeForm;
   const btn = document.getElementById('rf-save');
