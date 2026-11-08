@@ -989,6 +989,39 @@ html.dark .gm-status-pill[data-st="growing"]{ color:#64b5f6; }
 }
 .gm-place-btn:hover { background:rgba(76,175,80,0.2); }
 .gm-place-btn.gm-placing-active { background:var(--brand-green); color:#fff; }
+.gm-edit-btn {
+  font-size:0.72rem; padding:4px 10px; border-radius:8px; cursor:pointer;
+  border:1.5px solid var(--border); background:transparent; color:var(--text2);
+  font-weight:600; flex-shrink:0; transition:all .15s;
+}
+.gm-edit-btn:hover { background:rgba(0,0,0,0.05); color:var(--text); }
+html.dark .gm-edit-btn:hover { background:rgba(255,255,255,0.08); }
+.gm-zone-form { padding:10px 14px 14px; display:flex; flex-direction:column; gap:8px; }
+.gm-zone-form label { font-size:0.72rem; font-weight:600; color:var(--text2); margin-bottom:2px; }
+.gm-zone-form input, .gm-zone-form textarea {
+  width:100%; padding:7px 10px; border-radius:8px; border:1.5px solid var(--border);
+  background:var(--card-bg); color:var(--text); font-size:0.82rem; font-family:inherit;
+  box-sizing:border-box;
+}
+.gm-zone-form textarea { resize:vertical; min-height:48px; }
+.gm-zone-form-actions { display:flex; gap:6px; justify-content:flex-end; margin-top:4px; }
+.gm-zone-form-actions button { font-size:0.75rem; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600; border:none; }
+.gm-form-save { background:var(--brand-green); color:#fff; }
+.gm-form-save:hover { opacity:0.9; }
+.gm-form-cancel { background:transparent; color:var(--text2); border:1.5px solid var(--border) !important; }
+.gm-plant-edit-row {
+  display:flex; gap:6px; align-items:center; padding:4px 0;
+  border-bottom:1px solid var(--border);
+}
+.gm-plant-edit-row:last-child { border-bottom:none; }
+.gm-plant-edit-row input { flex:1; padding:5px 8px; font-size:0.78rem; border-radius:6px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); min-width:0; }
+.gm-plant-edit-row .gm-pe-emoji { width:36px; text-align:center; flex-shrink:0; }
+.gm-pe-remove { width:28px; height:28px; border-radius:50%; border:none; background:rgba(211,47,47,0.1); color:#d32f2f; cursor:pointer; font-size:1rem; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+.gm-pe-remove:hover { background:rgba(211,47,47,0.2); }
+.gm-pe-add { font-size:0.75rem; padding:5px 12px; border-radius:8px; cursor:pointer; border:1.5px dashed var(--border); background:transparent; color:var(--text2); font-weight:600; align-self:flex-start; }
+.gm-pe-add:hover { border-color:var(--brand-green); color:var(--brand-green); }
+.gm-zone-delete { font-size:0.72rem; padding:5px 12px; border-radius:8px; cursor:pointer; border:1.5px solid rgba(211,47,47,0.3); background:transparent; color:#d32f2f; font-weight:600; }
+.gm-zone-delete:hover { background:rgba(211,47,47,0.08); }
 .gm-toolbar {
   display:flex; gap:6px; align-items:center; padding:8px 0; max-width:600px; margin:0 auto 8px;
   font-size:0.78rem; color:var(--text2); flex-wrap:wrap;
@@ -7630,6 +7663,12 @@ function renderZoneDetail(zone) {
     head.appendChild(rEl('span','gm-status-badge gm-status-ready', readyCount + ' ready'));
   }
   head.appendChild(rEl('span','gm-zone-chevron', '▸'));
+  if (canEditNow() && isActive) {
+    var editBtn = rEl("button","gm-edit-btn recipe-staff-only","Edit");
+    editBtn.type = "button";
+    editBtn.addEventListener("click", function(ev) { ev.stopPropagation(); gmShowZoneEditForm(zone, wrap); });
+    head.appendChild(editBtn);
+  }
   head.addEventListener('click', () => selectGardenZone(zone.id));
   wrap.appendChild(head);
 
@@ -7713,6 +7752,108 @@ function renderZoneDetail(zone) {
     wrap.appendChild(list);
   }
   return wrap;
+}
+
+function gmShowZoneEditForm(zone, wrap) {
+  var existing = wrap.querySelector(".gm-zone-form");
+  if (existing) { existing.remove(); return; }
+  var form = rEl("div","gm-zone-form");
+
+  var nameLabel = rEl("label","","Zone name");
+  var nameInput = document.createElement("input");
+  nameInput.type = "text"; nameInput.value = zone.name || "";
+  nameInput.placeholder = "Zone name";
+  form.appendChild(nameLabel); form.appendChild(nameInput);
+
+  var descLabel = rEl("label","","Description");
+  var descInput = document.createElement("textarea");
+  descInput.value = zone.description || "";
+  descInput.placeholder = "Optional description";
+  descInput.rows = 2;
+  form.appendChild(descLabel); form.appendChild(descInput);
+
+  var emojiLabel = rEl("label","","Icon emoji");
+  var emojiInput = document.createElement("input");
+  emojiInput.type = "text"; emojiInput.value = zone.icon || "\u{1F331}";
+  emojiInput.style.width = "60px";
+  form.appendChild(emojiLabel); form.appendChild(emojiInput);
+
+  var plantsLabel = rEl("label","","Plants");
+  form.appendChild(plantsLabel);
+  var plantsList = rEl("div","gm-plants-edit-list");
+  var plantRows = (zone.plants || []).map(function(p) { return { emoji: p.emoji || "\u{1F331}", name: p.name || "", notes: p.notes || "", planted: p.planted || "", harvest: p.harvest || "", status: p.status || "growing" }; });
+
+  function renderPlantRows() {
+    plantsList.textContent = "";
+    plantRows.forEach(function(pr, idx) {
+      var row = rEl("div","gm-plant-edit-row");
+      var emojiIn = document.createElement("input");
+      emojiIn.className = "gm-pe-emoji"; emojiIn.value = pr.emoji; emojiIn.maxLength = 4;
+      emojiIn.addEventListener("input", function() { pr.emoji = this.value; });
+      row.appendChild(emojiIn);
+      var nameIn = document.createElement("input");
+      nameIn.value = pr.name; nameIn.placeholder = "Plant name";
+      nameIn.addEventListener("input", function() { pr.name = this.value; });
+      row.appendChild(nameIn);
+      var notesIn = document.createElement("input");
+      notesIn.value = pr.notes; notesIn.placeholder = "Notes"; notesIn.style.flex = "0.7";
+      notesIn.addEventListener("input", function() { pr.notes = this.value; });
+      row.appendChild(notesIn);
+      var rmBtn = rEl("button","gm-pe-remove","\u00d7");
+      rmBtn.type = "button";
+      rmBtn.addEventListener("click", function() { plantRows.splice(idx, 1); renderPlantRows(); });
+      row.appendChild(rmBtn);
+      plantsList.appendChild(row);
+    });
+  }
+  renderPlantRows();
+  form.appendChild(plantsList);
+
+  var addPlantBtn = rEl("button","gm-pe-add","+ Add plant");
+  addPlantBtn.type = "button";
+  addPlantBtn.addEventListener("click", function() { plantRows.push({ emoji: "\u{1F331}", name: "", notes: "", planted: "", harvest: "", status: "growing" }); renderPlantRows(); });
+  form.appendChild(addPlantBtn);
+
+  var actions = rEl("div","gm-zone-form-actions");
+  var delBtn = rEl("button","gm-zone-delete","Delete zone");
+  delBtn.type = "button";
+  delBtn.addEventListener("click", async function() {
+    if (!confirm("Delete " + zone.name + "? This cannot be undone.")) return;
+    delBtn.textContent = "...";
+    var err = await staff.client.from("garden_zones").delete().eq("id", zone.id);
+    if (err.error) { delBtn.textContent = "Error"; return; }
+    gardenZones.splice(gardenZones.indexOf(zone), 1);
+    gardenActiveZone = null;
+    renderGardenMap();
+    gmShowToast(zone.name + " deleted");
+  });
+  actions.appendChild(delBtn);
+
+  var spacer = rEl("div",""); spacer.style.flex = "1";
+  actions.appendChild(spacer);
+
+  var cancelBtn = rEl("button","gm-form-cancel","Cancel");
+  cancelBtn.type = "button";
+  cancelBtn.addEventListener("click", function() { form.remove(); });
+  actions.appendChild(cancelBtn);
+
+  var saveBtn = rEl("button","gm-form-save","Save");
+  saveBtn.type = "button";
+  saveBtn.addEventListener("click", async function() {
+    saveBtn.textContent = "Saving...";
+    var cleanPlants = plantRows.filter(function(p) { return p.name.trim(); }).map(function(p) { return { emoji: p.emoji, name: p.name.trim(), notes: p.notes.trim(), planted: p.planted, harvest: p.harvest, status: p.status }; });
+    var updates = { name: nameInput.value.trim() || zone.name, description: descInput.value.trim(), icon: emojiInput.value || "\u{1F331}", plants: cleanPlants, updated_by: staff.email, updated_at: new Date().toISOString() };
+    var res = await staff.client.from("garden_zones").update(updates).eq("id", zone.id);
+    if (res.error) { saveBtn.textContent = "Error"; return; }
+    Object.assign(zone, updates);
+    renderGardenMap();
+    gmShowToast(zone.name + " updated");
+  });
+  actions.appendChild(saveBtn);
+  form.appendChild(actions);
+
+  var plantList = wrap.querySelector(".gm-plant-list");
+  if (plantList) plantList.after(form); else wrap.appendChild(form);
 }
 
 // ══════════════════════════════════════════════
