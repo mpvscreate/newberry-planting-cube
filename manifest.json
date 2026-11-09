@@ -1,6 +1,6 @@
 {
-  "name": "Master Cube",
-  "short_name": "Master Cube",
+  "name": "EC Cube",
+  "short_name": "EC Cube",
   "description": "A living guide to what grows each season at Newberry House",
   "start_url": "./index.html",
   "display": "standalone",
@@ -18,7 +18,13 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
