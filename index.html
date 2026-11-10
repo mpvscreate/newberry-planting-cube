@@ -914,6 +914,7 @@ html.dark .gm-pin-label { background:rgba(30,26,22,0.82); }
   font-weight:700; display:flex; align-items:center; justify-content:center;
   padding:0 3px; pointer-events:none; line-height:1;
 }
+.gm-pin.gm-pin-movable { cursor:grab; }
 .gm-pin-drag { cursor:grabbing !important; }
 .gm-map-wrap.gm-placing { cursor:crosshair; }
 .gm-legend {
@@ -7593,10 +7594,16 @@ function renderGardenMap() {
       pin.appendChild(badge);
     }
 
-    pin.addEventListener('click', (e) => { e.stopPropagation(); selectGardenZone(zone.id, true); });
+    pin.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // Letting go after a drag also fires a click; don't open the card and scroll away from the map
+      if (pin.dataset.justDragged) { delete pin.dataset.justDragged; return; }
+      selectGardenZone(zone.id, true);
+    });
     pin.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectGardenZone(zone.id, true); } });
 
     if (canEditNow()) {
+      pin.classList.add('gm-pin-movable');
       let dragStarted = false, startX, startY;
       pin.addEventListener('pointerdown', (e) => {
         if (e.button !== 0) return;
@@ -7619,6 +7626,8 @@ function renderGardenMap() {
         if (!gmDragging || gmDragging.zone !== zone) return;
         pin.classList.remove('gm-pin-drag');
         if (dragStarted) {
+          pin.dataset.justDragged = '1';
+          setTimeout(() => { delete pin.dataset.justDragged; }, 300);
           const c = gmMapCoords(e, inner);
           gmSaveZonePos(zone, Math.round(c.x*10)/10, Math.round(c.y*10)/10);
         }
