@@ -914,7 +914,8 @@ html.dark .gm-pin-label { background:rgba(30,26,22,0.82); }
   font-weight:700; display:flex; align-items:center; justify-content:center;
   padding:0 3px; pointer-events:none; line-height:1;
 }
-.gm-pin.gm-pin-movable { cursor:grab; }
+.gm-pin.gm-pin-movable { cursor:grab; touch-action:none; -webkit-user-select:none; user-select:none; }
+.gm-pin.gm-pin-pressed { cursor:grabbing; }
 .gm-pin-drag { cursor:grabbing !important; }
 .gm-map-wrap.gm-placing { cursor:crosshair; }
 .gm-legend {
@@ -7609,37 +7610,49 @@ function renderGardenMap() {
 
     if (canEditNow()) {
       pin.classList.add('gm-pin-movable');
-      let dragStarted = false, startX, startY;
+      // Follow the pointer on the window so a drag survives leaving the pin; touch-action:none
+      // (in CSS) stops touchscreens and pens turning the drag into a scroll
+      pin.addEventListener('dragstart', e => e.preventDefault());
       pin.addEventListener('pointerdown', (e) => {
-        if (e.button !== 0) return;
-        dragStarted = false;
-        startX = e.clientX; startY = e.clientY;
-        gmDragging = { zone, pin, wrap };
-        pin.setPointerCapture(e.pointerId);
+        if (e.button !== 0 || gmDragging) return;
         e.preventDefault();
-      });
-      pin.addEventListener('pointermove', (e) => {
-        if (!gmDragging || gmDragging.zone !== zone) return;
-        if (!dragStarted && Math.hypot(e.clientX - startX, e.clientY - startY) < 6) return;
-        dragStarted = true;
-        pin.classList.add('gm-pin-drag');
-        const c = gmMapCoords(e, inner);
-        pin.style.left = c.x + '%';
-        pin.style.top = c.y + '%';
-      });
-      const endDrag = (e) => {
-        if (!gmDragging || gmDragging.zone !== zone) return;
-        pin.classList.remove('gm-pin-drag');
-        if (dragStarted) {
+        const id = e.pointerId, startX = e.clientX, startY = e.clientY;
+        let moved = false;
+        gmDragging = { zone, pin, wrap };
+        pin.classList.add('gm-pin-pressed');
+        try { pin.setPointerCapture(id); } catch (err) {}
+        const move = ev => {
+          if (ev.pointerId !== id) return;
+          if (!moved && Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return;
+          moved = true;
+          pin.classList.add('gm-pin-drag');
+          const c = gmMapCoords(ev, inner);
+          pin.style.left = c.x + '%';
+          pin.style.top = c.y + '%';
+        };
+        const end = ev => {
+          if (ev.pointerId !== id) return;
+          window.removeEventListener('pointermove', move);
+          window.removeEventListener('pointerup', end);
+          window.removeEventListener('pointercancel', end);
+          pin.classList.remove('gm-pin-drag', 'gm-pin-pressed');
+          gmDragging = null;
+          if (!moved) return;
           pin.dataset.justDragged = '1';
           setTimeout(() => { delete pin.dataset.justDragged; }, 300);
-          const c = gmMapCoords(e, inner);
-          gmSaveZonePos(zone, Math.round(c.x*10)/10, Math.round(c.y*10)/10);
-        }
-        gmDragging = null;
-      };
-      pin.addEventListener('pointerup', endDrag);
-      pin.addEventListener('pointercancel', endDrag);
+          // A cancelled drag has no real end point, so put the pin back rather than save a wrong spot
+          if (ev.type === 'pointercancel') {
+            pin.style.left = (zone.map_x != null ? zone.map_x : 50) + '%';
+            pin.style.top = (zone.map_y != null ? zone.map_y : 50) + '%';
+            return;
+          }
+          const c = gmMapCoords(ev, inner);
+          gmSaveZonePos(zone, Math.round(c.x * 10) / 10, Math.round(c.y * 10) / 10);
+        };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', end);
+        window.addEventListener('pointercancel', end);
+      });
     }
     inner.appendChild(pin);
   });
