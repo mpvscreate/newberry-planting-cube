@@ -1027,6 +1027,7 @@ html.dark .gm-edit-btn:hover { background:rgba(255,255,255,0.08); }
 .gm-pin::before { content:""; position:absolute; left:50%; top:50%; width:44px; height:44px; transform:translate(-50%,-50%); }
 .gm-staff-bar { display:flex; align-items:center; justify-content:space-between; gap:10px; max-width:600px; margin:0 auto 10px; font-size:0.76rem; color:var(--text2); }
 .gm-staff-bar .gm-place-btn { white-space:nowrap; flex-shrink:0; min-height:36px; }
+.gm-staff-bar.gm-staff-bar-active span { color:var(--brand-green); font-weight:700; }
 .gm-zoom-hint { text-align:center; font-size:0.74rem; color:var(--text2); margin:-6px auto 8px; }
 .gm-staff-tip { font-size:0.72rem; color:var(--text2); padding:6px 14px 2px; }
 .gm-plant-edit-row { flex-direction:column; align-items:stretch; gap:6px; padding:10px 0; }
@@ -7445,6 +7446,8 @@ try { if (localStorage.getItem(STAFF_AUTH_KEY)) refreshStaff(); } catch(e) {}
 // ══════════════════════════════════════════════
 let gardenZones = [], gardenZonesLoaded = false, gardenActiveZone = null, gardenMapOpener = null;
 let gmPlacingMode = false, gmDragging = null;
+// Staff can also move a pin with clicks: choose Move on its card, then click the map
+let gmMovingZone = null;
 let gmZoom = { scale:1, tx:0, ty:0 };
 
 const GARDEN_STATUS_LABEL = { ready:'Ready to harvest', almost:'Almost ready', growing:'Growing' };
@@ -7469,6 +7472,7 @@ async function fetchGardenZones() {
 function openGardenMap() {
   gardenActiveZone = null;
   gmPlacingMode = false;
+  gmMovingZone = null;
   gardenMapOpener = document.getElementById('overflow-toggle');
   document.getElementById('gardenmap-overlay').classList.add('open');
   renderGardenMap();
@@ -7480,6 +7484,7 @@ function closeGardenMap() {
   document.getElementById('gardenmap-overlay').classList.remove('open');
   gardenActiveZone = null;
   gmPlacingMode = false;
+  gmMovingZone = null;
   focusQuietly(gardenMapOpener);
   gardenMapOpener = null;
 }
@@ -7493,6 +7498,7 @@ gmAddBtn.id = "gm-add-zone-btn";
 gmAddBtn.type = "button";
 gmAddBtn.addEventListener("click", () => {
   gmPlacingMode = !gmPlacingMode;
+  gmMovingZone = null;
   renderGardenMap();
 });
 
@@ -7531,6 +7537,7 @@ async function gmCreateZone(x, y) {
   gardenZones.push(newZone);
   gardenActiveZone = id;
   gmPlacingMode = false;
+  gmMovingZone = null;
   renderGardenMap();
   const card = document.querySelector(`.gm-zone-detail[data-zone="${id}"]`);
   if (!card) return;
@@ -7554,12 +7561,22 @@ function renderGardenMap() {
 
   if (canEditNow()) {
     const bar = rEl("div", "gm-staff-bar");
-    bar.appendChild(rEl("span", "", gmPlacingMode ? "Tap the map where the new pin should go" : "Drag a pin to move it"));
-    bar.appendChild(addBtn);
+    const moving = gmMovingZone && gardenZones.find(z => z.id === gmMovingZone);
+    if (moving) {
+      bar.classList.add("gm-staff-bar-active");
+      bar.appendChild(rEl("span", "", "Click the map where " + moving.name + " should go"));
+      const cancel = rEl("button", "gm-place-btn gm-placing-active", "✕ Cancel");
+      cancel.type = "button";
+      cancel.addEventListener("click", () => { gmMovingZone = null; renderGardenMap(); });
+      bar.appendChild(cancel);
+    } else {
+      bar.appendChild(rEl("span", "", gmPlacingMode ? "Click the map where the new pin should go" : "Drag a pin, or open its card and choose Move"));
+      bar.appendChild(addBtn);
+    }
     body.appendChild(bar);
   }
   const wrap = rEl('div','gm-map-wrap');
-  if (gmPlacingMode) wrap.classList.add('gm-placing');
+  if (gmPlacingMode || gmMovingZone) wrap.classList.add('gm-placing');
   const inner = rEl('div','gm-map-inner');
   if (gmZoom.scale > 1.05) {
     inner.style.transform = 'translate(' + gmZoom.tx + 'px,' + gmZoom.ty + 'px) scale(' + gmZoom.scale + ')';
@@ -7658,9 +7675,12 @@ function renderGardenMap() {
   });
 
   inner.addEventListener('click', (e) => {
-    if (!gmPlacingMode || !canEditNow()) return;
+    if (!canEditNow()) return;
     const c = gmMapCoords(e, inner);
-    gmCreateZone(Math.round(c.x*10)/10, Math.round(c.y*10)/10);
+    const x = Math.round(c.x*10)/10, y = Math.round(c.y*10)/10;
+    const moving = gmMovingZone && gardenZones.find(z => z.id === gmMovingZone);
+    if (moving) { gmMovingZone = null; gmSaveZonePos(moving, x, y); renderGardenMap(); return; }
+    if (gmPlacingMode) gmCreateZone(x, y);
   });
 
   const resetBtn = rEl('button','gm-zoom-reset','Reset zoom');
@@ -7769,6 +7789,16 @@ function renderZoneDetail(zone) {
     head.appendChild(rEl('span','gm-status-badge gm-status-ready', readyCount + ' ready'));
   }
   if (canEditNow() && isActive) {
+    var moveBtn = rEl("button","gm-edit-btn recipe-staff-only","Move");
+    moveBtn.type = "button";
+    moveBtn.addEventListener("click", function(ev) {
+      ev.stopPropagation();
+      gmMovingZone = zone.id;
+      gmPlacingMode = false;
+      renderGardenMap();
+      document.getElementById("gardenmap-body").scrollTo({ top:0, behavior:"smooth" });
+    });
+    head.appendChild(moveBtn);
     var editBtn = rEl("button","gm-edit-btn recipe-staff-only","Edit");
     editBtn.type = "button";
     editBtn.addEventListener("click", function(ev) { ev.stopPropagation(); gmShowZoneEditForm(zone, wrap); });
