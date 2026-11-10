@@ -7214,10 +7214,15 @@ function getSb() {
   return staff.loading;
 }
 function setStaffRole(email, role) {
+  const changed = staff.role !== role;
   staff.email = email;
   staff.role = role;
   document.body.classList.toggle('can-edit', !!role);
   document.getElementById('ov-staff-label').textContent = email ? 'Staff account' : 'Staff sign in';
+  // Sign-in finishes in the background, so redraw an open map or recipe so staff can drag pins and edit
+  if (!changed) return;
+  if (document.getElementById('gardenmap-overlay').classList.contains('open')) renderGardenMap();
+  if (document.getElementById('recipes-overlay').classList.contains('open')) renderRecipesView();
 }
 function clearStaff() {
   setStaffRole('', null);
